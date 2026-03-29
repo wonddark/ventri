@@ -1,5 +1,6 @@
 package com.adpt.app.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -11,15 +12,19 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.adpt.app.AdptApplication
 import com.adpt.app.ui.items.ItemsScreen
 import com.adpt.app.ui.overview.OverviewScreen
 import com.adpt.app.ui.shopping.ShoppingScreen
@@ -38,9 +43,30 @@ private sealed class Screen(val route: String, val label: String, val icon: Imag
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
+    val app = LocalContext.current.applicationContext as AdptApplication
+    val pendingNav by app.pendingNavTarget.collectAsStateWithLifecycle()
+
+    // Consume any pending target at first composition to avoid a flash of the Overview screen.
+    val startDestination = remember {
+        app.pendingNavTarget.value?.also { app.pendingNavTarget.value = null }
+            ?: Screen.Overview.route
+    }
+
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+
+    // Handle navigation triggered while the app is already running (e.g. onNewIntent).
+    LaunchedEffect(pendingNav) {
+        pendingNav?.let { route ->
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+            app.pendingNavTarget.value = null
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -67,7 +93,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Overview.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Screen.Overview.route) { OverviewScreen() }

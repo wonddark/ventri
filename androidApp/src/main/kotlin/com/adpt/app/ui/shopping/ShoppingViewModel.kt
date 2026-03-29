@@ -17,6 +17,7 @@ import com.adpt.shared.util.removeShoppingListEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -56,6 +57,13 @@ sealed interface ShoppingIntent {
 class ShoppingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = (application as AdptApplication).database
+
+    val pendingError: StateFlow<String?> =
+        getApplication<AdptApplication>().pendingShoppingError.asStateFlow()
+
+    fun clearPendingError() {
+        getApplication<AdptApplication>().pendingShoppingError.value = null
+    }
 
     val uiState: StateFlow<ShoppingUiState> = combine(
         db.shoppingListEntryQueries.selectAllWithItem().asFlow().mapToList(Dispatchers.IO),

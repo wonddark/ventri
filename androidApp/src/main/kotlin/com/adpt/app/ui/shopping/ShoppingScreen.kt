@@ -51,7 +51,19 @@ import com.adpt.shared.model.ShoppingListStatus
 @Composable
 fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pendingError by viewModel.pendingError.collectAsStateWithLifecycle()
     var showItemPicker by remember { mutableStateOf(false) }
+
+    pendingError?.let { error ->
+        AlertDialog(
+            onDismissRequest = { viewModel.clearPendingError() },
+            title = { Text("Could Not Update Shopping List") },
+            text = { Text(error) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearPendingError() }) { Text("OK") }
+            },
+        )
+    }
     var showEmptyConfirm by remember { mutableStateOf(false) }
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
     var removingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }

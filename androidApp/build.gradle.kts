@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.compose.lifecycle.viewmodel)
     implementation(libs.compose.lifecycle.runtime)
     implementation(libs.navigation.compose)
+    implementation(libs.workmanager)
 
     debugImplementation(libs.compose.ui.tooling)
 }
