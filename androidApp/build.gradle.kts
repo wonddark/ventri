@@ -45,6 +45,8 @@ android {
 dependencies {
     implementation(project(":shared"))
     implementation(libs.androidx.core.ktx)
+    implementation(libs.sqldelight.coroutines)
+    implementation(libs.datetime)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
@@ -52,9 +54,11 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
     implementation(libs.compose.activity)
     implementation(libs.compose.lifecycle.viewmodel)
     implementation(libs.compose.lifecycle.runtime)
+    implementation(libs.navigation.compose)
 
     debugImplementation(libs.compose.ui.tooling)
 }
