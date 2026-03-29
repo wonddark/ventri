@@ -68,15 +68,33 @@ import com.adpt.shared.model.ItemUnit
 fun ItemsScreen(viewModel: ItemsViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
+    var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
 
     if (showAddDialog) {
-        AddItemDialog(
+        ItemFormDialog(
+            title = "Add Item",
+            confirmLabel = "Add",
+            initialItem = null,
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
                 viewModel.handleIntent(ItemsIntent.AddItemConfirmed(name, unit, priority, rate))
             },
-            addItemResult = viewModel.addItemResult,
+            resultFlow = viewModel.addItemResult,
             onSuccess = { showAddDialog = false },
+        )
+    }
+
+    editingItem?.let { item ->
+        ItemFormDialog(
+            title = "Edit Item",
+            confirmLabel = "Save",
+            initialItem = item,
+            onDismiss = { editingItem = null },
+            onConfirm = { name, unit, priority, rate ->
+                viewModel.handleIntent(ItemsIntent.EditItemConfirmed(item.id, name, unit, priority, rate))
+            },
+            resultFlow = viewModel.editItemResult,
+            onSuccess = { editingItem = null },
         )
     }
 
@@ -116,7 +134,11 @@ fun ItemsScreen(viewModel: ItemsViewModel = viewModel()) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(uiState.items, key = { it.id }) { item ->
-                    ItemCard(item = item, onIntent = viewModel::handleIntent)
+                    ItemCard(
+                        item = item,
+                        onEdit = { editingItem = item },
+                        onIntent = viewModel::handleIntent,
+                    )
                 }
             }
         }
@@ -230,6 +252,7 @@ private fun ItemsTopBar(
 @Composable
 private fun ItemCard(
     item: ItemUiModel,
+    onEdit: () -> Unit,
     onIntent: (ItemsIntent) -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -261,7 +284,7 @@ private fun ItemCard(
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
-                        onClick = { onIntent(ItemsIntent.EditItem(item.id)); showMenu = false },
+                        onClick = { onEdit(); showMenu = false },
                     )
                     DropdownMenuItem(
                         text = { Text("Remove") },
@@ -279,23 +302,26 @@ private fun ItemCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddItemDialog(
+private fun ItemFormDialog(
+    title: String,
+    confirmLabel: String,
+    initialItem: ItemUiModel?,
     onDismiss: () -> Unit,
     onConfirm: (name: String, unit: ItemUnit, priority: ItemPriority, rate: Double) -> Unit,
-    addItemResult: kotlinx.coroutines.flow.SharedFlow<String?>,
+    resultFlow: kotlinx.coroutines.flow.SharedFlow<String?>,
     onSuccess: () -> Unit,
 ) {
-    var name by rememberSaveable { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf(initialItem?.name ?: "") }
     var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedUnit by rememberSaveable { mutableStateOf(ItemUnit.PIECE) }
+    var selectedUnit by rememberSaveable { mutableStateOf(initialItem?.unit ?: ItemUnit.PIECE) }
     var unitExpanded by remember { mutableStateOf(false) }
-    var selectedPriority by rememberSaveable { mutableStateOf(ItemPriority.Normal) }
+    var selectedPriority by rememberSaveable { mutableStateOf(initialItem?.priority ?: ItemPriority.Normal) }
     var priorityExpanded by remember { mutableStateOf(false) }
-    var rateText by rememberSaveable { mutableStateOf("") }
+    var rateText by rememberSaveable { mutableStateOf(initialItem?.consumptionRate?.toString() ?: "") }
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        addItemResult.collect { error ->
+        resultFlow.collect { error ->
             if (error == null) onSuccess() else nameError = error
         }
     }
@@ -317,7 +343,7 @@ private fun AddItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Item") },
+        title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Name
@@ -403,7 +429,7 @@ private fun AddItemDialog(
                 if (validate()) {
                     onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDouble())
                 }
-            }) { Text("Add") }
+            }) { Text(confirmLabel) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }

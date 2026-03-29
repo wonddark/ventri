@@ -31,5 +31,8 @@ UPDATE Item SET lastPurchasedAt = :lastPurchasedAt, purchasedQuantity = :purchas
 updatePriority:
 UPDATE Item SET priority = :priority WHERE id = :id;
 
+updateDetails:
+UPDATE Item SET name = :name, unit = :unit, consumptionRate = :consumptionRate, priority = :priority WHERE id = :id;
+
 delete:
 DELETE FROM Item WHERE id = :id;

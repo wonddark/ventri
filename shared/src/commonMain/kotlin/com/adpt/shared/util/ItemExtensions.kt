@@ -6,6 +6,7 @@ import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.Severity
+import com.adpt.shared.model.UpdateItemResult
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.datetime.Clock
@@ -97,6 +98,24 @@ fun ItemQueries.itemsSortedByDepletion(): List<String> {
         }
         .sortedBy { (_, delta) -> delta }
         .map { (id, _) -> id }
+}
+
+/**
+ * Updates the editable fields (name, unit, priority, consumptionRate) of the item with [id].
+ * Returns [UpdateItemResult.DuplicateName] if another item already uses [name],
+ * or [UpdateItemResult.Success] otherwise.
+ */
+fun ItemQueries.updateItem(
+    id: String,
+    name: String,
+    unit: ItemUnit,
+    priority: ItemPriority,
+    consumptionRate: Double,
+): UpdateItemResult {
+    val existing = selectByName(name).executeAsOneOrNull()
+    if (existing != null && existing.id != id) return UpdateItemResult.DuplicateName
+    updateDetails(name = name, unit = unit, consumptionRate = consumptionRate, priority = priority, id = id)
+    return UpdateItemResult.Success
 }
 
 fun Item.estimatedDepletionDate(): Long? {

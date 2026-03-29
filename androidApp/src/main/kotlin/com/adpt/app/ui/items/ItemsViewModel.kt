@@ -10,7 +10,9 @@ import com.adpt.shared.db.Item
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.InsertItemResult
+import com.adpt.shared.model.UpdateItemResult
 import com.adpt.shared.util.insertItem
+import com.adpt.shared.util.updateItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,6 +61,13 @@ sealed interface ItemsIntent {
         val consumptionRate: Double,
     ) : ItemsIntent
     data class EditItem(val itemId: String) : ItemsIntent
+    data class EditItemConfirmed(
+        val id: String,
+        val name: String,
+        val unit: ItemUnit,
+        val priority: ItemPriority,
+        val consumptionRate: Double,
+    ) : ItemsIntent
     data class RemoveItem(val itemId: String) : ItemsIntent
     data class AddToShoppingList(val itemId: String) : ItemsIntent
 }
@@ -67,9 +76,12 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = (application as AdptApplication).database
 
-    // null = item inserted successfully; non-null = error message to show inline
+    // null = success; non-null = error message to show inline
     private val _addItemResult = MutableSharedFlow<String?>()
     val addItemResult: SharedFlow<String?> = _addItemResult.asSharedFlow()
+
+    private val _editItemResult = MutableSharedFlow<String?>()
+    val editItemResult: SharedFlow<String?> = _editItemResult.asSharedFlow()
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.Priority)
@@ -141,8 +153,22 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                     InsertItemResult.DuplicateName -> _addItemResult.emit("An item with this name already exists")
                 }
             }
-            // No implementations yet
             is ItemsIntent.EditItem -> Unit
+            is ItemsIntent.EditItemConfirmed -> viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    db.itemQueries.updateItem(
+                        id = intent.id,
+                        name = intent.name,
+                        unit = intent.unit,
+                        priority = intent.priority,
+                        consumptionRate = intent.consumptionRate,
+                    )
+                }
+                when (result) {
+                    UpdateItemResult.Success -> _editItemResult.emit(null)
+                    UpdateItemResult.DuplicateName -> _editItemResult.emit("An item with this name already exists")
+                }
+            }
             is ItemsIntent.RemoveItem -> Unit
             is ItemsIntent.AddToShoppingList -> Unit
         }
