@@ -5,6 +5,7 @@ import com.adpt.shared.db.ItemQueries
 import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
+import com.adpt.shared.model.Severity
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.datetime.Clock
@@ -13,6 +14,20 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
+private const val CRITICAL_THRESHOLD = 1 * MILLIS_PER_DAY
+private const val WARNING_THRESHOLD = 3 * MILLIS_PER_DAY
+
+/**
+ * Returns the [Severity] for a given [delta] (estimatedDepletionDate - now, in millis).
+ * Critical: delta <= 1 day (including negative/already depleted)
+ * Warning:  delta <= 3 days
+ * Good:     otherwise
+ */
+fun deltaToSeverity(delta: Long): Severity = when {
+    delta <= CRITICAL_THRESHOLD -> Severity.Critical
+    delta <= WARNING_THRESHOLD -> Severity.Warning
+    else -> Severity.Good
+}
 
 /**
  * Inserts a new item with the given [name] and [unit].
