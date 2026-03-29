@@ -7,6 +7,23 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
+ * Marks the shopping list entry [entryId] as [ShoppingListStatus.Purchased] and records
+ * the purchase on the associated item in a single transaction.
+ * Returns true on success, false if the item could not be updated.
+ */
+fun AdptDatabase.markAsPurchased(entryId: String, itemId: String, amount: Double): Boolean {
+    var success = false
+    transaction {
+        val itemUpdated = itemQueries.recordPurchase(itemId, amount)
+        if (itemUpdated) {
+            shoppingListEntryQueries.updateStatus(status = ShoppingListStatus.Purchased, id = entryId)
+            success = true
+        }
+    }
+    return success
+}
+
+/**
  * Creates a new [ShoppingListStatus.Pending] entry for the given [itemId].
  * Returns [AddToShoppingListResult.Success] with the generated entry id,
  * [AddToShoppingListResult.ItemNotFound] if no item with [itemId] exists, or

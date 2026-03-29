@@ -49,12 +49,16 @@ import com.adpt.shared.model.ShoppingListStatus
 @Composable
 fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var purchaseDialogEntryId by remember { mutableStateOf<String?>(null) }
+    var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
 
-    if (purchaseDialogEntryId != null) {
+    purchasingItem?.let { item ->
         PurchaseDialog(
-            onDismiss = { purchaseDialogEntryId = null },
-            onConfirm = { purchaseDialogEntryId = null }, // TODO: implement
+            itemName = item.name,
+            onDismiss = { purchasingItem = null },
+            onConfirm = { amount ->
+                viewModel.handleIntent(ShoppingIntent.MarkAsPurchased(item.entryId, item.itemId, amount))
+                purchasingItem = null
+            },
         )
     }
 
@@ -101,7 +105,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
                     items(state.items, key = { it.entryId }) { item ->
                         ShoppingItemCard(
                             item = item,
-                            onMarkAsPurchased = { purchaseDialogEntryId = item.entryId },
+                            onMarkAsPurchased = { purchasingItem = item },
                             onRemove = { viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId)) },
                         )
                     }
@@ -193,28 +197,41 @@ private fun StatusBadge(status: ShoppingListStatus) {
 
 @Composable
 private fun PurchaseDialog(
+    itemName: String,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    onConfirm: (amount: Double) -> Unit,
 ) {
     var quantity by remember { mutableStateOf("") }
+    var quantityError by remember { mutableStateOf<String?>(null) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Mark as Purchased") },
         text = {
             Column {
-                Text("Enter the purchased quantity:")
+                Text("How much $itemName did you buy?")
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = { quantity = it },
+                    onValueChange = { quantity = it; quantityError = null },
                     label = { Text("Quantity") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
+                    isError = quantityError != null,
+                    supportingText = quantityError?.let { { Text(it) } },
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("Confirm") }
+            TextButton(onClick = {
+                val amount = quantity.toDoubleOrNull()
+                when {
+                    quantity.isBlank() -> quantityError = "Quantity is required"
+                    amount == null -> quantityError = "Enter a valid number"
+                    amount <= 0.0 -> quantityError = "Must be greater than 0"
+                    else -> onConfirm(amount)
+                }
+            }) { Text("Confirm") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }

@@ -8,11 +8,14 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.adpt.app.AdptApplication
 import com.adpt.shared.db.SelectAllWithItem
 import com.adpt.shared.model.ShoppingListStatus
+import com.adpt.shared.util.markAsPurchased
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
@@ -32,7 +35,7 @@ sealed interface ShoppingUiState {
 }
 
 sealed interface ShoppingIntent {
-    data class MarkAsPurchased(val entryId: String) : ShoppingIntent
+    data class MarkAsPurchased(val entryId: String, val itemId: String, val amount: Double) : ShoppingIntent
     data class RemoveEntry(val entryId: String) : ShoppingIntent
     data object AddItem : ShoppingIntent
     data object EmptyList : ShoppingIntent
@@ -75,8 +78,11 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
 
     fun handleIntent(intent: ShoppingIntent) {
         when (intent) {
-            // No implementations yet
-            is ShoppingIntent.MarkAsPurchased -> Unit
+            is ShoppingIntent.MarkAsPurchased -> viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    db.markAsPurchased(intent.entryId, intent.itemId, intent.amount)
+                }
+            }
             is ShoppingIntent.RemoveEntry -> Unit
             is ShoppingIntent.AddItem -> Unit
             is ShoppingIntent.EmptyList -> Unit
