@@ -19,6 +19,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.coroutines.core)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.datetime)
         }
 
         androidMain.dependencies {
