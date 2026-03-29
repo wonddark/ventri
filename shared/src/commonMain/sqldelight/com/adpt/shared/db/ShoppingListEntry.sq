@@ -7,6 +7,25 @@ CREATE TABLE ShoppingListEntry (
 selectAll:
 SELECT * FROM ShoppingListEntry;
 
+selectAllWithItem:
+SELECT
+    ShoppingListEntry.id AS entryId,
+    ShoppingListEntry.item_id,
+    ShoppingListEntry.status,
+    Item.name,
+    Item.consumptionRate,
+    Item.lastPurchasedAt,
+    Item.purchasedQuantity
+FROM ShoppingListEntry
+JOIN Item ON ShoppingListEntry.item_id = Item.id
+ORDER BY CASE WHEN ShoppingListEntry.status = 'Pending' THEN 0 ELSE 1 END;
+
+deleteAll:
+DELETE FROM ShoppingListEntry;
+
+deleteByStatus:
+DELETE FROM ShoppingListEntry WHERE status = :status;
+
 selectById:
 SELECT * FROM ShoppingListEntry WHERE id = :id;
 
