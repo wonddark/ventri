@@ -11,6 +11,8 @@ import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.UpdateItemResult
+import com.adpt.shared.model.AddToShoppingListResult
+import com.adpt.shared.util.addToShoppingList
 import com.adpt.shared.util.deleteItem
 import com.adpt.shared.util.insertItem
 import com.adpt.shared.util.updateItem
@@ -83,6 +85,9 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _editItemResult = MutableSharedFlow<String?>()
     val editItemResult: SharedFlow<String?> = _editItemResult.asSharedFlow()
+
+    private val _snackbarMessage = MutableSharedFlow<String>()
+    val snackbarMessage: SharedFlow<String> = _snackbarMessage.asSharedFlow()
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.Priority)
@@ -173,7 +178,15 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
             is ItemsIntent.RemoveItem -> viewModelScope.launch {
                 withContext(Dispatchers.IO) { db.itemQueries.deleteItem(intent.itemId) }
             }
-            is ItemsIntent.AddToShoppingList -> Unit
+            is ItemsIntent.AddToShoppingList -> viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) { db.addToShoppingList(intent.itemId) }
+                val message = when (result) {
+                    is AddToShoppingListResult.Success -> "Added to shopping list"
+                    AddToShoppingListResult.AlreadyInList -> "Already in shopping list"
+                    AddToShoppingListResult.ItemNotFound -> return@launch
+                }
+                _snackbarMessage.emit(message)
+            }
         }
     }
 }
