@@ -10,6 +10,7 @@ import com.adpt.shared.db.SelectAllWithItem
 import com.adpt.shared.db.SelectAvailableForShopping
 import com.adpt.shared.model.ShoppingListStatus
 import com.adpt.shared.util.addToShoppingList
+import com.adpt.shared.util.clearPurchasedEntries
 import com.adpt.shared.util.markAsPurchased
 import com.adpt.shared.util.removeShoppingListEntry
 import kotlinx.coroutines.Dispatchers
@@ -99,7 +100,9 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
                 withContext(Dispatchers.IO) { db.addToShoppingList(intent.itemId) }
             }
             is ShoppingIntent.EmptyList -> Unit
-            is ShoppingIntent.ClearList -> Unit
+            is ShoppingIntent.ClearList -> viewModelScope.launch {
+                withContext(Dispatchers.IO) { db.clearPurchasedEntries() }
+            }
         }
     }
 

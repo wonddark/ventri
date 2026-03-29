@@ -24,6 +24,13 @@ fun AdptDatabase.markAsPurchased(entryId: String, itemId: String, amount: Double
 }
 
 /**
+ * Deletes all shopping list entries with [ShoppingListStatus.Purchased] status.
+ */
+fun AdptDatabase.clearPurchasedEntries() {
+    shoppingListEntryQueries.deleteByStatus(ShoppingListStatus.Purchased)
+}
+
+/**
  * Deletes the shopping list entry with [entryId].
  * Returns true if the entry was found and deleted, false otherwise.
  */
