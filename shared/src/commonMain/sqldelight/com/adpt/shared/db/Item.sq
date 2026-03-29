@@ -5,7 +5,8 @@ CREATE TABLE Item (
     consumptionRate REAL NOT NULL,
     lastPurchasedAt INTEGER,
     purchasedQuantity REAL,
-    isInStock INTEGER NOT NULL DEFAULT 0
+    isInStock INTEGER NOT NULL DEFAULT 0,
+    priority TEXT NOT NULL DEFAULT 'Normal'
 );
 
 selectAll:
@@ -18,8 +19,8 @@ selectByName:
 SELECT * FROM Item WHERE name = :name;
 
 insert:
-INSERT INTO Item (id, name, unit, consumptionRate, lastPurchasedAt, purchasedQuantity, isInStock)
-VALUES (:id, :name, :unit, :consumptionRate, :lastPurchasedAt, :purchasedQuantity, :isInStock);
+INSERT INTO Item (id, name, unit, consumptionRate, lastPurchasedAt, purchasedQuantity, isInStock, priority)
+VALUES (:id, :name, :unit, :consumptionRate, :lastPurchasedAt, :purchasedQuantity, :isInStock, :priority);
 
 updateConsumptionRate:
 UPDATE Item SET consumptionRate = :consumptionRate WHERE id = :id;
