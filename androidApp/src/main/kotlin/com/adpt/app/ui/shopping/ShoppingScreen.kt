@@ -52,8 +52,26 @@ import com.adpt.shared.model.ShoppingListStatus
 fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showItemPicker by remember { mutableStateOf(false) }
+    var showEmptyConfirm by remember { mutableStateOf(false) }
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
     var removingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
+
+    if (showEmptyConfirm) {
+        AlertDialog(
+            onDismissRequest = { showEmptyConfirm = false },
+            title = { Text("Empty Shopping List") },
+            text = { Text("Remove all items from the shopping list?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.handleIntent(ShoppingIntent.EmptyList)
+                    showEmptyConfirm = false
+                }) { Text("Empty") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEmptyConfirm = false }) { Text("Cancel") }
+            },
+        )
+    }
 
     if (showItemPicker) {
         val available = (uiState as? ShoppingUiState.Success)?.availableItems ?: emptyList()
@@ -94,7 +112,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
             TopAppBar(
                 title = { Text("Shopping") },
                 actions = {
-                    IconButton(onClick = { viewModel.handleIntent(ShoppingIntent.EmptyList) }) {
+                    IconButton(onClick = { showEmptyConfirm = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Empty list")
                     }
                 },
