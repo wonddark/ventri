@@ -55,6 +55,23 @@ fun ItemQueries.recordPurchase(itemId: String, purchasedAmount: Double): Boolean
     ).value > 0
 }
 
+/**
+ * Returns all item ids sorted by how soon they will be depleted (soonest first).
+ * Items with no estimable depletion date are excluded.
+ * Items already past their depletion date appear at the top (negative delta).
+ */
+fun ItemQueries.itemsSortedByDepletion(): List<String> {
+    val now = Clock.System.now().toEpochMilliseconds()
+    return selectAll()
+        .executeAsList()
+        .mapNotNull { item ->
+            val depletionDate = item.estimatedDepletionDate() ?: return@mapNotNull null
+            item.id to (depletionDate - now)
+        }
+        .sortedBy { (_, delta) -> delta }
+        .map { (id, _) -> id }
+}
+
 fun Item.estimatedDepletionDate(): Long? {
     val purchasedAt = lastPurchasedAt ?: return null
     val quantity = purchasedQuantity ?: return null
