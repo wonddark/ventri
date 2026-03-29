@@ -101,6 +101,13 @@ fun ItemQueries.itemsSortedByDepletion(): List<String> {
 }
 
 /**
+ * Deletes the item with [itemId] from the database.
+ * Returns true if the item was found and deleted, false if no item with [itemId] exists.
+ */
+fun ItemQueries.deleteItem(itemId: String): Boolean =
+    delete(id = itemId).value > 0
+
+/**
  * Updates the editable fields (name, unit, priority, consumptionRate) of the item with [id].
  * Returns [UpdateItemResult.DuplicateName] if another item already uses [name],
  * or [UpdateItemResult.Success] otherwise.

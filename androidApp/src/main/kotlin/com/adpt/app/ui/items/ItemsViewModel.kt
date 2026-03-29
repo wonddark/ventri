@@ -11,6 +11,7 @@ import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.UpdateItemResult
+import com.adpt.shared.util.deleteItem
 import com.adpt.shared.util.insertItem
 import com.adpt.shared.util.updateItem
 import kotlinx.coroutines.Dispatchers
@@ -169,7 +170,9 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                     UpdateItemResult.DuplicateName -> _editItemResult.emit("An item with this name already exists")
                 }
             }
-            is ItemsIntent.RemoveItem -> Unit
+            is ItemsIntent.RemoveItem -> viewModelScope.launch {
+                withContext(Dispatchers.IO) { db.itemQueries.deleteItem(intent.itemId) }
+            }
             is ItemsIntent.AddToShoppingList -> Unit
         }
     }
