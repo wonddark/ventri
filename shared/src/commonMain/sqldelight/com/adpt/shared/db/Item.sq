@@ -31,6 +31,11 @@ UPDATE Item SET lastPurchasedAt = :lastPurchasedAt, purchasedQuantity = :purchas
 updatePriority:
 UPDATE Item SET priority = :priority WHERE id = :id;
 
+selectAvailableForShopping:
+SELECT id, name FROM Item
+WHERE id NOT IN (SELECT item_id FROM ShoppingListEntry)
+ORDER BY name ASC;
+
 updateDetails:
 UPDATE Item SET name = :name, unit = :unit, consumptionRate = :consumptionRate, priority = :priority WHERE id = :id;
 

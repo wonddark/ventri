@@ -1,5 +1,6 @@
 package com.adpt.app.ui.shopping
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,8 +51,21 @@ import com.adpt.shared.model.ShoppingListStatus
 @Composable
 fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showItemPicker by remember { mutableStateOf(false) }
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
     var removingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
+
+    if (showItemPicker) {
+        val available = (uiState as? ShoppingUiState.Success)?.availableItems ?: emptyList()
+        ItemPickerDialog(
+            availableItems = available,
+            onDismiss = { showItemPicker = false },
+            onItemSelected = { itemId ->
+                viewModel.handleIntent(ShoppingIntent.AddItemConfirmed(itemId))
+                showItemPicker = false
+            },
+        )
+    }
 
     removingItem?.let { item ->
         RemoveConfirmDialog(
@@ -86,8 +101,8 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.handleIntent(ShoppingIntent.AddItem) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add item")
+            FloatingActionButton(onClick = { showItemPicker = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Add item to shopping list")
             }
         },
     ) { innerPadding ->
@@ -205,6 +220,44 @@ private fun StatusBadge(status: ShoppingListStatus) {
             color = contentColor,
         )
     }
+}
+
+@Composable
+private fun ItemPickerDialog(
+    availableItems: List<AvailableItemUiModel>,
+    onDismiss: () -> Unit,
+    onItemSelected: (itemId: String) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to Shopping List") },
+        text = {
+            if (availableItems.isEmpty()) {
+                Text(
+                    text = "All items are already in the list.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LazyColumn(modifier = Modifier.heightIn(max = 320.dp)) {
+                    items(availableItems, key = { it.id }) { item ->
+                        Text(
+                            text = item.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onItemSelected(item.id) }
+                                .padding(vertical = 12.dp),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
 }
 
 @Composable

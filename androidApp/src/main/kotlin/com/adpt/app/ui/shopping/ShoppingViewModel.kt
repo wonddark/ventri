@@ -7,19 +7,23 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.adpt.app.AdptApplication
 import com.adpt.shared.db.SelectAllWithItem
+import com.adpt.shared.db.SelectAvailableForShopping
 import com.adpt.shared.model.ShoppingListStatus
+import com.adpt.shared.util.addToShoppingList
 import com.adpt.shared.util.markAsPurchased
 import com.adpt.shared.util.removeShoppingListEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
+
+data class AvailableItemUiModel(val id: String, val name: String)
 
 data class ShoppingItemUiModel(
     val entryId: String,
@@ -32,13 +36,17 @@ data class ShoppingItemUiModel(
 
 sealed interface ShoppingUiState {
     data object Loading : ShoppingUiState
-    data class Success(val items: List<ShoppingItemUiModel>) : ShoppingUiState
+    data class Success(
+        val items: List<ShoppingItemUiModel>,
+        val availableItems: List<AvailableItemUiModel>,
+    ) : ShoppingUiState
 }
 
 sealed interface ShoppingIntent {
     data class MarkAsPurchased(val entryId: String, val itemId: String, val amount: Double) : ShoppingIntent
     data class RemoveEntry(val entryId: String) : ShoppingIntent
     data object AddItem : ShoppingIntent
+    data class AddItemConfirmed(val itemId: String) : ShoppingIntent
     data object EmptyList : ShoppingIntent
     data object ClearList : ShoppingIntent
 }
@@ -47,35 +55,34 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
 
     private val db = (application as AdptApplication).database
 
-    val uiState: StateFlow<ShoppingUiState> = db.shoppingListEntryQueries
-        .selectAllWithItem()
-        .asFlow()
-        .mapToList(Dispatchers.IO)
-        .map { rows: List<SelectAllWithItem> ->
-            val now = Clock.System.now().toEpochMilliseconds()
-            ShoppingUiState.Success(
-                rows.map { row ->
-                    ShoppingItemUiModel(
-                        entryId = row.entryId,
-                        itemId = row.item_id,
-                        name = row.name,
-                        status = row.status,
+    val uiState: StateFlow<ShoppingUiState> = combine(
+        db.shoppingListEntryQueries.selectAllWithItem().asFlow().mapToList(Dispatchers.IO),
+        db.itemQueries.selectAvailableForShopping().asFlow().mapToList(Dispatchers.IO),
+    ) { rows: List<SelectAllWithItem>, available: List<SelectAvailableForShopping> ->
+        val now = Clock.System.now().toEpochMilliseconds()
+        ShoppingUiState.Success(
+            items = rows.map { row ->
+                ShoppingItemUiModel(
+                    entryId = row.entryId,
+                    itemId = row.item_id,
+                    name = row.name,
+                    status = row.status,
+                    purchasedQuantity = row.purchasedQuantity,
+                    depletionLabel = computeDepletionLabel(
+                        consumptionRate = row.consumptionRate,
+                        lastPurchasedAt = row.lastPurchasedAt,
                         purchasedQuantity = row.purchasedQuantity,
-                        depletionLabel = computeDepletionLabel(
-                            consumptionRate = row.consumptionRate,
-                            lastPurchasedAt = row.lastPurchasedAt,
-                            purchasedQuantity = row.purchasedQuantity,
-                            now = now,
-                        ),
-                    )
-                }
-            )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ShoppingUiState.Loading,
+                        now = now,
+                    ),
+                )
+            },
+            availableItems = available.map { AvailableItemUiModel(it.id, it.name) },
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ShoppingUiState.Loading,
+    )
 
     fun handleIntent(intent: ShoppingIntent) {
         when (intent) {
@@ -88,6 +95,9 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
                 withContext(Dispatchers.IO) { db.removeShoppingListEntry(intent.entryId) }
             }
             is ShoppingIntent.AddItem -> Unit
+            is ShoppingIntent.AddItemConfirmed -> viewModelScope.launch {
+                withContext(Dispatchers.IO) { db.addToShoppingList(intent.itemId) }
+            }
             is ShoppingIntent.EmptyList -> Unit
             is ShoppingIntent.ClearList -> Unit
         }
