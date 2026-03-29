@@ -9,12 +9,19 @@ import com.adpt.app.AdptApplication
 import com.adpt.shared.db.Item
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
+import com.adpt.shared.model.InsertItemResult
+import com.adpt.shared.util.insertItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class SortOrder(val label: String) {
     Priority("Priority"),
@@ -45,6 +52,12 @@ sealed interface ItemsIntent {
     data class SortOrderChanged(val sortOrder: SortOrder) : ItemsIntent
     data class PriorityFilterToggled(val priority: ItemPriority) : ItemsIntent
     data object AddItem : ItemsIntent
+    data class AddItemConfirmed(
+        val name: String,
+        val unit: ItemUnit,
+        val priority: ItemPriority,
+        val consumptionRate: Double,
+    ) : ItemsIntent
     data class EditItem(val itemId: String) : ItemsIntent
     data class RemoveItem(val itemId: String) : ItemsIntent
     data class AddToShoppingList(val itemId: String) : ItemsIntent
@@ -53,6 +66,10 @@ sealed interface ItemsIntent {
 class ItemsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = (application as AdptApplication).database
+
+    // null = item inserted successfully; non-null = error message to show inline
+    private val _addItemResult = MutableSharedFlow<String?>()
+    val addItemResult: SharedFlow<String?> = _addItemResult.asSharedFlow()
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.Priority)
@@ -109,8 +126,22 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                     current + intent.priority
                 }
             }
-            // No implementations yet
             is ItemsIntent.AddItem -> Unit
+            is ItemsIntent.AddItemConfirmed -> viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    db.itemQueries.insertItem(
+                        name = intent.name,
+                        unit = intent.unit,
+                        priority = intent.priority,
+                        consumptionRate = intent.consumptionRate,
+                    )
+                }
+                when (result) {
+                    is InsertItemResult.Success -> _addItemResult.emit(null)
+                    InsertItemResult.DuplicateName -> _addItemResult.emit("An item with this name already exists")
+                }
+            }
+            // No implementations yet
             is ItemsIntent.EditItem -> Unit
             is ItemsIntent.RemoveItem -> Unit
             is ItemsIntent.AddToShoppingList -> Unit

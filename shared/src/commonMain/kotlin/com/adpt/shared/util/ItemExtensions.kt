@@ -42,18 +42,23 @@ fun deltaToSeverity(delta: Long): Severity = when {
  * if an item with that name already exists.
  */
 @OptIn(ExperimentalUuidApi::class)
-fun ItemQueries.insertItem(name: String, unit: ItemUnit): InsertItemResult {
+fun ItemQueries.insertItem(
+    name: String,
+    unit: ItemUnit,
+    priority: ItemPriority = ItemPriority.Normal,
+    consumptionRate: Double = 0.0,
+): InsertItemResult {
     if (selectByName(name).executeAsOneOrNull() != null) return InsertItemResult.DuplicateName
     val id = Uuid.random().toString()
     insert(
         id = id,
         name = name,
         unit = unit,
-        consumptionRate = 0.0,
+        consumptionRate = consumptionRate,
         lastPurchasedAt = null,
         purchasedQuantity = null,
         isInStock = false,
-        priority = ItemPriority.Normal
+        priority = priority,
     )
     return InsertItemResult.Success(id)
 }
