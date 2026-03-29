@@ -1,7 +1,7 @@
 CREATE TABLE ShoppingListEntry (
     id TEXT NOT NULL PRIMARY KEY,
     item_id TEXT NOT NULL UNIQUE REFERENCES Item(id),
-    status TEXT NOT NULL DEFAULT 'Pending'
+    status TEXT AS com.adpt.shared.model.ShoppingListStatus NOT NULL DEFAULT 'Pending'
 );
 
 selectAll:

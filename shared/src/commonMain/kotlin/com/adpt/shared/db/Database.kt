@@ -24,7 +24,10 @@ fun createDatabase(driverFactory: DatabaseDriverFactory): AdptDatabase {
     val driver = driverFactory.createDriver()
     return AdptDatabase(
         driver = driver,
-        ItemAdapter = Item.Adapter(unitAdapter = itemUnitAdapter, priorityAdapter = itemPriorityAdapter),
+        ItemAdapter = Item.Adapter(
+            unitAdapter = itemUnitAdapter,
+            priorityAdapter = itemPriorityAdapter
+        ),
         ShoppingListEntryAdapter = ShoppingListEntry.Adapter(statusAdapter = shoppingListStatusAdapter)
     )
 }
