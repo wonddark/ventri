@@ -18,6 +18,13 @@ private const val CRITICAL_THRESHOLD = 1 * MILLIS_PER_DAY
 private const val WARNING_THRESHOLD = 3 * MILLIS_PER_DAY
 
 /**
+ * Updates the priority of the item with [itemId] to [priority].
+ * Returns true if the item was found and updated, false if no item with [itemId] exists.
+ */
+fun ItemQueries.updateItemPriority(itemId: String, priority: ItemPriority): Boolean =
+    updatePriority(priority = priority, id = itemId).value > 0
+
+/**
  * Returns the [Severity] for a given [delta] (estimatedDepletionDate - now, in millis).
  * Critical: delta <= 1 day (including negative/already depleted)
  * Warning:  delta <= 3 days
