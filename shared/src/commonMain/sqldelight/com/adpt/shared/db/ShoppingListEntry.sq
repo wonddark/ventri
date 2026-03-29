@@ -10,6 +10,9 @@ SELECT * FROM ShoppingListEntry;
 selectById:
 SELECT * FROM ShoppingListEntry WHERE id = :id;
 
+selectByItemId:
+SELECT * FROM ShoppingListEntry WHERE item_id = :item_id;
+
 selectByStatus:
 SELECT * FROM ShoppingListEntry WHERE status = :status;
 
