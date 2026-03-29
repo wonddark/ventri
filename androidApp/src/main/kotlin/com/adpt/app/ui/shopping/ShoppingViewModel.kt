@@ -9,6 +9,7 @@ import com.adpt.app.AdptApplication
 import com.adpt.shared.db.SelectAllWithItem
 import com.adpt.shared.model.ShoppingListStatus
 import com.adpt.shared.util.markAsPurchased
+import com.adpt.shared.util.removeShoppingListEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -83,7 +84,9 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
                     db.markAsPurchased(intent.entryId, intent.itemId, intent.amount)
                 }
             }
-            is ShoppingIntent.RemoveEntry -> Unit
+            is ShoppingIntent.RemoveEntry -> viewModelScope.launch {
+                withContext(Dispatchers.IO) { db.removeShoppingListEntry(intent.entryId) }
+            }
             is ShoppingIntent.AddItem -> Unit
             is ShoppingIntent.EmptyList -> Unit
             is ShoppingIntent.ClearList -> Unit

@@ -24,6 +24,13 @@ fun AdptDatabase.markAsPurchased(entryId: String, itemId: String, amount: Double
 }
 
 /**
+ * Deletes the shopping list entry with [entryId].
+ * Returns true if the entry was found and deleted, false otherwise.
+ */
+fun AdptDatabase.removeShoppingListEntry(entryId: String): Boolean =
+    shoppingListEntryQueries.delete(id = entryId).value > 0
+
+/**
  * Creates a new [ShoppingListStatus.Pending] entry for the given [itemId].
  * Returns [AddToShoppingListResult.Success] with the generated entry id,
  * [AddToShoppingListResult.ItemNotFound] if no item with [itemId] exists, or

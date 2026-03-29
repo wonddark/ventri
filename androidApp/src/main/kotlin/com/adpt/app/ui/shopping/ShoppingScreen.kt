@@ -50,6 +50,18 @@ import com.adpt.shared.model.ShoppingListStatus
 fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
+    var removingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
+
+    removingItem?.let { item ->
+        RemoveConfirmDialog(
+            itemName = item.name,
+            onDismiss = { removingItem = null },
+            onConfirm = {
+                viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId))
+                removingItem = null
+            },
+        )
+    }
 
     purchasingItem?.let { item ->
         PurchaseDialog(
@@ -106,7 +118,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = viewModel()) {
                         ShoppingItemCard(
                             item = item,
                             onMarkAsPurchased = { purchasingItem = item },
-                            onRemove = { viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId)) },
+                            onRemove = { removingItem = item },
                         )
                     }
                     item {
@@ -193,6 +205,25 @@ private fun StatusBadge(status: ShoppingListStatus) {
             color = contentColor,
         )
     }
+}
+
+@Composable
+private fun RemoveConfirmDialog(
+    itemName: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Remove Item") },
+        text = { Text("Remove $itemName from the shopping list?") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text("Remove") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
 }
 
 @Composable
