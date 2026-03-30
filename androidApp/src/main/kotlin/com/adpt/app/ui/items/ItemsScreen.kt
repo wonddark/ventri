@@ -15,16 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -38,8 +36,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,18 +64,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 
 @Composable
-fun ItemsScreen(viewModel: ItemsViewModel = viewModel()) {
+fun ItemsScreen(
+    navController: NavController,
+    viewModel: ItemsViewModel = viewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.snackbarMessage) {
         viewModel.snackbarMessage.collect { snackbarHostState.showSnackbar(it) }
+    }
+
+    LaunchedEffect(viewModel.navigationEvent) {
+        viewModel.navigationEvent.collect { navController.popBackStack() }
     }
 
     if (showAddDialog) {
@@ -118,6 +127,15 @@ fun ItemsScreen(viewModel: ItemsViewModel = viewModel()) {
                 Icon(Icons.Default.Add, contentDescription = "Add item")
             }
         },
+        bottomBar = {
+            if (uiState.selectionMode) {
+                SelectionActionStrip(
+                    selectedCount = uiState.selectedItemIds.size,
+                    onCancel = { viewModel.handleIntent(ItemsIntent.SelectionCancelled) },
+                    onConfirm = { viewModel.handleIntent(ItemsIntent.SelectionConfirmed) },
+                )
+            }
+        },
     ) { innerPadding ->
         when {
             uiState.isLoading -> Box(
@@ -144,6 +162,8 @@ fun ItemsScreen(viewModel: ItemsViewModel = viewModel()) {
                 items(uiState.items, key = { it.id }) { item ->
                     ItemCard(
                         item = item,
+                        selectionMode = uiState.selectionMode,
+                        isSelected = item.id in uiState.selectedItemIds,
                         onEdit = { editingItem = item },
                         onIntent = viewModel::handleIntent,
                     )
@@ -159,7 +179,9 @@ private fun ItemsTopBar(
     uiState: ItemsUiState,
     onIntent: (ItemsIntent) -> Unit,
 ) {
-    if (uiState.isSearchActive) {
+    if (uiState.selectionMode) {
+        TopAppBar(title = { Text("Add to shopping list") })
+    } else if (uiState.isSearchActive) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
@@ -260,18 +282,25 @@ private fun ItemsTopBar(
 @Composable
 private fun ItemCard(
     item: ItemUiModel,
+    selectionMode: Boolean,
+    isSelected: Boolean,
     onEdit: () -> Unit,
     onIntent: (ItemsIntent) -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
-
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    val cardContent: @Composable () -> Unit = {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (selectionMode) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = null, // card onClick handles toggle
+                )
+            }
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = item.name, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(2.dp))
@@ -282,27 +311,68 @@ private fun ItemCard(
                 )
             }
             PriorityBadge(priority = item.priority)
-            Box {
-                IconButton(onClick = { showMenu = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More options")
+            if (!selectionMode) {
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = { onEdit(); showMenu = false },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Remove") },
+                            onClick = { onIntent(ItemsIntent.RemoveItem(item.id)); showMenu = false },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Add to Shopping List") },
+                            onClick = { onIntent(ItemsIntent.AddToShoppingList(item.id)); showMenu = false },
+                        )
+                    }
                 }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Edit") },
-                        onClick = { onEdit(); showMenu = false },
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Remove") },
-                        onClick = { onIntent(ItemsIntent.RemoveItem(item.id)); showMenu = false },
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Add to Shopping List") },
-                        onClick = { onIntent(ItemsIntent.AddToShoppingList(item.id)); showMenu = false },
-                    )
-                }
+            }
+        }
+    }
+
+    if (selectionMode) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onIntent(ItemsIntent.ToggleItemSelection(item.id)) },
+        ) { cardContent() }
+    } else {
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) { cardContent() }
+    }
+}
+
+@Composable
+private fun SelectionActionStrip(
+    selectedCount: Int,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    Surface(shadowElevation = 8.dp) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text("Cancel")
+            }
+            Button(
+                onClick = onConfirm,
+                enabled = selectedCount > 0,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(if (selectedCount == 1) "Add 1 item" else "Add $selectedCount items")
             }
         }
     }
@@ -354,7 +424,6 @@ private fun ItemFormDialog(
         title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                // Name
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it; nameError = null },
@@ -364,8 +433,6 @@ private fun ItemFormDialog(
                     supportingText = nameError?.let { { Text(it) } },
                     modifier = Modifier.fillMaxWidth(),
                 )
-
-                // Unit
                 ExposedDropdownMenuBox(
                     expanded = unitExpanded,
                     onExpandedChange = { unitExpanded = it },
@@ -391,8 +458,6 @@ private fun ItemFormDialog(
                         }
                     }
                 }
-
-                // Priority
                 ExposedDropdownMenuBox(
                     expanded = priorityExpanded,
                     onExpandedChange = { priorityExpanded = it },
@@ -418,8 +483,6 @@ private fun ItemFormDialog(
                         }
                     }
                 }
-
-                // Consumption rate
                 OutlinedTextField(
                     value = rateText,
                     onValueChange = { rateText = it; rateError = null },

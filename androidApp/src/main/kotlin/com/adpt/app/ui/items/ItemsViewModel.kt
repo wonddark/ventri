@@ -2,16 +2,18 @@ package com.adpt.app.ui.items
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.adpt.app.AdptApplication
 import com.adpt.shared.db.Item
+import com.adpt.shared.db.SelectAllWithItem
+import com.adpt.shared.model.AddToShoppingListResult
+import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
-import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.UpdateItemResult
-import com.adpt.shared.model.AddToShoppingListResult
 import com.adpt.shared.util.addToShoppingList
 import com.adpt.shared.util.deleteItem
 import com.adpt.shared.util.insertItem
@@ -24,6 +26,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,6 +53,8 @@ data class ItemsUiState(
     val sortOrder: SortOrder = SortOrder.Priority,
     val priorityFilter: Set<ItemPriority> = emptySet(),
     val isSearchActive: Boolean = false,
+    val selectionMode: Boolean = false,
+    val selectedItemIds: Set<String> = emptySet(),
 )
 
 sealed interface ItemsIntent {
@@ -73,13 +79,21 @@ sealed interface ItemsIntent {
     ) : ItemsIntent
     data class RemoveItem(val itemId: String) : ItemsIntent
     data class AddToShoppingList(val itemId: String) : ItemsIntent
+    data class ToggleItemSelection(val itemId: String) : ItemsIntent
+    data object SelectionConfirmed : ItemsIntent
+    data object SelectionCancelled : ItemsIntent
 }
 
-class ItemsViewModel(application: Application) : AndroidViewModel(application) {
+class ItemsViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle,
+) : AndroidViewModel(application) {
 
     private val db = (application as AdptApplication).database
 
-    // null = success; non-null = error message to show inline
+    val selectionMode: Boolean = savedStateHandle.get<Boolean>("selectionMode") ?: false
+    // Immutable: set once from nav arg, does not update reactively
+
     private val _addItemResult = MutableSharedFlow<String?>()
     val addItemResult: SharedFlow<String?> = _addItemResult.asSharedFlow()
 
@@ -89,12 +103,17 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
     private val _snackbarMessage = MutableSharedFlow<String>()
     val snackbarMessage: SharedFlow<String> = _snackbarMessage.asSharedFlow()
 
+    private val _navigationEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val navigationEvent: SharedFlow<Unit> = _navigationEvent.asSharedFlow()
+
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.Priority)
     private val _priorityFilter = MutableStateFlow(emptySet<ItemPriority>())
     private val _isSearchActive = MutableStateFlow(false)
+    private val _selectedItemIds = MutableStateFlow(emptySet<String>())
 
-    val uiState: StateFlow<ItemsUiState> = combine(
+    // Step 1: filter, sort, map — same logic as before
+    private val baseFlow = combine(
         db.itemQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         _searchQuery,
         _sortOrder,
@@ -121,11 +140,32 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
             sortOrder = sortOrder,
             priorityFilter = priorityFilter,
             isSearchActive = isSearchActive,
+            selectionMode = selectionMode,
+        )
+    }
+
+    // Step 2: item IDs currently in the shopping list — used to exclude them in selection mode
+    private val shoppingListItemIdsFlow = if (selectionMode) {
+        db.shoppingListEntryQueries.selectAllWithItem().asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { rows: List<SelectAllWithItem> -> rows.map { it.item_id }.toSet() }
+    } else {
+        flowOf(emptySet()) // completes immediately; combine retains the last emitted value
+    }
+
+    val uiState: StateFlow<ItemsUiState> = combine(
+        baseFlow,
+        shoppingListItemIdsFlow,
+        _selectedItemIds,
+    ) { base, shoppingIds, selectedIds ->
+        base.copy(
+            items = if (selectionMode) base.items.filter { it.id !in shoppingIds } else base.items,
+            selectedItemIds = selectedIds,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = ItemsUiState(),
+        initialValue = ItemsUiState(selectionMode = selectionMode),
     )
 
     fun handleIntent(intent: ItemsIntent) {
@@ -155,8 +195,14 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
                 when (result) {
-                    is InsertItemResult.Success -> _addItemResult.emit(null)
-                    InsertItemResult.DuplicateName -> _addItemResult.emit("An item with this name already exists")
+                    is InsertItemResult.Success -> {
+                        _addItemResult.emit(null)
+                        if (selectionMode) {
+                            _selectedItemIds.value = _selectedItemIds.value + result.id
+                        }
+                    }
+                    InsertItemResult.DuplicateName ->
+                        _addItemResult.emit("An item with this name already exists")
                 }
             }
             is ItemsIntent.EditItem -> Unit
@@ -172,7 +218,8 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 when (result) {
                     UpdateItemResult.Success -> _editItemResult.emit(null)
-                    UpdateItemResult.DuplicateName -> _editItemResult.emit("An item with this name already exists")
+                    UpdateItemResult.DuplicateName ->
+                        _editItemResult.emit("An item with this name already exists")
                 }
             }
             is ItemsIntent.RemoveItem -> viewModelScope.launch {
@@ -187,6 +234,25 @@ class ItemsViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _snackbarMessage.emit(message)
             }
+            is ItemsIntent.ToggleItemSelection -> {
+                val current = _selectedItemIds.value
+                _selectedItemIds.value = if (intent.itemId in current) {
+                    current - intent.itemId
+                } else {
+                    current + intent.itemId
+                }
+            }
+            is ItemsIntent.SelectionConfirmed -> viewModelScope.launch {
+                val ids = _selectedItemIds.value
+                val notFound = withContext(Dispatchers.IO) {
+                    ids.count { id ->
+                        db.addToShoppingList(id) == AddToShoppingListResult.ItemNotFound
+                    }
+                }
+                if (notFound > 0) _snackbarMessage.emit("$notFound item(s) could not be added")
+                _navigationEvent.tryEmit(Unit)
+            }
+            is ItemsIntent.SelectionCancelled -> _navigationEvent.tryEmit(Unit)
         }
     }
 }

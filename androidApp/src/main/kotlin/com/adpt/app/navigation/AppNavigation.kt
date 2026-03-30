@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.adpt.app.AdptApplication
 import com.adpt.app.ui.items.ItemsScreen
 import com.adpt.app.ui.overview.OverviewScreen
@@ -67,7 +69,8 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.label) },
                         label = { Text(screen.label) },
-                        selected = currentRoute == screen.route,
+                        selected = currentRoute == screen.route ||
+                            (screen == Screen.Items && currentRoute?.startsWith("${screen.route}?") == true),
                         onClick = {
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -88,9 +91,17 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Screen.Overview.route) { OverviewScreen() }
-            composable(Screen.Shopping.route) { ShoppingScreen() }
+            composable(Screen.Shopping.route) { ShoppingScreen(navController = navController) }
             composable(Screen.Stock.route) { StockScreen() }
-            composable(Screen.Items.route) { ItemsScreen() }
+            composable(
+                route = "${Screen.Items.route}?selectionMode={selectionMode}",
+                arguments = listOf(
+                    navArgument("selectionMode") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                ),
+            ) { ItemsScreen(navController = navController) }
         }
     }
 }
