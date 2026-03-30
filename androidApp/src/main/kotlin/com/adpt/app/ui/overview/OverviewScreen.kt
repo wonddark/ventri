@@ -137,13 +137,13 @@ private fun OverviewItemCard(
 private fun SeverityBadge(severity: Severity) {
     val bgColor = when (severity) {
         Severity.Critical -> MaterialTheme.colorScheme.errorContainer
-        Severity.Warning -> MaterialTheme.colorScheme.tertiaryContainer
-        Severity.Good -> MaterialTheme.colorScheme.primaryContainer
+        Severity.High -> MaterialTheme.colorScheme.tertiaryContainer
+        Severity.Normal, Severity.Low -> MaterialTheme.colorScheme.primaryContainer
     }
     val contentColor = when (severity) {
         Severity.Critical -> MaterialTheme.colorScheme.onErrorContainer
-        Severity.Warning -> MaterialTheme.colorScheme.onTertiaryContainer
-        Severity.Good -> MaterialTheme.colorScheme.onPrimaryContainer
+        Severity.High -> MaterialTheme.colorScheme.onTertiaryContainer
+        Severity.Normal, Severity.Low -> MaterialTheme.colorScheme.onPrimaryContainer
     }
     Surface(color = bgColor, shape = MaterialTheme.shapes.extraSmall) {
         Text(

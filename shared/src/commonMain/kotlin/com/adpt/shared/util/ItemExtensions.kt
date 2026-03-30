@@ -16,7 +16,13 @@ import kotlinx.datetime.toLocalDateTime
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
 private const val CRITICAL_THRESHOLD = 1 * MILLIS_PER_DAY
-private const val WARNING_THRESHOLD = 3 * MILLIS_PER_DAY
+private const val WARNING_THRESHOLD = 2 * MILLIS_PER_DAY
+private const val RECOMMENDED_THRESHOLD = 3 * MILLIS_PER_DAY
+
+/**
+ * Returns the item with [id], or null if no such item exists.
+ */
+fun ItemQueries.findById(id: String): Item? = selectById(id).executeAsOneOrNull()
 
 /**
  * Updates the priority of the item with [itemId] to [priority].
@@ -33,8 +39,9 @@ fun ItemQueries.updateItemPriority(itemId: String, priority: ItemPriority): Bool
  */
 fun deltaToSeverity(delta: Long): Severity = when {
     delta <= CRITICAL_THRESHOLD -> Severity.Critical
-    delta <= WARNING_THRESHOLD -> Severity.Warning
-    else -> Severity.Good
+    delta <= WARNING_THRESHOLD -> Severity.High
+    delta <= RECOMMENDED_THRESHOLD -> Severity.High
+    else -> Severity.Low
 }
 
 /**

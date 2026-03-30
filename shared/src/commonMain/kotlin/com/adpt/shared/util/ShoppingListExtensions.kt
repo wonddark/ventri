@@ -11,14 +11,27 @@ import kotlin.uuid.Uuid
  * the purchase on the associated item in a single transaction.
  * Returns true on success, false if the item could not be updated.
  */
-fun AdptDatabase.markAsPurchased(entryId: String, itemId: String, amount: Double): Boolean {
+fun AdptDatabase.markAsPurchased(
+    entryId: String,
+    itemId: String,
+    amount: Double
+): Boolean {
     var success = false
+    var totalQuantity = amount
     transaction {
-        val itemUpdated = itemQueries.recordPurchase(itemId, amount)
+        val item = itemQueries.findById(itemId)
+        if (item != null) {
+            totalQuantity = (item.purchasedQuantity ?: 0.0) + amount
+        }
+        val itemUpdated = itemQueries.recordPurchase(itemId, totalQuantity)
         if (itemUpdated) {
-            shoppingListEntryQueries.updateStatus(status = ShoppingListStatus.Purchased, id = entryId)
+            shoppingListEntryQueries.updateStatus(
+                status = ShoppingListStatus.Purchased,
+                id = entryId
+            )
             success = true
         }
+
     }
     return success
 }
@@ -55,7 +68,9 @@ fun AdptDatabase.addToShoppingList(itemId: String): AddToShoppingListResult {
     if (itemQueries.selectById(itemId).executeAsOneOrNull() == null) {
         return AddToShoppingListResult.ItemNotFound
     }
-    if (shoppingListEntryQueries.selectByItemId(itemId).executeAsOneOrNull() != null) {
+    if (shoppingListEntryQueries.selectByItemId(itemId)
+            .executeAsOneOrNull() != null
+    ) {
         return AddToShoppingListResult.AlreadyInList
     }
     val entryId = Uuid.random().toString()

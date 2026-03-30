@@ -53,7 +53,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 val depletionDate = item.estimatedDepletionDate() ?: return@mapNotNull null
                 val delta = depletionDate - now
                 val severity = deltaToSeverity(delta)
-                if (severity == Severity.Good) return@mapNotNull null
+                if (severity == Severity.Low) return@mapNotNull null
                 OverviewItemUiModel(item.id, item.name, severity, delta)
             }.sortedBy { it.deltaMillis }
             OverviewUiState.Success(filtered)
