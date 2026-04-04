@@ -7,6 +7,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.adpt.app.AdptApplication
 import com.adpt.shared.db.Item
+import com.adpt.shared.model.AddToShoppingListResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
 import com.adpt.shared.util.addToShoppingList
@@ -14,8 +15,11 @@ import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
 import com.adpt.shared.util.updateItemPriority
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -42,6 +46,9 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
     private val db = (application as AdptApplication).database
 
+    private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val errors: SharedFlow<String> = _errors.asSharedFlow()
+
     val uiState: StateFlow<OverviewUiState> = db.itemQueries
         .selectAll()
         .asFlow()
@@ -67,6 +74,17 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = OverviewUiState.Loading,
         )
+
+    fun addAllToShoppingList(itemIds: List<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val results = itemIds.map { db.addToShoppingList(it) }
+            val anySuccess = results.any { it is AddToShoppingListResult.Success }
+            val anyError = results.any { it is AddToShoppingListResult.ItemNotFound }
+            if (!anySuccess && anyError) {
+                _errors.emit("Could not add items to the shopping list")
+            }
+        }
+    }
 
     fun handleIntent(intent: OverviewIntent) {
         when (intent) {
