@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
@@ -230,11 +231,15 @@ private fun OverviewItemCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = onAddToShoppingList) {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "Add to shopping list",
-                    )
+                if (item.isInShoppingList) {
+                    InListBadge()
+                } else {
+                    IconButton(onClick = onAddToShoppingList) {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = "Add to shopping list",
+                        )
+                    }
                 }
                 IconButton(onClick = onIgnore) {
                     Icon(
@@ -243,6 +248,32 @@ private fun OverviewItemCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun InListBadge() {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Text(
+                text = "In list",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
         }
     }
 }

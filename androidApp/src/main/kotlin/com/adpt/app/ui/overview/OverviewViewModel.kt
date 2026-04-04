@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -30,6 +30,7 @@ data class OverviewItemUiModel(
     val name: String,
     val severity: Severity,
     val deltaMillis: Long?, // null means not in stock
+    val isInShoppingList: Boolean,
 )
 
 sealed interface OverviewUiState {
@@ -49,26 +50,26 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val errors: SharedFlow<String> = _errors.asSharedFlow()
 
-    val uiState: StateFlow<OverviewUiState> = db.itemQueries
-        .selectAll()
-        .asFlow()
-        .mapToList(Dispatchers.IO)
-        .map { items: List<Item> ->
-            val now = Clock.System.now().toEpochMilliseconds()
-            val filtered = items.mapNotNull { item: Item ->
-                if (item.priority == ItemPriority.Lowest) return@mapNotNull null
-                val depletionDate = item.estimatedDepletionDate()
-                if (depletionDate == null) {
-                    if (item.priority != ItemPriority.High && item.priority != ItemPriority.Highest) return@mapNotNull null
-                    return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null)
-                }
-                val delta = depletionDate - now
-                val severity = deltaToSeverity(delta)
-                if (severity == Severity.Low) return@mapNotNull null
-                OverviewItemUiModel(item.id, item.name, severity, delta)
-            }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })
-            OverviewUiState.Success(filtered)
-        }
+    val uiState: StateFlow<OverviewUiState> = combine(
+        db.itemQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
+        db.shoppingListEntryQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
+    ) { items, entries ->
+        val inShoppingList = entries.map { it.item_id }.toSet()
+        val now = Clock.System.now().toEpochMilliseconds()
+        val filtered = items.mapNotNull { item: Item ->
+            if (item.priority == ItemPriority.Lowest) return@mapNotNull null
+            val depletionDate = item.estimatedDepletionDate()
+            if (depletionDate == null) {
+                if (item.priority != ItemPriority.High && item.priority != ItemPriority.Highest) return@mapNotNull null
+                return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null, item.id in inShoppingList)
+            }
+            val delta = depletionDate - now
+            val severity = deltaToSeverity(delta)
+            if (severity == Severity.Low) return@mapNotNull null
+            OverviewItemUiModel(item.id, item.name, severity, delta, item.id in inShoppingList)
+        }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })
+        OverviewUiState.Success(filtered)
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
