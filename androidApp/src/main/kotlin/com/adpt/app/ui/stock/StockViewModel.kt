@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
@@ -49,6 +50,30 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = StockUiState.Loading,
         )
+
+    fun markDepleted(itemId: String, updateRate: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val item = db.itemQueries.selectById(itemId).executeAsOneOrNull() ?: return@launch
+            if (updateRate) {
+                val purchasedAt = item.lastPurchasedAt ?: return@launch
+                val qty = item.purchasedQuantity ?: return@launch
+                val now = Clock.System.now().toEpochMilliseconds()
+                val daysDiff = (now - purchasedAt).toDouble() / MILLIS_PER_DAY
+                if (daysDiff > 0) {
+                    db.itemQueries.updateConsumptionRate(
+                        consumptionRate = qty / daysDiff,
+                        id = itemId,
+                    )
+                }
+            }
+            db.itemQueries.updateStock(
+                lastPurchasedAt = null,
+                purchasedQuantity = null,
+                isInStock = false,
+                id = itemId,
+            )
+        }
+    }
 
     private fun Item.toStockUiModel(now: Long): StockItemUiModel? {
         val purchasedAt = lastPurchasedAt ?: return null
