@@ -25,7 +25,7 @@ data class OverviewItemUiModel(
     val id: String,
     val name: String,
     val severity: Severity,
-    val deltaMillis: Long,
+    val deltaMillis: Long?, // null means not in stock
 )
 
 sealed interface OverviewUiState {
@@ -50,12 +50,16 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val now = Clock.System.now().toEpochMilliseconds()
             val filtered = items.mapNotNull { item: Item ->
                 if (item.priority == ItemPriority.Lowest) return@mapNotNull null
-                val depletionDate = item.estimatedDepletionDate() ?: return@mapNotNull null
+                val depletionDate = item.estimatedDepletionDate()
+                if (depletionDate == null) {
+                    if (item.priority != ItemPriority.High && item.priority != ItemPriority.Highest) return@mapNotNull null
+                    return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null)
+                }
                 val delta = depletionDate - now
                 val severity = deltaToSeverity(delta)
                 if (severity == Severity.Low) return@mapNotNull null
                 OverviewItemUiModel(item.id, item.name, severity, delta)
-            }.sortedBy { it.deltaMillis }
+            }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })
             OverviewUiState.Success(filtered)
         }
         .stateIn(

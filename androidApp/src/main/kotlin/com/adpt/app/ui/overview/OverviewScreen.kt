@@ -111,7 +111,7 @@ private fun OverviewItemCard(
                 ) {
                     SeverityBadge(severity = item.severity)
                     Text(
-                        text = item.deltaMillis.toDaysText(),
+                        text = item.deltaMillis?.toDaysText() ?: "Not in stock",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
