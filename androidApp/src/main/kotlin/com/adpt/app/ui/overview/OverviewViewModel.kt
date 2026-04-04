@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -50,12 +51,18 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val errors: SharedFlow<String> = _errors.asSharedFlow()
 
+    private val clockSignal = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
+
+    fun refresh() {
+        clockSignal.value = Clock.System.now().toEpochMilliseconds()
+    }
+
     val uiState: StateFlow<OverviewUiState> = combine(
         db.itemQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         db.shoppingListEntryQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
-    ) { items, entries ->
+        clockSignal,
+    ) { items, entries, now ->
         val inShoppingList = entries.map { it.item_id }.toSet()
-        val now = Clock.System.now().toEpochMilliseconds()
         val filtered = items.mapNotNull { item: Item ->
             if (item.priority == ItemPriority.Lowest) return@mapNotNull null
             val depletionDate = item.estimatedDepletionDate()

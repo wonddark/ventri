@@ -23,15 +23,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -69,15 +72,27 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
     val successItems = (uiState as? OverviewUiState.Success)?.items
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Overview") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Overview") },
+                actions = {
+                    IconButton(onClick = { viewModel.refresh() }) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                        )
+                    }
+                },
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (!successItems.isNullOrEmpty()) {
-                Button(
+                FilledTonalButton  (
                     onClick = { viewModel.addAllToShoppingList(successItems.map { it.id }) },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .fillMaxWidth(fraction = 0.75f)
+                        .padding(all = 16.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
@@ -103,7 +118,7 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Nothing here to show",
+                        text = "Nothing to show here",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
