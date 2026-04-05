@@ -1,6 +1,16 @@
 package com.adpt.app.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -8,6 +18,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -15,8 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,9 +49,15 @@ import com.adpt.app.ui.shopping.ShoppingScreen
 import com.adpt.app.ui.stock.StockScreen
 import kotlinx.coroutines.flow.filterNotNull
 
-private sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
+private sealed class Screen(
+    val route: String,
+    val label: String,
+    val icon: ImageVector
+) {
     data object Overview : Screen("overview", "Overview", Icons.Default.Home)
-    data object Shopping : Screen("shopping", "Shopping", Icons.Default.ShoppingCart)
+    data object Shopping :
+        Screen("shopping", "Shopping", Icons.Default.ShoppingCart)
+
     data object Stock : Screen("stock", "Stock", Icons.Default.Refresh)
     data object Items : Screen("items", "Items", Icons.Default.Menu)
 
@@ -53,7 +77,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         app.pendingNavTarget.filterNotNull().collect { route ->
             navController.navigate(route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
                 launchSingleTop = true
                 restoreState = true
             }
@@ -64,23 +90,68 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            NavigationBar {
-                Screen.tabs.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) },
-                        selected = currentRoute == screen.route ||
-                            (screen == Screen.Items && currentRoute?.startsWith("${screen.route}?") == true),
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = WindowInsets.navigationBars.asPaddingValues()
+                            .calculateBottomPadding()
                     )
+                    .shadow(8.dp, RoundedCornerShape(16.dp))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer { alpha = 0.99f }
+                        .blur(
+                            radius = 15.dp,
+                            edgeTreatment = BlurredEdgeTreatment.Unbounded
+                        )
+                        .background(
+                            color = NavigationBarDefaults.containerColor.copy(
+                                alpha = 0.3f
+                            ),
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                )
+
+                NavigationBar(
+                    windowInsets = WindowInsets(
+                        left = 0.dp,
+                        right = 0.dp,
+                        top = 0.dp,
+                        bottom = 0.dp
+                    ),
+                    modifier = Modifier
+                        .background(
+                            color = Color.Transparent
+                        )
+                ) {
+                    Screen.tabs.forEach { screen ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    screen.icon,
+                                    contentDescription = screen.label
+                                )
+                            },
+                            label = { Text(screen.label) },
+                            selected = currentRoute == screen.route ||
+                                    (screen == Screen.Items && currentRoute?.startsWith(
+                                        "${screen.route}?"
+                                    ) == true),
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                        )
+                    }
                 }
             }
         },
@@ -88,7 +159,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = Screen.Overview.route,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.padding(
+                top = innerPadding.calculateTopPadding(),
+                start = innerPadding.calculateStartPadding(layoutDirection = LayoutDirection.Ltr),
+                end = innerPadding.calculateEndPadding(layoutDirection = LayoutDirection.Ltr)
+            ).consumeWindowInsets(innerPadding),
         ) {
             composable(Screen.Overview.route) { OverviewScreen() }
             composable(Screen.Shopping.route) { ShoppingScreen(navController = navController) }

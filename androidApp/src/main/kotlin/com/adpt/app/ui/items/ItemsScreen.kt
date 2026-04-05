@@ -124,9 +124,13 @@ fun ItemsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            Box(modifier = Modifier.padding()){
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                shape = MaterialTheme.shapes.extraLarge,
+                ) {
                 Icon(Icons.Default.Add, contentDescription = "Add item")
-            }
+            }}
         },
         bottomBar = {
             if (uiState.selectionMode) {
