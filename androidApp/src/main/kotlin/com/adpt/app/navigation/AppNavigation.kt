@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AvTimer
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -60,12 +63,12 @@ private sealed class Screen(
     val label: String,
     val icon: ImageVector
 ) {
-    data object Overview : Screen("overview", "Overview", Icons.Default.Home)
+    data object Overview : Screen("overview", "Overview", Icons.Default.AvTimer)
     data object Shopping :
         Screen("shopping", "Shopping", Icons.Default.ShoppingCart)
 
-    data object Stock : Screen("stock", "Stock", Icons.Default.Refresh)
-    data object Items : Screen("items", "Items", Icons.Default.Menu)
+    data object Stock : Screen("stock", "Stock", Icons.Default.Inventory)
+    data object Items : Screen("items", "Items", Icons.Default.Category)
 
     companion object {
         val tabs = listOf(Overview, Shopping, Stock, Items)
