@@ -36,7 +36,7 @@ data class OverviewItemUiModel(
 
 sealed interface OverviewUiState {
     data object Loading : OverviewUiState
-    data class Success(val items: List<OverviewItemUiModel>) : OverviewUiState
+    data class Success(val items: List<OverviewItemUiModel>, val listVersion: Int = 0) : OverviewUiState
 }
 
 sealed interface OverviewIntent {
@@ -52,16 +52,19 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     val errors: SharedFlow<String> = _errors.asSharedFlow()
 
     private val clockSignal = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
+    private val refreshVersion = MutableStateFlow(0)
 
     fun refresh() {
         clockSignal.value = Clock.System.now().toEpochMilliseconds()
+        refreshVersion.value++
     }
 
     val uiState: StateFlow<OverviewUiState> = combine(
         db.itemQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         db.shoppingListEntryQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         clockSignal,
-    ) { items, entries, now ->
+        refreshVersion,
+    ) { items, entries, now, version ->
         val inShoppingList = entries.map { it.item_id }.toSet()
         val filtered = items.mapNotNull { item: Item ->
             if (item.priority == ItemPriority.Lowest) return@mapNotNull null
@@ -75,7 +78,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             if (severity == Severity.Low) return@mapNotNull null
             OverviewItemUiModel(item.id, item.name, severity, delta, item.id in inShoppingList)
         }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })
-        OverviewUiState.Success(filtered)
+        OverviewUiState.Success(filtered, listVersion = version)
     }
         .stateIn(
             scope = viewModelScope,

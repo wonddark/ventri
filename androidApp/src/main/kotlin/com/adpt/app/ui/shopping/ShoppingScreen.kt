@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.shared.model.ShoppingListStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -172,11 +173,13 @@ fun ShoppingScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(state.items, key = { it.entryId }) { item ->
-                        ShoppingItemCard(
-                            item = item,
-                            onMarkAsPurchased = { purchasingItem = item },
-                            onRemove = { removingItem = item },
-                        )
+                        AnimatedListItem(index = state.items.indexOf(item)) {
+                            ShoppingItemCard(
+                                item = item,
+                                onMarkAsPurchased = { purchasingItem = item },
+                                onRemove = { removingItem = item },
+                            )
+                        }
                     }
                     item {
                         Box(

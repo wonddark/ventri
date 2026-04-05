@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.shared.model.Severity
 import kotlin.math.abs
 
@@ -165,23 +166,28 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(state.items, key = { it.id }) { item ->
-                            OverviewItemCard(
-                                item = item,
-                                onAddToShoppingList = {
-                                    viewModel.handleIntent(
-                                        OverviewIntent.AddToShoppingList(
-                                            item.id
+                            AnimatedListItem(
+                                index = state.items.indexOf(item),
+                                animationKey = state.listVersion,
+                            ) {
+                                OverviewItemCard(
+                                    item = item,
+                                    onAddToShoppingList = {
+                                        viewModel.handleIntent(
+                                            OverviewIntent.AddToShoppingList(
+                                                item.id
+                                            )
                                         )
-                                    )
-                                },
-                                onIgnore = {
-                                    viewModel.handleIntent(
-                                        OverviewIntent.IgnoreItem(
-                                            item.id
+                                    },
+                                    onIgnore = {
+                                        viewModel.handleIntent(
+                                            OverviewIntent.IgnoreItem(
+                                                item.id
+                                            )
                                         )
-                                    )
-                                },
-                            )
+                                    },
+                                )
+                            }
                         }
                     }
                 }

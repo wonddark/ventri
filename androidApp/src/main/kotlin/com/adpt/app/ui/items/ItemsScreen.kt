@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 
@@ -189,13 +190,18 @@ fun ItemsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(uiState.items, key = { it.id }) { item ->
-                    ItemCard(
-                        item = item,
-                        selectionMode = uiState.selectionMode,
-                        isSelected = item.id in uiState.selectedItemIds,
-                        onEdit = { editingItem = item },
-                        onIntent = viewModel::handleIntent,
-                    )
+                    AnimatedListItem(
+                        index = uiState.items.indexOf(item),
+                        animationKey = Pair(uiState.sortOrder, uiState.priorityFilter),
+                    ) {
+                        ItemCard(
+                            item = item,
+                            selectionMode = uiState.selectionMode,
+                            isSelected = item.id in uiState.selectedItemIds,
+                            onEdit = { editingItem = item },
+                            onIntent = viewModel::handleIntent,
+                        )
+                    }
                 }
             }
         }

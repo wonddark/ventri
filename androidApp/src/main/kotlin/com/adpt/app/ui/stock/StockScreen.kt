@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.adpt.app.ui.components.AnimatedListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,10 +90,12 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(state.items, key = { it.id }) { item ->
-                        StockItemCard(
-                            item = item,
-                            onMarkDepleted = { depletingItem = item },
-                        )
+                        AnimatedListItem(index = state.items.indexOf(item)) {
+                            StockItemCard(
+                                item = item,
+                                onMarkDepleted = { depletingItem = item },
+                            )
+                        }
                     }
                 }
             }
