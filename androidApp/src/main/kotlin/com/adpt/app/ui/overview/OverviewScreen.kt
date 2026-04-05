@@ -66,7 +66,11 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.errors.collect { message -> snackbarHostState.showSnackbar(message) }
+        viewModel.errors.collect { message ->
+            snackbarHostState.showSnackbar(
+                message
+            )
+        }
     }
 
     val successItems = (uiState as? OverviewUiState.Success)?.items
@@ -88,25 +92,32 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (!successItems.isNullOrEmpty()) {
-                FilledTonalButton  (
-                    onClick = { viewModel.addAllToShoppingList(successItems.map { it.id }) },
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.75f)
-                        .padding(all = 16.dp),
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    Text("Add All to List")
+                    OutlinedButton(
+                        onClick = { viewModel.addAllToShoppingList(successItems.map { it.id }) },
+                        modifier = Modifier
+                            .fillMaxWidth(fraction = 0.75f)
+                            .padding(all = 16.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text("Add All to List")
+                    }
                 }
             }
         },
     ) { innerPadding ->
         when (val state = uiState) {
             OverviewUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -114,7 +125,9 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
 
             is OverviewUiState.Success -> if (state.items.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -124,9 +137,15 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
                     )
                 }
             } else {
-                val criticalCount = state.items.count { it.severity == Severity.Critical }
-                val highCount = state.items.count { it.severity == Severity.High }
-                Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                val criticalCount =
+                    state.items.count { it.severity == Severity.Critical }
+                val highCount =
+                    state.items.count { it.severity == Severity.High }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -151,17 +170,28 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        ),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(state.items, key = { it.id }) { item ->
                             OverviewItemCard(
                                 item = item,
                                 onAddToShoppingList = {
-                                    viewModel.handleIntent(OverviewIntent.AddToShoppingList(item.id))
+                                    viewModel.handleIntent(
+                                        OverviewIntent.AddToShoppingList(
+                                            item.id
+                                        )
+                                    )
                                 },
                                 onIgnore = {
-                                    viewModel.handleIntent(OverviewIntent.IgnoreItem(item.id))
+                                    viewModel.handleIntent(
+                                        OverviewIntent.IgnoreItem(
+                                            item.id
+                                        )
+                                    )
                                 },
                             )
                         }
