@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -339,12 +340,12 @@ private fun ItemCard(
     }
 
     if (selectionMode) {
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxWidth(),
             onClick = { onIntent(ItemsIntent.ToggleItemSelection(item.id)) },
         ) { cardContent() }
     } else {
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) { cardContent() }
+        Card(modifier = Modifier.fillMaxWidth()) { cardContent() }
     }
 }
 
