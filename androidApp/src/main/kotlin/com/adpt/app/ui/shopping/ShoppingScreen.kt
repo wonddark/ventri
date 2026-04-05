@@ -81,7 +81,9 @@ fun ShoppingScreen(
                 }) { Text("Empty") }
             },
             dismissButton = {
-                TextButton(onClick = { showEmptyConfirm = false }) { Text("Cancel") }
+                TextButton(onClick = {
+                    showEmptyConfirm = false
+                }) { Text("Cancel") }
             },
         )
     }
@@ -102,7 +104,13 @@ fun ShoppingScreen(
             itemName = item.name,
             onDismiss = { purchasingItem = null },
             onConfirm = { amount ->
-                viewModel.handleIntent(ShoppingIntent.MarkAsPurchased(item.entryId, item.itemId, amount))
+                viewModel.handleIntent(
+                    ShoppingIntent.MarkAsPurchased(
+                        item.entryId,
+                        item.itemId,
+                        amount
+                    )
+                )
                 purchasingItem = null
             },
         )
@@ -114,26 +122,39 @@ fun ShoppingScreen(
                 title = { Text("Shopping") },
                 actions = {
                     IconButton(onClick = { showEmptyConfirm = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Empty list")
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Empty list"
+                        )
                     }
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("items?selectionMode=true") }) {
-                Icon(Icons.Default.Add, contentDescription = "Add item to shopping list")
+            FloatingActionButton(
+                onClick = { navController.navigate("items?selectionMode=true") },
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add item to shopping list"
+                )
             }
         },
     ) { innerPadding ->
         when (val state = uiState) {
             ShoppingUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator() }
 
             is ShoppingUiState.Success -> if (state.items.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -144,7 +165,9 @@ fun ShoppingScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -157,11 +180,17 @@ fun ShoppingScreen(
                     }
                     item {
                         Box(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             OutlinedButton(
-                                onClick = { viewModel.handleIntent(ShoppingIntent.ClearList) },
+                                onClick = {
+                                    viewModel.handleIntent(
+                                        ShoppingIntent.ClearList
+                                    )
+                                },
                             ) {
                                 Text("Clear Purchased")
                             }
@@ -187,7 +216,10 @@ private fun ShoppingItemCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 StatusBadge(status = item.status)
                 if (item.status == ShoppingListStatus.Purchased) {
@@ -211,7 +243,10 @@ private fun ShoppingItemCard(
             }
             if (item.status == ShoppingListStatus.Pending) {
                 IconButton(onClick = onMarkAsPurchased) {
-                    Icon(Icons.Default.Check, contentDescription = "Mark as purchased")
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = "Mark as purchased"
+                    )
                 }
             }
             IconButton(onClick = onRemove) {

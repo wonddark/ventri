@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
@@ -94,7 +98,14 @@ fun ItemsScreen(
             initialItem = null,
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
-                viewModel.handleIntent(ItemsIntent.AddItemConfirmed(name, unit, priority, rate))
+                viewModel.handleIntent(
+                    ItemsIntent.AddItemConfirmed(
+                        name,
+                        unit,
+                        priority,
+                        rate
+                    )
+                )
             },
             resultFlow = viewModel.addItemResult,
             onSuccess = { showAddDialog = false },
@@ -108,7 +119,15 @@ fun ItemsScreen(
             initialItem = item,
             onDismiss = { editingItem = null },
             onConfirm = { name, unit, priority, rate ->
-                viewModel.handleIntent(ItemsIntent.EditItemConfirmed(item.id, name, unit, priority, rate))
+                viewModel.handleIntent(
+                    ItemsIntent.EditItemConfirmed(
+                        item.id,
+                        name,
+                        unit,
+                        priority,
+                        rate
+                    )
+                )
             },
             resultFlow = viewModel.editItemResult,
             onSuccess = { editingItem = null },
@@ -124,13 +143,12 @@ fun ItemsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            Box(modifier = Modifier.padding()){
             FloatingActionButton(
                 onClick = { showAddDialog = true },
                 shape = MaterialTheme.shapes.extraLarge,
-                ) {
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add item")
-            }}
+            }
         },
         bottomBar = {
             if (uiState.selectionMode) {
@@ -144,12 +162,16 @@ fun ItemsScreen(
     ) { innerPadding ->
         when {
             uiState.isLoading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator() }
 
             uiState.items.isEmpty() -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -160,7 +182,9 @@ fun ItemsScreen(
             }
 
             else -> LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
@@ -193,7 +217,10 @@ private fun ItemsTopBar(
         TopAppBar(
             navigationIcon = {
                 IconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Close search")
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = "Close search"
+                    )
                 }
             },
             title = {
@@ -228,7 +255,10 @@ private fun ItemsTopBar(
                 }
                 Box {
                     IconButton(onClick = { showSortMenu = true }) {
-                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+                        Icon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = "Sort"
+                        )
                     }
                     DropdownMenu(
                         expanded = showSortMenu,
@@ -257,7 +287,10 @@ private fun ItemsTopBar(
                 }
                 Box {
                     IconButton(onClick = { showFilterMenu = true }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter by priority")
+                        Icon(
+                            Icons.Default.FilterList,
+                            contentDescription = "Filter by priority"
+                        )
                     }
                     DropdownMenu(
                         expanded = showFilterMenu,
@@ -269,12 +302,24 @@ private fun ItemsTopBar(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Checkbox(
                                             checked = priority in uiState.priorityFilter,
-                                            onCheckedChange = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
+                                            onCheckedChange = {
+                                                onIntent(
+                                                    ItemsIntent.PriorityFilterToggled(
+                                                        priority
+                                                    )
+                                                )
+                                            },
                                         )
                                         Text(priority.name)
                                     }
                                 },
-                                onClick = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
+                                onClick = {
+                                    onIntent(
+                                        ItemsIntent.PriorityFilterToggled(
+                                            priority
+                                        )
+                                    )
+                                },
                             )
                         }
                     }
@@ -307,7 +352,10 @@ private fun ItemCard(
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "${item.unit.name} · ${item.consumptionRate}/day",
@@ -319,7 +367,10 @@ private fun ItemCard(
             if (!selectionMode) {
                 Box {
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "More options"
+                        )
                     }
                     DropdownMenu(
                         expanded = showMenu,
@@ -331,11 +382,20 @@ private fun ItemCard(
                         )
                         DropdownMenuItem(
                             text = { Text("Remove") },
-                            onClick = { onIntent(ItemsIntent.RemoveItem(item.id)); showMenu = false },
+                            onClick = {
+                                onIntent(ItemsIntent.RemoveItem(item.id)); showMenu =
+                                false
+                            },
                         )
                         DropdownMenuItem(
                             text = { Text("Add to Shopping List") },
-                            onClick = { onIntent(ItemsIntent.AddToShoppingList(item.id)); showMenu = false },
+                            onClick = {
+                                onIntent(
+                                    ItemsIntent.AddToShoppingList(
+                                        item.id
+                                    )
+                                ); showMenu = false
+                            },
                         )
                     }
                 }
@@ -396,11 +456,23 @@ private fun ItemFormDialog(
 ) {
     var name by rememberSaveable { mutableStateOf(initialItem?.name ?: "") }
     var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedUnit by rememberSaveable { mutableStateOf(initialItem?.unit ?: ItemUnit.PIECE) }
+    var selectedUnit by rememberSaveable {
+        mutableStateOf(
+            initialItem?.unit ?: ItemUnit.PIECE
+        )
+    }
     var unitExpanded by remember { mutableStateOf(false) }
-    var selectedPriority by rememberSaveable { mutableStateOf(initialItem?.priority ?: ItemPriority.Normal) }
+    var selectedPriority by rememberSaveable {
+        mutableStateOf(
+            initialItem?.priority ?: ItemPriority.Normal
+        )
+    }
     var priorityExpanded by remember { mutableStateOf(false) }
-    var rateText by rememberSaveable { mutableStateOf(initialItem?.consumptionRate?.toString() ?: "") }
+    var rateText by rememberSaveable {
+        mutableStateOf(
+            initialItem?.consumptionRate?.toString() ?: ""
+        )
+    }
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -417,9 +489,17 @@ private fun ItemFormDialog(
         }
         val rate = rateText.toDoubleOrNull()
         when {
-            rateText.isBlank() -> { rateError = "Consumption rate is required"; valid = false }
-            rate == null -> { rateError = "Enter a valid number"; valid = false }
-            rate <= 0.0 -> { rateError = "Must be greater than 0"; valid = false }
+            rateText.isBlank() -> {
+                rateError = "Consumption rate is required"; valid = false
+            }
+
+            rate == null -> {
+                rateError = "Enter a valid number"; valid = false
+            }
+
+            rate <= 0.0 -> {
+                rateError = "Must be greater than 0"; valid = false
+            }
         }
         return valid
     }
@@ -447,8 +527,14 @@ private fun ItemFormDialog(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Unit") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = unitExpanded
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     )
                     ExposedDropdownMenu(
                         expanded = unitExpanded,
@@ -457,7 +543,9 @@ private fun ItemFormDialog(
                         ItemUnit.entries.forEach { unit ->
                             DropdownMenuItem(
                                 text = { Text(unit.name) },
-                                onClick = { selectedUnit = unit; unitExpanded = false },
+                                onClick = {
+                                    selectedUnit = unit; unitExpanded = false
+                                },
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                             )
                         }
@@ -472,8 +560,14 @@ private fun ItemFormDialog(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Priority") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = priorityExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = priorityExpanded
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     )
                     ExposedDropdownMenu(
                         expanded = priorityExpanded,
@@ -482,7 +576,10 @@ private fun ItemFormDialog(
                         ItemPriority.entries.forEach { priority ->
                             DropdownMenuItem(
                                 text = { Text(priority.name) },
-                                onClick = { selectedPriority = priority; priorityExpanded = false },
+                                onClick = {
+                                    selectedPriority =
+                                        priority; priorityExpanded = false
+                                },
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                             )
                         }
@@ -503,7 +600,12 @@ private fun ItemFormDialog(
         confirmButton = {
             TextButton(onClick = {
                 if (validate()) {
-                    onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDouble())
+                    onConfirm(
+                        name.trim(),
+                        selectedUnit,
+                        selectedPriority,
+                        rateText.toDouble()
+                    )
                 }
             }) { Text(confirmLabel) }
         },

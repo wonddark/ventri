@@ -196,11 +196,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             navController = navController,
             startDestination = Screen.Overview.route,
             modifier = Modifier
-                .padding(
-                    top = innerPadding.calculateTopPadding(),
-                    start = innerPadding.calculateStartPadding(layoutDirection = LayoutDirection.Ltr),
-                    end = innerPadding.calculateEndPadding(layoutDirection = LayoutDirection.Ltr)
-                )
+                .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
         ) {
             composable(Screen.Overview.route) { OverviewScreen() }
