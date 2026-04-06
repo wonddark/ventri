@@ -14,17 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,51 +25,60 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.ui.components.AnimatedListItem
+import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.components.AdptCard
+import com.adpt.app.ui.design.components.AdptDialog
+import com.adpt.app.ui.design.components.AdptIcon
+import com.adpt.app.ui.design.components.AdptIconButton
+import com.adpt.app.ui.design.components.AdptProgressIndicator
+import com.adpt.app.ui.design.components.AdptScaffold
+import com.adpt.app.ui.design.components.AdptText
+import com.adpt.app.ui.design.components.AdptTextButton
+import com.adpt.app.ui.design.components.AdptTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockScreen(viewModel: StockViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var depletingItem by remember { mutableStateOf<StockItemUiModel?>(null) }
 
     depletingItem?.let { item ->
-        AlertDialog(
+        AdptDialog(
             onDismissRequest = { depletingItem = null },
-            title = { Text("Update consumption rate?") },
-            text = { Text("Would you like to recalculate the consumption rate based on actual usage since the last purchase?") },
+            title = { AdptText("Update consumption rate?", style = AdptTheme.typography.titleSmall) },
+            text = { AdptText("Would you like to recalculate the consumption rate based on actual usage since the last purchase?") },
             confirmButton = {
-                TextButton(onClick = {
+                AdptTextButton(onClick = {
                     viewModel.markDepleted(item.id, updateRate = true)
                     depletingItem = null
-                }) { Text("Yes") }
+                }) { AdptText("Yes", color = AdptTheme.colors.accent) }
             },
             dismissButton = {
-                TextButton(onClick = {
+                AdptTextButton(onClick = {
                     viewModel.markDepleted(item.id, updateRate = false)
                     depletingItem = null
-                }) { Text("No") }
+                }) { AdptText("No", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)) }
             },
         )
     }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Stock") }) },
+    AdptScaffold(
+        topBar = { AdptTopBar(title = { AdptText("Stock", style = AdptTheme.typography.titleLarge) }) },
     ) { innerPadding ->
         when (val state = uiState) {
             StockUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            ) { AdptProgressIndicator() }
 
             is StockUiState.Success -> if (state.items.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = "Nothing here to show",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    AdptText(
+                        "Nothing here to show",
+                        style = AdptTheme.typography.bodyMedium,
+                        color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
                     )
                 }
             } else {
@@ -91,10 +89,7 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                 ) {
                     items(state.items, key = { it.id }) { item ->
                         AnimatedListItem(index = state.items.indexOf(item)) {
-                            StockItemCard(
-                                item = item,
-                                onMarkDepleted = { depletingItem = item },
-                            )
+                            StockItemCard(item = item, onMarkDepleted = { depletingItem = item })
                         }
                     }
                 }
@@ -105,7 +100,7 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
 
 @Composable
 private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,24 +108,24 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.name, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
+                AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                AdptText(
                     text = item.daysRemainingLabel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = AdptTheme.typography.bodySmall,
+                    color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
                 )
             }
-            Text(
+            AdptText(
                 text = "${item.remainingQuantity.formatQuantity()} ${item.unit.name}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = AdptTheme.typography.bodyMedium,
+                color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
             )
-            IconButton(onClick = onMarkDepleted) {
-                Icon(
+            AdptIconButton(onClick = onMarkDepleted) {
+                AdptIcon(
                     imageVector = Icons.Outlined.RemoveShoppingCart,
                     contentDescription = "Mark as depleted",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
                 )
             }
         }
