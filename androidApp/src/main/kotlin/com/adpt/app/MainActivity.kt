@@ -11,7 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.adpt.app.navigation.AppNavigation
-import com.adpt.app.ui.theme.AdptTheme
+import com.adpt.app.ui.design.AdptTheme
 
 class MainActivity : ComponentActivity() {
 
