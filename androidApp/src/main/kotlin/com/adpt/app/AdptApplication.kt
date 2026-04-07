@@ -31,10 +31,10 @@ class AdptApplication : Application() {
     }
 
     private fun scheduleDailyStockCheck() {
-        val request = PeriodicWorkRequestBuilder<CriticalItemsWorker>(1, TimeUnit.DAYS).build()
+        val request = PeriodicWorkRequestBuilder<CriticalItemsWorker>(15, TimeUnit.MINUTES).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             CriticalItemsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             request,
         )
     }

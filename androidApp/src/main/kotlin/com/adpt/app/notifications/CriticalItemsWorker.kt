@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.adpt.app.AdptApplication
+import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
 import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
@@ -26,8 +27,13 @@ class CriticalItemsWorker(
 
         val criticalItems = withContext(Dispatchers.IO) {
             db.itemQueries.selectAll().executeAsList().filter { item ->
-                val depletion = item.estimatedDepletionDate() ?: return@filter false
-                deltaToSeverity(depletion - now) == Severity.Critical
+                val depletion = item.estimatedDepletionDate()
+                if (depletion == null) {
+                    // Out of stock: critical if High or Highest priority
+                    item.priority == ItemPriority.High || item.priority == ItemPriority.Highest
+                } else {
+                    deltaToSeverity(depletion - now) == Severity.Critical
+                }
             }
         }
 
