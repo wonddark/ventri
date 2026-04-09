@@ -10,6 +10,7 @@ import com.adpt.shared.db.Item
 import com.adpt.shared.model.AddToShoppingListResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
+import com.adpt.shared.model.ThresholdConfig
 import com.adpt.shared.util.addToShoppingList
 import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
@@ -74,7 +75,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null, item.id in inShoppingList)
             }
             val delta = depletionDate - now
-            val severity = deltaToSeverity(delta)
+            val severity = deltaToSeverity(delta, ThresholdConfig())
             if (severity == Severity.Low) return@mapNotNull null
             OverviewItemUiModel(item.id, item.name, severity, delta, item.id in inShoppingList)
         }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })

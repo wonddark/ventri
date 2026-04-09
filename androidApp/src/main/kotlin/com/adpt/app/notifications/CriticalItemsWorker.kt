@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import com.adpt.app.AdptApplication
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
+import com.adpt.shared.model.ThresholdConfig
 import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,7 @@ class CriticalItemsWorker(
                     // Out of stock: critical if High or Highest priority
                     item.priority == ItemPriority.High || item.priority == ItemPriority.Highest
                 } else {
-                    deltaToSeverity(depletion - now) == Severity.Critical
+                    deltaToSeverity(depletion - now, ThresholdConfig()) == Severity.Critical
                 }
             }
         }
