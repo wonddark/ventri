@@ -6,7 +6,6 @@ import androidx.work.WorkerParameters
 import com.adpt.app.AdptApplication
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
-import com.adpt.shared.model.ThresholdConfig
 import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
 import kotlinx.coroutines.Dispatchers
@@ -23,17 +22,18 @@ class CriticalItemsWorker(
     }
 
     override suspend fun doWork(): Result {
-        val db = (applicationContext as AdptApplication).database
+        val app = applicationContext as AdptApplication
+        val db = app.database
+        val thresholds = app.prefs.thresholdConfig.value
         val now = Clock.System.now().toEpochMilliseconds()
 
         val criticalItems = withContext(Dispatchers.IO) {
             db.itemQueries.selectAll().executeAsList().filter { item ->
                 val depletion = item.estimatedDepletionDate()
                 if (depletion == null) {
-                    // Out of stock: critical if High or Highest priority
                     item.priority == ItemPriority.High || item.priority == ItemPriority.Highest
                 } else {
-                    deltaToSeverity(depletion - now, ThresholdConfig()) == Severity.Critical
+                    deltaToSeverity(depletion - now, thresholds) == Severity.Critical
                 }
             }
         }
