@@ -8,9 +8,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adpt.app.navigation.AppNavigation
+import com.adpt.app.preferences.ThemeMode
 import com.adpt.app.ui.theme.AdptTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,8 +28,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         handleIntent(intent)
         requestNotificationPermissionIfNeeded()
+
+        val app = application as AdptApplication
         setContent {
-            AdptTheme {
+            val themeMode by app.prefs.themeMode.collectAsStateWithLifecycle()
+            val isDark = when (themeMode) {
+                ThemeMode.Light -> false
+                ThemeMode.Dark -> true
+                ThemeMode.System -> isSystemInDarkTheme()
+            }
+            AdptTheme(darkTheme = isDark) {
                 AppNavigation()
             }
         }
