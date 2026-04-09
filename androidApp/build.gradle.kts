@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.compose.lifecycle.runtime)
     implementation(libs.navigation.compose)
     implementation(libs.workmanager)
+    implementation(libs.datastore.preferences)
 
     debugImplementation(libs.compose.ui.tooling)
 }
