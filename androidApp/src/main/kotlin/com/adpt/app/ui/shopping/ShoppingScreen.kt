@@ -1,5 +1,11 @@
 package com.adpt.app.ui.shopping
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +25,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +40,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.LocalBarsVisible
+import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptChip
 import com.adpt.app.ui.design.components.AdptDialog
@@ -39,7 +50,6 @@ import com.adpt.app.ui.design.components.AdptIcon
 import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptOutlinedButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptScaffold
 import com.adpt.app.ui.design.components.AdptText
 import com.adpt.app.ui.design.components.AdptTextField
 import com.adpt.app.ui.design.components.AdptTextButton
@@ -53,6 +63,12 @@ fun ShoppingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pendingError by viewModel.pendingError.collectAsStateWithLifecycle()
+    val navBarHeight = LocalNavBarHeight.current
+    val barsVisible = LocalBarsVisible.current
+    val density = LocalDensity.current
+
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
     pendingError?.let { error ->
         AdptDialog(
@@ -152,32 +168,18 @@ fun ShoppingScreen(
         )
     }
 
-    AdptScaffold(
-        topBar = {
-            AdptTopBar(
-                title = { AdptText("Shopping", style = AdptTheme.typography.titleLarge) },
-                actions = {
-                    AdptIconButton(onClick = { showEmptyConfirm = true }) {
-                        AdptIcon(Icons.Default.Delete, contentDescription = "Empty list")
-                    }
-                },
-            )
-        },
-        floatingActionButton = {
-            AdptFab(onClick = { navController.navigate("items?selectionMode=true") }) {
-                AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
-            }
-        },
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
         when (val state = uiState) {
             ShoppingUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { AdptProgressIndicator() }
 
             is ShoppingUiState.Success -> if (state.items.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = topBarHeightDp, bottom = navBarHeight),
                     contentAlignment = Alignment.Center,
                 ) {
                     AdptText(
@@ -188,10 +190,23 @@ fun ShoppingScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = topBarHeightDp,
+                        bottom = navBarHeight + 72.dp, // extra space for FAB
+                        start = 16.dp,
+                        end = 16.dp,
+                    ),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    item(key = "header") {
+                        AdptText(
+                            text = "${state.items.size} item${if (state.items.size != 1) "s" else ""}",
+                            style = AdptTheme.typography.bodySmall,
+                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                        )
+                    }
                     items(state.items, key = { it.entryId }) { item ->
                         AnimatedListItem(index = state.items.indexOf(item)) {
                             ShoppingItemCard(
@@ -201,7 +216,7 @@ fun ShoppingScreen(
                             )
                         }
                     }
-                    item {
+                    item(key = "clear") {
                         Box(
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                             contentAlignment = Alignment.Center,
@@ -212,6 +227,31 @@ fun ShoppingScreen(
                         }
                     }
                 }
+            }
+        }
+
+        // Pinned top bar overlay
+        AdptTopBar(
+            title = { AdptText("Shopping", style = AdptTheme.typography.titleLarge) },
+            actions = {
+                AdptIconButton(onClick = { showEmptyConfirm = true }) {
+                    AdptIcon(Icons.Default.Delete, contentDescription = "Empty list")
+                }
+            },
+            modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
+
+        // FAB
+        AnimatedVisibility(
+            visible = barsVisible,
+            enter = scaleIn() + fadeIn(),
+            exit = scaleOut() + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
+        ) {
+            AdptFab(onClick = { navController.navigate("items?selectionMode=true") }) {
+                AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
             }
         }
     }

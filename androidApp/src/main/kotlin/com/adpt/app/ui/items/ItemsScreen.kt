@@ -1,5 +1,13 @@
 package com.adpt.app.ui.items
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,13 +27,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,6 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -43,6 +54,8 @@ import androidx.navigation.NavController
 import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.LocalBarsVisible
+import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptButton
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptCheckbox
@@ -57,7 +70,6 @@ import com.adpt.app.ui.design.components.AdptIcon
 import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptOutlinedButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptScaffold
 import com.adpt.app.ui.design.components.AdptSnackbarHost
 import com.adpt.app.ui.design.components.AdptSurface
 import com.adpt.app.ui.design.components.AdptText
@@ -78,6 +90,12 @@ fun ItemsScreen(
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
     val snackbarState = rememberAdptSnackbarHostState()
+    val navBarHeight = LocalNavBarHeight.current
+    val barsVisible = LocalBarsVisible.current
+    val density = LocalDensity.current
+
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
     LaunchedEffect(viewModel.snackbarMessage) {
         viewModel.snackbarMessage.collect { snackbarState.showSnackbar(it) }
@@ -115,34 +133,20 @@ fun ItemsScreen(
         )
     }
 
-    AdptScaffold(
-        topBar = {
-            ItemsTopBar(uiState = uiState, onIntent = viewModel::handleIntent)
-        },
-        snackbarHost = { AdptSnackbarHost(snackbarState) },
-        floatingActionButton = {
-            AdptFab(onClick = { showAddDialog = true }) {
-                AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
-            }
-        },
-        bottomBar = {
-            if (uiState.selectionMode) {
-                SelectionActionStrip(
-                    selectedCount = uiState.selectedItemIds.size,
-                    onCancel = { viewModel.handleIntent(ItemsIntent.SelectionCancelled) },
-                    onConfirm = { viewModel.handleIntent(ItemsIntent.SelectionConfirmed) },
-                )
-            }
-        },
-    ) { innerPadding ->
+    // Bottom padding: in selection mode, reserve space for the SelectionActionStrip
+    val selectionStripHeight = if (uiState.selectionMode) 80.dp else 0.dp
+
+    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
         when {
             uiState.isLoading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { AdptProgressIndicator() }
 
             uiState.items.isEmpty() -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = topBarHeightDp, bottom = navBarHeight),
                 contentAlignment = Alignment.Center,
             ) {
                 AdptText(
@@ -153,10 +157,26 @@ fun ItemsScreen(
             }
 
             else -> LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
-                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = topBarHeightDp,
+                    bottom = if (uiState.selectionMode) selectionStripHeight + 16.dp
+                             else navBarHeight + 72.dp, // extra space for FAB when browsing
+                    start = 16.dp,
+                    end = 16.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                if (!uiState.selectionMode) {
+                    item(key = "header") {
+                        AdptText(
+                            text = "${uiState.items.size} item${if (uiState.items.size != 1) "s" else ""}",
+                            style = AdptTheme.typography.bodySmall,
+                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                        )
+                    }
+                }
                 items(uiState.items, key = { it.id }) { item ->
                     AnimatedListItem(
                         index = uiState.items.indexOf(item),
@@ -173,11 +193,61 @@ fun ItemsScreen(
                 }
             }
         }
+
+        // Pinned top bar overlay
+        ItemsTopBar(
+            uiState = uiState,
+            onIntent = viewModel::handleIntent,
+            modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
+
+        // FAB (only in browse mode)
+        if (!uiState.selectionMode) {
+            AnimatedVisibility(
+                visible = barsVisible,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
+            ) {
+                AdptFab(onClick = { showAddDialog = true }) {
+                    AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
+                }
+            }
+        }
+
+        // SelectionActionStrip overlay (only in selection mode)
+        AnimatedVisibility(
+            visible = uiState.selectionMode,
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            SelectionActionStrip(
+                selectedCount = uiState.selectedItemIds.size,
+                onCancel = { viewModel.handleIntent(ItemsIntent.SelectionCancelled) },
+                onConfirm = { viewModel.handleIntent(ItemsIntent.SelectionConfirmed) },
+            )
+        }
+
+        // Snackbar
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
+        ) {
+            AdptSnackbarHost(snackbarState)
+        }
     }
 }
 
 @Composable
-private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) {
+private fun ItemsTopBar(
+    uiState: ItemsUiState,
+    onIntent: (ItemsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     if (uiState.isSearchActive) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
@@ -196,16 +266,17 @@ private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) 
             },
             navigationIcon = {
                 AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    AdptIcon(Icons.Default.ArrowBack, contentDescription = "Close search")
+                    AdptIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
                 }
             },
+            modifier = modifier,
         )
     } else if (uiState.selectionMode) {
         AdptTopBar(
             title = { AdptText("Add to shopping list", style = AdptTheme.typography.titleLarge) },
             navigationIcon = {
                 AdptIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
-                    AdptIcon(Icons.Default.ArrowBack, contentDescription = "Cancel selection")
+                    AdptIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel selection")
                 }
             },
             actions = {
@@ -213,6 +284,7 @@ private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) 
                     AdptIcon(Icons.Default.Search, contentDescription = "Search")
                 }
             },
+            modifier = modifier,
         )
     } else {
         var showSortMenu by remember { mutableStateOf(false) }
@@ -262,6 +334,7 @@ private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) 
                     }
                 }
             },
+            modifier = modifier,
         )
     }
 }

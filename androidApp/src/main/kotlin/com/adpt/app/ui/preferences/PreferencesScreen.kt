@@ -23,12 +23,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,7 +41,6 @@ import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
 import com.adpt.app.ui.design.components.AdptIcon
 import com.adpt.app.ui.design.components.AdptIconButton
-import com.adpt.app.ui.design.components.AdptScaffold
 import com.adpt.app.ui.design.components.AdptText
 import com.adpt.app.ui.design.components.AdptTopBar
 import com.adpt.app.ui.design.components.ripple
@@ -51,27 +53,17 @@ fun PreferencesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = AdptTheme.colors
     val typography = AdptTheme.typography
+    val density = LocalDensity.current
 
-    AdptScaffold(
-        topBar = {
-            AdptTopBar(
-                title = { AdptText("Preferences", style = typography.titleMedium) },
-                navigationIcon = {
-                    AdptIconButton(onClick = onNavigateUp) {
-                        AdptIcon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                        )
-                    }
-                },
-            )
-        },
-    ) { innerPadding ->
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
+
+    Box(modifier = Modifier.fillMaxSize().background(colors.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
+                .padding(top = topBarHeightDp)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
@@ -223,6 +215,20 @@ fun PreferencesScreen(
                 daysSuffix = "+",
             )
         }
+
+        // Pinned top bar overlay
+        AdptTopBar(
+            title = { AdptText("Preferences", style = typography.titleMedium) },
+            navigationIcon = {
+                AdptIconButton(onClick = onNavigateUp) {
+                    AdptIcon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                    )
+                }
+            },
+            modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
     }
 }
 

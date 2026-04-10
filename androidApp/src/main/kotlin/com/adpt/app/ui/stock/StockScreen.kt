@@ -1,5 +1,6 @@
 package com.adpt.app.ui.stock
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,22 +17,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptDialog
 import com.adpt.app.ui.design.components.AdptIcon
 import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptScaffold
 import com.adpt.app.ui.design.components.AdptText
 import com.adpt.app.ui.design.components.AdptTextButton
 import com.adpt.app.ui.design.components.AdptTopBar
@@ -39,6 +43,12 @@ import com.adpt.app.ui.design.components.AdptTopBar
 @Composable
 fun StockScreen(viewModel: StockViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val navBarHeight = LocalNavBarHeight.current
+    val density = LocalDensity.current
+
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
+
     var depletingItem by remember { mutableStateOf<StockItemUiModel?>(null) }
 
     depletingItem?.let { item ->
@@ -61,18 +71,18 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
         )
     }
 
-    AdptScaffold(
-        topBar = { AdptTopBar(title = { AdptText("Stock", style = AdptTheme.typography.titleLarge) }) },
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
         when (val state = uiState) {
             StockUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { AdptProgressIndicator() }
 
             is StockUiState.Success -> if (state.items.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = topBarHeightDp, bottom = navBarHeight),
                     contentAlignment = Alignment.Center,
                 ) {
                     AdptText(
@@ -83,10 +93,23 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = topBarHeightDp,
+                        bottom = navBarHeight + 16.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                    ),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    item(key = "header") {
+                        AdptText(
+                            text = "${state.items.size} item${if (state.items.size != 1) "s" else ""} in stock",
+                            style = AdptTheme.typography.bodySmall,
+                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                        )
+                    }
                     items(state.items, key = { it.id }) { item ->
                         AnimatedListItem(index = state.items.indexOf(item)) {
                             StockItemCard(item = item, onMarkDepleted = { depletingItem = item })
@@ -95,6 +118,12 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                 }
             }
         }
+
+        // Pinned top bar overlay
+        AdptTopBar(
+            title = { AdptText("Stock", style = AdptTheme.typography.titleLarge) },
+            modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
     }
 }
 

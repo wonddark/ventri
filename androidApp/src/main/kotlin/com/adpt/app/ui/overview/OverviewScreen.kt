@@ -1,5 +1,10 @@
 package com.adpt.app.ui.overview
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,23 +36,28 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.ui.components.AnimatedListItem
 import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.LocalBarsVisible
+import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptFab
 import com.adpt.app.ui.design.components.AdptIcon
 import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptScaffold
 import com.adpt.app.ui.design.components.AdptSnackbarHost
 import com.adpt.app.ui.design.components.AdptSurface
 import com.adpt.app.ui.design.components.AdptText
@@ -65,6 +76,9 @@ fun OverviewScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = rememberAdptSnackbarHostState()
+    val navBarHeight = LocalNavBarHeight.current
+    val barsVisible = LocalBarsVisible.current
+    val density = LocalDensity.current
 
     LaunchedEffect(Unit) {
         viewModel.errors.collect { message ->
@@ -73,49 +87,15 @@ fun OverviewScreen(
     }
 
     val successItems = (uiState as? OverviewUiState.Success)?.items
+    val colors = AdptTheme.colors
 
-    AdptScaffold(
-        topBar = {
-            AdptTopBar(
-                title = { AdptText("Overview", style = AdptTheme.typography.titleMedium) },
-                actions = {
-                    AdptIconButton(onClick = onOpenSettings) {
-                        AdptIcon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                        )
-                    }
-                    AdptIconButton(onClick = { viewModel.refresh() }) {
-                        AdptIcon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                        )
-                    }
-                },
-            )
-        },
-        snackbarHost = { AdptSnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            if (!successItems.isNullOrEmpty()) {
-                AdptFab(
-                    onClick = {
-                        viewModel.addAllToShoppingList(successItems.map { it.id })
-                    },
-                ) {
-                    AdptIcon(
-                        imageVector = Icons.Default.AddShoppingCart,
-                        contentDescription = null,
-                        tint = AdptTheme.colors.onAccent,
-                    )
-                }
-            }
-        },
-    ) { innerPadding ->
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
+
+    Box(modifier = Modifier.fillMaxSize().background(colors.background)) {
         when (val state = uiState) {
             OverviewUiState.Loading -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) {
                 AdptProgressIndicator()
@@ -125,97 +105,150 @@ fun OverviewScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
+                        .padding(top = topBarHeightDp, bottom = navBarHeight),
                     contentAlignment = Alignment.Center,
                 ) {
                     AdptText(
                         text = "Nothing to show here",
                         style = AdptTheme.typography.bodyMedium,
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                        color = colors.onSurface.copy(alpha = 0.6f),
                     )
                 }
             } else {
-                val colors = AdptTheme.colors
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = topBarHeightDp,
+                        bottom = navBarHeight + 72.dp, // extra space for FAB
+                        start = 16.dp,
+                        end = 16.dp,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        val criticalSelected = state.severityFilter == Severity.Critical
-                        SummaryChip(
-                            count = state.criticalCount,
-                            label = "Critical",
-                            containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
-                            contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
-                            onClick = {
-                                viewModel.handleIntent(
-                                    OverviewIntent.ToggleSeverityFilter(Severity.Critical)
-                                )
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-                        val highSelected = state.severityFilter == Severity.High
-                        SummaryChip(
-                            count = state.highCount,
-                            label = "High",
-                            containerColor = if (highSelected) colors.warning else colors.warningContainer,
-                            contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
-                            onClick = {
-                                viewModel.handleIntent(
-                                    OverviewIntent.ToggleSeverityFilter(Severity.High)
-                                )
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
+                    item(key = "chips") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            val criticalSelected = state.severityFilter == Severity.Critical
+                            SummaryChip(
+                                count = state.criticalCount,
+                                label = "Critical",
+                                containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
+                                contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
+                                onClick = {
+                                    viewModel.handleIntent(
+                                        OverviewIntent.ToggleSeverityFilter(Severity.Critical)
+                                    )
+                                },
+                            )
+                            val highSelected = state.severityFilter == Severity.High
+                            SummaryChip(
+                                count = state.highCount,
+                                label = "High",
+                                containerColor = if (highSelected) colors.warning else colors.warningContainer,
+                                contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
+                                onClick = {
+                                    viewModel.handleIntent(
+                                        OverviewIntent.ToggleSeverityFilter(Severity.High)
+                                    )
+                                },
+                            )
+                        }
                     }
 
                     if (state.items.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            AdptText(
-                                text = "No items match this filter",
-                                style = AdptTheme.typography.bodyMedium,
-                                color = colors.onSurface.copy(alpha = 0.6f),
-                            )
+                        item(key = "empty") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                AdptText(
+                                    text = "No items match this filter",
+                                    style = AdptTheme.typography.bodyMedium,
+                                    color = colors.onSurface.copy(alpha = 0.6f),
+                                )
+                            }
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(state.items, key = { it.id }) { item ->
-                                AnimatedListItem(
-                                    index = state.items.indexOf(item),
-                                    animationKey = state.listVersion,
-                                ) {
-                                    OverviewItemCard(
-                                        item = item,
-                                        onAddToShoppingList = {
-                                            viewModel.handleIntent(
-                                                OverviewIntent.AddToShoppingList(item.id)
-                                            )
-                                        },
-                                        onIgnore = {
-                                            viewModel.handleIntent(
-                                                OverviewIntent.IgnoreItem(item.id)
-                                            )
-                                        },
-                                    )
-                                }
+                        items(state.items, key = { it.id }) { item ->
+                            AnimatedListItem(
+                                index = state.items.indexOf(item),
+                                animationKey = state.listVersion,
+                            ) {
+                                OverviewItemCard(
+                                    item = item,
+                                    onAddToShoppingList = {
+                                        viewModel.handleIntent(
+                                            OverviewIntent.AddToShoppingList(item.id)
+                                        )
+                                    },
+                                    onIgnore = {
+                                        viewModel.handleIntent(
+                                            OverviewIntent.IgnoreItem(item.id)
+                                        )
+                                    },
+                                )
                             }
                         }
                     }
                 }
             }
+        }
+
+        // Pinned top bar overlay
+        AdptTopBar(
+            title = { AdptText("Overview", style = AdptTheme.typography.titleMedium) },
+            actions = {
+                AdptIconButton(onClick = onOpenSettings) {
+                    AdptIcon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                    )
+                }
+                AdptIconButton(onClick = { viewModel.refresh() }) {
+                    AdptIcon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh",
+                    )
+                }
+            },
+            modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
+
+        // FAB
+        AnimatedVisibility(
+            visible = barsVisible && !successItems.isNullOrEmpty(),
+            enter = scaleIn() + fadeIn(),
+            exit = scaleOut() + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
+        ) {
+            AdptFab(
+                onClick = {
+                    viewModel.addAllToShoppingList(successItems!!.map { it.id })
+                },
+            ) {
+                AdptIcon(
+                    imageVector = Icons.Default.AddShoppingCart,
+                    contentDescription = null,
+                    tint = AdptTheme.colors.onAccent,
+                )
+            }
+        }
+
+        // Snackbar
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
+        ) {
+            AdptSnackbarHost(snackbarHostState)
         }
     }
 }
@@ -241,19 +274,18 @@ private fun SummaryChip(
             ),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
             AdptText(
                 text = count.toString(),
-                style = AdptTheme.typography.titleLarge,
+                style = AdptTheme.typography.labelMedium,
                 color = contentColor,
             )
+            Spacer(modifier = Modifier.width(4.dp))
             AdptText(
-                text = " $label",
+                text = label,
                 style = AdptTheme.typography.labelMedium,
                 color = contentColor,
             )
