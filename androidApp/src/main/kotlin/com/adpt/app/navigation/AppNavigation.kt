@@ -45,6 +45,7 @@ import androidx.navigation.navArgument
 import com.adpt.app.AdptApplication
 import com.adpt.app.ui.items.ItemsScreen
 import com.adpt.app.ui.overview.OverviewScreen
+import com.adpt.app.ui.preferences.PreferencesScreen
 import com.adpt.app.ui.shopping.ShoppingScreen
 import com.adpt.app.ui.stock.StockScreen
 import kotlinx.coroutines.flow.filterNotNull
@@ -193,9 +194,14 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
         ) {
-            composable(Screen.Overview.route) { OverviewScreen() }
+            composable(Screen.Overview.route) {
+                OverviewScreen(onOpenSettings = { navController.navigate("preferences") })
+            }
             composable(Screen.Shopping.route) { ShoppingScreen(navController = navController) }
             composable(Screen.Stock.route) { StockScreen() }
+            composable("preferences") {
+                PreferencesScreen(onNavigateUp = { navController.navigateUp() })
+            }
             composable(
                 route = "${Screen.Items.route}?selectionMode={selectionMode}",
                 arguments = listOf(

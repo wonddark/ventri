@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,7 +57,10 @@ private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
+fun OverviewScreen(
+    onOpenSettings: () -> Unit,
+    viewModel: OverviewViewModel = viewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -76,6 +80,12 @@ fun OverviewScreen(viewModel: OverviewViewModel = viewModel()) {
             TopAppBar(
                 title = { Text("Overview") },
                 actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                        )
+                    }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
