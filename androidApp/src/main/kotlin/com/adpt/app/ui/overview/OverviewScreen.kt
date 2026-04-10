@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,19 +25,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,44 +36,53 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.ui.components.AnimatedListItem
+import com.adpt.app.ui.design.AdptShapes
+import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.components.AdptCard
+import com.adpt.app.ui.design.components.AdptFab
+import com.adpt.app.ui.design.components.AdptIcon
+import com.adpt.app.ui.design.components.AdptIconButton
+import com.adpt.app.ui.design.components.AdptProgressIndicator
+import com.adpt.app.ui.design.components.AdptScaffold
+import com.adpt.app.ui.design.components.AdptSnackbarHost
+import com.adpt.app.ui.design.components.AdptSurface
+import com.adpt.app.ui.design.components.AdptText
+import com.adpt.app.ui.design.components.AdptTopBar
+import com.adpt.app.ui.design.components.rememberAdptSnackbarHostState
 import com.adpt.shared.model.Severity
 import kotlin.math.abs
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverviewScreen(
     onOpenSettings: () -> Unit,
     viewModel: OverviewViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = rememberAdptSnackbarHostState()
 
     LaunchedEffect(Unit) {
         viewModel.errors.collect { message ->
-            snackbarHostState.showSnackbar(
-                message
-            )
+            snackbarHostState.showSnackbar(message)
         }
     }
 
     val successItems = (uiState as? OverviewUiState.Success)?.items
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(),
+    AdptScaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Overview") },
+            AdptTopBar(
+                title = { AdptText("Overview", style = AdptTheme.typography.titleMedium) },
                 actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(
+                    AdptIconButton(onClick = onOpenSettings) {
+                        AdptIcon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Settings",
                         )
                     }
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(
+                    AdptIconButton(onClick = { viewModel.refresh() }) {
+                        AdptIcon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh",
                         )
@@ -95,22 +90,22 @@ fun OverviewScreen(
                 },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { AdptSnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (!successItems.isNullOrEmpty()) {
-                FloatingActionButton(
+                AdptFab(
                     onClick = {
-                        viewModel.addAllToShoppingList(
-                            successItems.map { it.id })
-                    }, shape = MaterialTheme.shapes.extraLarge
+                        viewModel.addAllToShoppingList(successItems.map { it.id })
+                    },
                 ) {
-                    Icon(
+                    AdptIcon(
                         imageVector = Icons.Default.AddShoppingCart,
                         contentDescription = null,
+                        tint = AdptTheme.colors.onAccent,
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
         when (val state = uiState) {
             OverviewUiState.Loading -> Box(
@@ -119,7 +114,7 @@ fun OverviewScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                AdptProgressIndicator()
             }
 
             is OverviewUiState.Success -> if (state.items.isEmpty()) {
@@ -129,17 +124,15 @@ fun OverviewScreen(
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
+                    AdptText(
                         text = "Nothing to show here",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = AdptTheme.typography.bodyMedium,
+                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
                     )
                 }
             } else {
-                val criticalCount =
-                    state.items.count { it.severity == Severity.Critical }
-                val highCount =
-                    state.items.count { it.severity == Severity.High }
+                val criticalCount = state.items.count { it.severity == Severity.Critical }
+                val highCount = state.items.count { it.severity == Severity.High }
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -154,25 +147,22 @@ fun OverviewScreen(
                         SummaryChip(
                             count = criticalCount,
                             label = "Critical",
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            containerColor = AdptTheme.colors.criticalContainer,
+                            contentColor = AdptTheme.colors.onCriticalContainer,
                             modifier = Modifier.weight(1f),
                         )
                         SummaryChip(
                             count = highCount,
                             label = "High",
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            containerColor = AdptTheme.colors.warningContainer,
+                            contentColor = AdptTheme.colors.onWarningContainer,
                             modifier = Modifier.weight(1f),
                         )
                     }
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(state.items, key = { it.id }) { item ->
@@ -184,16 +174,12 @@ fun OverviewScreen(
                                     item = item,
                                     onAddToShoppingList = {
                                         viewModel.handleIntent(
-                                            OverviewIntent.AddToShoppingList(
-                                                item.id
-                                            )
+                                            OverviewIntent.AddToShoppingList(item.id)
                                         )
                                     },
                                     onIgnore = {
                                         viewModel.handleIntent(
-                                            OverviewIntent.IgnoreItem(
-                                                item.id
-                                            )
+                                            OverviewIntent.IgnoreItem(item.id)
                                         )
                                     },
                                 )
@@ -214,23 +200,23 @@ private fun SummaryChip(
     contentColor: Color,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    AdptSurface(
         modifier = modifier,
         color = containerColor,
-        shape = MaterialTheme.shapes.medium,
+        shape = AdptShapes.card,
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 12.dp),
+            modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
+            AdptText(
                 text = count.toString(),
-                style = MaterialTheme.typography.titleLarge,
+                style = AdptTheme.typography.titleLarge,
                 color = contentColor,
             )
-            Text(
+            AdptText(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
+                style = AdptTheme.typography.labelMedium,
                 color = contentColor,
             )
         }
@@ -243,13 +229,14 @@ private fun OverviewItemCard(
     onAddToShoppingList: () -> Unit,
     onIgnore: () -> Unit,
 ) {
+    val colors = AdptTheme.colors
     val accentColor = when (item.severity) {
-        Severity.Critical -> MaterialTheme.colorScheme.error
-        Severity.High -> MaterialTheme.colorScheme.tertiary
-        Severity.Normal, Severity.Low -> MaterialTheme.colorScheme.primary
+        Severity.Critical -> colors.critical
+        Severity.High -> colors.warning
+        Severity.Normal, Severity.Low -> colors.ok
     }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -270,28 +257,28 @@ private fun OverviewItemCard(
             ) {
                 DaysBadge(deltaMillis = item.deltaMillis, color = accentColor)
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
+                    AdptText(
                         text = item.name,
-                        style = MaterialTheme.typography.titleMedium
+                        style = AdptTheme.typography.titleMedium,
                     )
-                    Text(
+                    AdptText(
                         text = item.deltaMillis?.toDaysText() ?: "Not in stock",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = AdptTheme.typography.bodySmall,
+                        color = colors.onSurface.copy(alpha = 0.6f),
                     )
                 }
                 if (item.isInShoppingList) {
                     InListBadge()
                 } else {
-                    IconButton(onClick = onAddToShoppingList) {
-                        Icon(
+                    AdptIconButton(onClick = onAddToShoppingList) {
+                        AdptIcon(
                             imageVector = Icons.Default.ShoppingCart,
                             contentDescription = "Add to shopping list",
                         )
                     }
                 }
-                IconButton(onClick = onIgnore) {
-                    Icon(
+                AdptIconButton(onClick = onIgnore) {
+                    AdptIcon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Ignore item",
                     )
@@ -303,25 +290,26 @@ private fun OverviewItemCard(
 
 @Composable
 private fun InListBadge() {
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.small,
+    val colors = AdptTheme.colors
+    AdptSurface(
+        color = colors.accentMuted,
+        shape = AdptShapes.small,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Icon(
+            AdptIcon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                tint = colors.accent,
             )
-            Text(
+            AdptText(
                 text = "In list",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                style = AdptTheme.typography.labelSmall,
+                color = colors.accent,
             )
         }
     }
@@ -340,9 +328,9 @@ private fun DaysBadge(deltaMillis: Long?, color: Color) {
             .border(2.dp, color, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
+        AdptText(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = AdptTheme.typography.labelMedium,
             color = color,
         )
     }

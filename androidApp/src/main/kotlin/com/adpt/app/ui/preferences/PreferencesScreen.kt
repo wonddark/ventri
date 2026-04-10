@@ -1,10 +1,14 @@
 package com.adpt.app.ui.preferences
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,50 +16,49 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.preferences.NotificationFrequency
 import com.adpt.app.preferences.ThemeMode
-import com.adpt.shared.model.ThresholdConfig
+import com.adpt.app.ui.design.AdptShapes
+import com.adpt.app.ui.design.AdptTheme
+import com.adpt.app.ui.design.components.AdptIcon
+import com.adpt.app.ui.design.components.AdptIconButton
+import com.adpt.app.ui.design.components.AdptScaffold
+import com.adpt.app.ui.design.components.AdptText
+import com.adpt.app.ui.design.components.AdptTopBar
+import com.adpt.app.ui.design.components.ripple
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreferencesScreen(
     onNavigateUp: () -> Unit,
     viewModel: PreferencesViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val colors = AdptTheme.colors
+    val typography = AdptTheme.typography
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0),
+    AdptScaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Preferences") },
+            AdptTopBar(
+                title = { AdptText("Preferences", style = typography.titleMedium) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(
+                    AdptIconButton(onClick = onNavigateUp) {
+                        AdptIcon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                         )
@@ -74,83 +77,116 @@ fun PreferencesScreen(
         ) {
             // ── Appearance ──────────────────────────────────────────────────
             SectionHeader("Appearance")
-            Text(
+            AdptText(
                 text = "Theme",
-                style = MaterialTheme.typography.bodyMedium,
+                style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                ThemeMode.entries.forEachIndexed { index, mode ->
-                    SegmentedButton(
-                        selected = uiState.themeMode == mode,
-                        onClick = { viewModel.setThemeMode(mode) },
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = ThemeMode.entries.size,
-                        ),
-                        label = {
-                            Text(
-                                text = when (mode) {
-                                    ThemeMode.Light -> "Light"
-                                    ThemeMode.Dark -> "Dark"
-                                    ThemeMode.System -> "System"
-                                }
+            // Segmented control
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, colors.outline, AdptShapes.pill)
+                    .clip(AdptShapes.pill),
+            ) {
+                ThemeMode.entries.forEach { mode ->
+                    val selected = uiState.themeMode == mode
+                    val interactionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = if (selected) colors.accentMuted else Color.Transparent,
                             )
-                        },
-                    )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = ripple(),
+                                onClick = { viewModel.setThemeMode(mode) },
+                            )
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        AdptText(
+                            text = when (mode) {
+                                ThemeMode.Light -> "Light"
+                                ThemeMode.Dark -> "Dark"
+                                ThemeMode.System -> "System"
+                            },
+                            style = typography.labelMedium,
+                            color = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.6f),
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
+            SectionDivider()
             Spacer(modifier = Modifier.height(16.dp))
 
             // ── Notifications ───────────────────────────────────────────────
             SectionHeader("Notifications")
-            Text(
+            AdptText(
                 text = "Depletion check frequency",
-                style = MaterialTheme.typography.bodyMedium,
+                style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             NotificationFrequency.entries.forEach { freq ->
+                val selected = uiState.notificationFrequency == freq
+                val interactionSource = remember { MutableInteractionSource() }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = ripple(),
+                            onClick = { viewModel.setNotificationFrequency(freq) },
+                        )
+                        .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    RadioButton(
-                        selected = uiState.notificationFrequency == freq,
-                        onClick = { viewModel.setNotificationFrequency(freq) },
+                    // Custom radio circle
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .border(
+                                width = 2.dp,
+                                color = if (selected) colors.accent else colors.outline,
+                                shape = CircleShape,
+                            )
+                            .padding(4.dp)
+                            .background(
+                                color = if (selected) colors.accent else Color.Transparent,
+                                shape = CircleShape,
+                            ),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
+                    Spacer(modifier = Modifier.width(12.dp))
+                    AdptText(
                         text = when (freq) {
                             NotificationFrequency.OncePerDay -> "Once per day (24 h)"
                             NotificationFrequency.TwicePerDay -> "Twice per day (12 h)"
                         },
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = typography.bodyMedium,
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
+            SectionDivider()
             Spacer(modifier = Modifier.height(16.dp))
 
             // ── Depletion Thresholds ────────────────────────────────────────
             SectionHeader("Depletion Thresholds")
-            Text(
+            AdptText(
                 text = "Items are flagged when their estimated days remaining fall at or below each threshold.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = typography.bodySmall,
+                color = colors.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier.padding(bottom = 12.dp),
             )
 
             val t = uiState.thresholds
             ThresholdRow(
                 label = "Critical",
-                dotColor = MaterialTheme.colorScheme.error,
+                dotColor = colors.critical,
                 days = t.criticalDays,
                 onDecrement = { viewModel.decrementCritical() },
                 onIncrement = { viewModel.incrementCritical() },
@@ -159,7 +195,7 @@ fun PreferencesScreen(
             )
             ThresholdRow(
                 label = "High",
-                dotColor = MaterialTheme.colorScheme.tertiary,
+                dotColor = colors.warning,
                 days = t.highDays,
                 onDecrement = { viewModel.decrementHigh() },
                 onIncrement = { viewModel.incrementHigh() },
@@ -168,7 +204,7 @@ fun PreferencesScreen(
             )
             ThresholdRow(
                 label = "Normal",
-                dotColor = MaterialTheme.colorScheme.primary,
+                dotColor = colors.ok,
                 days = t.normalDays,
                 onDecrement = { viewModel.decrementNormal() },
                 onIncrement = { viewModel.incrementNormal() },
@@ -177,7 +213,7 @@ fun PreferencesScreen(
             )
             ThresholdRow(
                 label = "Low",
-                dotColor = MaterialTheme.colorScheme.secondary,
+                dotColor = colors.onSurface.copy(alpha = 0.4f),
                 days = t.normalDays + 1,
                 onDecrement = {},
                 onIncrement = {},
@@ -192,11 +228,21 @@ fun PreferencesScreen(
 
 @Composable
 private fun SectionHeader(title: String) {
-    Text(
+    AdptText(
         text = title.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.primary,
+        style = AdptTheme.typography.labelSmall,
+        color = AdptTheme.colors.accent,
         modifier = Modifier.padding(bottom = 12.dp),
+    )
+}
+
+@Composable
+private fun SectionDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(AdptTheme.colors.outline),
     )
 }
 
@@ -212,53 +258,61 @@ private fun ThresholdRow(
     readOnly: Boolean = false,
     daysSuffix: String = "",
 ) {
+    val colors = AdptTheme.colors
+    val typography = AdptTheme.typography
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
+        AdptIcon(
             imageVector = Icons.Default.Circle,
             contentDescription = null,
             tint = dotColor,
             modifier = Modifier.size(10.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
+        AdptText(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = typography.bodyMedium,
             modifier = Modifier.weight(1f),
-            color = if (readOnly) MaterialTheme.colorScheme.onSurfaceVariant
-                    else MaterialTheme.colorScheme.onSurface,
+            color = if (readOnly) colors.onSurface.copy(alpha = 0.5f) else colors.onSurface,
         )
         if (readOnly) {
-            Text(
+            AdptText(
                 text = "${days}d$daysSuffix",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = typography.bodyMedium,
+                color = colors.onSurface.copy(alpha = 0.5f),
             )
         } else {
-            IconButton(onClick = onDecrement, enabled = decrementEnabled) {
-                Text(
+            AdptIconButton(
+                onClick = onDecrement,
+                enabled = decrementEnabled,
+            ) {
+                AdptText(
                     text = "−",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (decrementEnabled) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    style = typography.titleLarge,
+                    color = if (decrementEnabled) colors.accent
+                            else colors.onSurface.copy(alpha = 0.38f),
                 )
             }
-            Text(
+            AdptText(
                 text = "${days}d",
-                style = MaterialTheme.typography.bodyLarge,
+                style = typography.bodyMedium,
                 modifier = Modifier.width(36.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = colors.onSurface,
             )
-            IconButton(onClick = onIncrement, enabled = incrementEnabled) {
-                Text(
+            AdptIconButton(
+                onClick = onIncrement,
+                enabled = incrementEnabled,
+            ) {
+                AdptText(
                     text = "+",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (incrementEnabled) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    style = typography.titleLarge,
+                    color = if (incrementEnabled) colors.accent
+                            else colors.onSurface.copy(alpha = 0.38f),
                 )
             }
         }

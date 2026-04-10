@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adpt.app.navigation.AppNavigation
 import com.adpt.app.preferences.ThemeMode
-import com.adpt.app.ui.theme.AdptTheme
+import com.adpt.app.ui.design.AdptTheme
 
 class MainActivity : ComponentActivity() {
 
