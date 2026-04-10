@@ -10,6 +10,7 @@ import com.adpt.shared.db.Item
 import com.adpt.shared.model.AddToShoppingListResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.Severity
+import com.adpt.shared.model.ThresholdConfig
 import com.adpt.shared.util.addToShoppingList
 import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
@@ -47,6 +48,7 @@ sealed interface OverviewIntent {
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = (application as AdptApplication).database
+    private val prefs = (application as AdptApplication).prefs
 
     private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val errors: SharedFlow<String> = _errors.asSharedFlow()
@@ -64,7 +66,8 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         db.shoppingListEntryQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         clockSignal,
         refreshVersion,
-    ) { items, entries, now, version ->
+        prefs.thresholdConfig,
+    ) { items, entries, now, version, thresholds ->
         val inShoppingList = entries.map { it.item_id }.toSet()
         val filtered = items.mapNotNull { item: Item ->
             if (item.priority == ItemPriority.Lowest) return@mapNotNull null
@@ -74,7 +77,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null, item.id in inShoppingList)
             }
             val delta = depletionDate - now
-            val severity = deltaToSeverity(delta)
+            val severity = deltaToSeverity(delta, thresholds)
             if (severity == Severity.Low) return@mapNotNull null
             OverviewItemUiModel(item.id, item.name, severity, delta, item.id in inShoppingList)
         }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })

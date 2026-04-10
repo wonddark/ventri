@@ -6,6 +6,7 @@ import com.adpt.shared.model.InsertItemResult
 import com.adpt.shared.model.ItemPriority
 import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.Severity
+import com.adpt.shared.model.ThresholdConfig
 import com.adpt.shared.model.UpdateItemResult
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -15,9 +16,6 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
-private const val CRITICAL_THRESHOLD = 1 * MILLIS_PER_DAY
-private const val WARNING_THRESHOLD = 2 * MILLIS_PER_DAY
-private const val RECOMMENDED_THRESHOLD = 3 * MILLIS_PER_DAY
 
 /**
  * Returns the item with [id], or null if no such item exists.
@@ -32,16 +30,23 @@ fun ItemQueries.updateItemPriority(itemId: String, priority: ItemPriority): Bool
     updatePriority(priority = priority, id = itemId).value > 0
 
 /**
- * Returns the [Severity] for a given [delta] (estimatedDepletionDate - now, in millis).
- * Critical: delta <= 1 day (including negative/already depleted)
- * Warning:  delta <= 3 days
- * Good:     otherwise
+ * Returns the [Severity] for a given [delta] (estimatedDepletionDate - now, in millis)
+ * using the provided [ThresholdConfig].
+ * Critical: delta <= criticalDays (including negative/already depleted)
+ * High:     delta <= highDays
+ * Normal:   delta <= normalDays
+ * Low:      otherwise
  */
-fun deltaToSeverity(delta: Long): Severity = when {
-    delta <= CRITICAL_THRESHOLD -> Severity.Critical
-    delta <= WARNING_THRESHOLD -> Severity.High
-    delta <= RECOMMENDED_THRESHOLD -> Severity.High
-    else -> Severity.Low
+fun deltaToSeverity(delta: Long, config: ThresholdConfig): Severity {
+    val criticalMs = config.criticalDays * MILLIS_PER_DAY
+    val highMs = config.highDays * MILLIS_PER_DAY
+    val normalMs = config.normalDays * MILLIS_PER_DAY
+    return when {
+        delta <= criticalMs -> Severity.Critical
+        delta <= highMs -> Severity.High
+        delta <= normalMs -> Severity.Normal
+        else -> Severity.Low
+    }
 }
 
 /**
