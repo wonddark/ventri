@@ -203,6 +203,11 @@ private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) 
     } else if (uiState.selectionMode) {
         AdptTopBar(
             title = { AdptText("Add to shopping list", style = AdptTheme.typography.titleLarge) },
+            navigationIcon = {
+                AdptIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
+                    AdptIcon(Icons.Default.ArrowBack, contentDescription = "Cancel selection")
+                }
+            },
             actions = {
                 AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
                     AdptIcon(Icons.Default.Search, contentDescription = "Search")
