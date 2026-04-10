@@ -70,7 +70,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         }
     }
 
-    val isTopLevelRoute = currentRoute in Screen.tabs.map { it.route }
+    val isTopLevelRoute = Screen.tabs.any { screen ->
+        currentRoute == screen.route ||
+            (screen == Screen.Items && currentRoute?.startsWith("${screen.route}?") == true)
+    }
 
     AdptScaffold(
         modifier = modifier,

@@ -1,11 +1,13 @@
 package com.adpt.app.ui.design.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import com.adpt.app.ui.design.AdptTheme
 
 private enum class ScaffoldSlot { TopBar, BottomBar, Fab, Snackbar, Content }
 
@@ -18,7 +20,7 @@ fun AdptScaffold(
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    SubcomposeLayout(modifier = modifier) { constraints ->
+    SubcomposeLayout(modifier = modifier.background(AdptTheme.colors.background)) { constraints ->
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
 
         val topBarPlaceables = subcompose(ScaffoldSlot.TopBar, topBar).map { it.measure(loose) }

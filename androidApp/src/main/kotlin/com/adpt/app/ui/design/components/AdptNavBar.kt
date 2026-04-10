@@ -70,7 +70,8 @@ fun AdptNavBar(
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
             items.forEach { item ->
-                val selected = currentRoute == item.route
+                val selected = currentRoute == item.route ||
+                        currentRoute?.startsWith("${item.route}?") == true
                 AdptNavBarItem(
                     item = item,
                     selected = selected,
