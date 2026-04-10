@@ -12,8 +12,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -38,6 +41,7 @@ fun AdptDropdownMenu(
         Popup(
             onDismissRequest = onDismissRequest,
             properties = PopupProperties(focusable = true),
+            alignment = Alignment.TopStart
         ) {
             AnimatedVisibility(
                 visible = true,
@@ -46,7 +50,7 @@ fun AdptDropdownMenu(
             ) {
                 Column(
                     modifier = modifier
-                        .widthIn(min = 160.dp)
+                        .widthIn(min = 160.dp).width(intrinsicSize = IntrinsicSize.Min)
                         .shadow(elevation = 4.dp, shape = AdptShapes.small)
                         .clip(AdptShapes.small)
                         .background(color = AdptTheme.colors.surface, shape = AdptShapes.small),
