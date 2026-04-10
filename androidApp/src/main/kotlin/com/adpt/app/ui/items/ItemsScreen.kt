@@ -178,9 +178,7 @@ fun ItemsScreen(
 
 @Composable
 private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) {
-    if (uiState.selectionMode) {
-        AdptTopBar(title = { AdptText("Add to shopping list", style = AdptTheme.typography.titleLarge) })
-    } else if (uiState.isSearchActive) {
+    if (uiState.isSearchActive) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
         AdptTopBar(
@@ -199,6 +197,15 @@ private fun ItemsTopBar(uiState: ItemsUiState, onIntent: (ItemsIntent) -> Unit) 
             navigationIcon = {
                 AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
                     AdptIcon(Icons.Default.ArrowBack, contentDescription = "Close search")
+                }
+            },
+        )
+    } else if (uiState.selectionMode) {
+        AdptTopBar(
+            title = { AdptText("Add to shopping list", style = AdptTheme.typography.titleLarge) },
+            actions = {
+                AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
+                    AdptIcon(Icons.Default.Search, contentDescription = "Search")
                 }
             },
         )
@@ -273,12 +280,14 @@ private fun ItemCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 AdptText(item.name, style = AdptTheme.typography.titleMedium)
-                Spacer(Modifier.height(2.dp))
-                AdptText(
-                    "${item.unit.name} · ${item.consumptionRate}/day",
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                )
+                if (!selectionMode) {
+                    Spacer(Modifier.height(2.dp))
+                    AdptText(
+                        "${item.unit.name} · ${item.consumptionRate}/day",
+                        style = AdptTheme.typography.bodySmall,
+                        color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                    )
+                }
             }
             PriorityBadge(priority = item.priority)
             if (!selectionMode) {

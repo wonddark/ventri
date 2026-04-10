@@ -70,9 +70,12 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         }
     }
 
+    val selectionModeActive = backStackEntry?.arguments?.getBoolean("selectionMode") ?: false
     val isTopLevelRoute = Screen.tabs.any { screen ->
         currentRoute == screen.route ||
-            (screen == Screen.Items && currentRoute?.startsWith("${screen.route}?") == true)
+            (screen == Screen.Items &&
+                currentRoute?.startsWith("${screen.route}?") == true &&
+                !selectionModeActive)
     }
 
     AdptScaffold(
