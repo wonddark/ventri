@@ -16,6 +16,7 @@ import com.adpt.shared.util.deltaToSeverity
 import com.adpt.shared.util.estimatedDepletionDate
 import com.adpt.shared.util.updateItemPriority
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,12 +38,19 @@ data class OverviewItemUiModel(
 
 sealed interface OverviewUiState {
     data object Loading : OverviewUiState
-    data class Success(val items: List<OverviewItemUiModel>, val listVersion: Int = 0) : OverviewUiState
+    data class Success(
+        val items: List<OverviewItemUiModel>,
+        val criticalCount: Int,
+        val highCount: Int,
+        val severityFilter: Severity?,
+        val listVersion: Int = 0,
+    ) : OverviewUiState
 }
 
 sealed interface OverviewIntent {
     data class AddToShoppingList(val itemId: String) : OverviewIntent
     data class IgnoreItem(val itemId: String) : OverviewIntent
+    data class ToggleSeverityFilter(val severity: Severity) : OverviewIntent
 }
 
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
@@ -55,13 +63,15 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
     private val clockSignal = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
     private val refreshVersion = MutableStateFlow(0)
+    private val _severityFilter = MutableStateFlow<Severity?>(null)
 
     fun refresh() {
         clockSignal.value = Clock.System.now().toEpochMilliseconds()
         refreshVersion.value++
     }
 
-    val uiState: StateFlow<OverviewUiState> = combine(
+    // Produces the full (unfiltered) item list with unfiltered counts.
+    private val baseItems: Flow<OverviewUiState.Success> = combine(
         db.itemQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         db.shoppingListEntryQueries.selectAll().asFlow().mapToList(Dispatchers.IO),
         clockSignal,
@@ -69,7 +79,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         prefs.thresholdConfig,
     ) { items, entries, now, version, thresholds ->
         val inShoppingList = entries.map { it.item_id }.toSet()
-        val filtered = items.mapNotNull { item: Item ->
+        val allItems = items.mapNotNull { item: Item ->
             if (item.priority == ItemPriority.Lowest) return@mapNotNull null
             val depletionDate = item.estimatedDepletionDate()
             if (depletionDate == null) {
@@ -81,13 +91,28 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             if (severity == Severity.Low) return@mapNotNull null
             OverviewItemUiModel(item.id, item.name, severity, delta, item.id in inShoppingList)
         }.sortedWith(compareBy(nullsFirst()) { it.deltaMillis })
-        OverviewUiState.Success(filtered, listVersion = version)
-    }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = OverviewUiState.Loading,
+        OverviewUiState.Success(
+            items = allItems,
+            criticalCount = allItems.count { it.severity == Severity.Critical },
+            highCount = allItems.count { it.severity == Severity.High },
+            severityFilter = null,
+            listVersion = version,
         )
+    }
+
+    val uiState: StateFlow<OverviewUiState> = combine(
+        baseItems,
+        _severityFilter,
+    ) { base, filter ->
+        base.copy(
+            items = if (filter != null) base.items.filter { it.severity == filter } else base.items,
+            severityFilter = filter,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = OverviewUiState.Loading,
+    )
 
     fun addAllToShoppingList(itemIds: List<String>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -107,6 +132,10 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             }
             is OverviewIntent.IgnoreItem -> viewModelScope.launch(Dispatchers.IO) {
                 db.itemQueries.updateItemPriority(intent.itemId, ItemPriority.Lowest)
+            }
+            is OverviewIntent.ToggleSeverityFilter -> {
+                _severityFilter.value =
+                    if (_severityFilter.value == intent.severity) null else intent.severity
             }
         }
     }

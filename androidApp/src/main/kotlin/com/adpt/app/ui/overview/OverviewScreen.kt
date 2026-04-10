@@ -2,6 +2,8 @@ package com.adpt.app.ui.overview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +52,7 @@ import com.adpt.app.ui.design.components.AdptSurface
 import com.adpt.app.ui.design.components.AdptText
 import com.adpt.app.ui.design.components.AdptTopBar
 import com.adpt.app.ui.design.components.rememberAdptSnackbarHostState
+import com.adpt.app.ui.design.components.ripple
 import com.adpt.shared.model.Severity
 import kotlin.math.abs
 
@@ -117,7 +121,7 @@ fun OverviewScreen(
                 AdptProgressIndicator()
             }
 
-            is OverviewUiState.Success -> if (state.items.isEmpty()) {
+            is OverviewUiState.Success -> if (state.criticalCount == 0 && state.highCount == 0) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -131,12 +135,11 @@ fun OverviewScreen(
                     )
                 }
             } else {
-                val criticalCount = state.items.count { it.severity == Severity.Critical }
-                val highCount = state.items.count { it.severity == Severity.High }
+                val colors = AdptTheme.colors
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(innerPadding),
                 ) {
                     Row(
                         modifier = Modifier
@@ -144,45 +147,70 @@ fun OverviewScreen(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
+                        val criticalSelected = state.severityFilter == Severity.Critical
                         SummaryChip(
-                            count = criticalCount,
+                            count = state.criticalCount,
                             label = "Critical",
-                            containerColor = AdptTheme.colors.criticalContainer,
-                            contentColor = AdptTheme.colors.onCriticalContainer,
+                            containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
+                            contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
+                            onClick = {
+                                viewModel.handleIntent(
+                                    OverviewIntent.ToggleSeverityFilter(Severity.Critical)
+                                )
+                            },
                             modifier = Modifier.weight(1f),
                         )
+                        val highSelected = state.severityFilter == Severity.High
                         SummaryChip(
-                            count = highCount,
+                            count = state.highCount,
                             label = "High",
-                            containerColor = AdptTheme.colors.warningContainer,
-                            contentColor = AdptTheme.colors.onWarningContainer,
+                            containerColor = if (highSelected) colors.warning else colors.warningContainer,
+                            contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
+                            onClick = {
+                                viewModel.handleIntent(
+                                    OverviewIntent.ToggleSeverityFilter(Severity.High)
+                                )
+                            },
                             modifier = Modifier.weight(1f),
                         )
                     }
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(state.items, key = { it.id }) { item ->
-                            AnimatedListItem(
-                                index = state.items.indexOf(item),
-                                animationKey = state.listVersion,
-                            ) {
-                                OverviewItemCard(
-                                    item = item,
-                                    onAddToShoppingList = {
-                                        viewModel.handleIntent(
-                                            OverviewIntent.AddToShoppingList(item.id)
-                                        )
-                                    },
-                                    onIgnore = {
-                                        viewModel.handleIntent(
-                                            OverviewIntent.IgnoreItem(item.id)
-                                        )
-                                    },
-                                )
+                    if (state.items.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            AdptText(
+                                text = "No items match this filter",
+                                style = AdptTheme.typography.bodyMedium,
+                                color = colors.onSurface.copy(alpha = 0.6f),
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(state.items, key = { it.id }) { item ->
+                                AnimatedListItem(
+                                    index = state.items.indexOf(item),
+                                    animationKey = state.listVersion,
+                                ) {
+                                    OverviewItemCard(
+                                        item = item,
+                                        onAddToShoppingList = {
+                                            viewModel.handleIntent(
+                                                OverviewIntent.AddToShoppingList(item.id)
+                                            )
+                                        },
+                                        onIgnore = {
+                                            viewModel.handleIntent(
+                                                OverviewIntent.IgnoreItem(item.id)
+                                            )
+                                        },
+                                    )
+                                }
                             }
                         }
                     }
@@ -198,16 +226,26 @@ private fun SummaryChip(
     label: String,
     containerColor: Color,
     contentColor: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AdptSurface(
-        modifier = modifier,
-        color = containerColor,
-        shape = AdptShapes.card,
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = modifier
+            .clip(AdptShapes.card)
+            .background(color = containerColor)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = onClick,
+            ),
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
             AdptText(
                 text = count.toString(),
@@ -215,7 +253,7 @@ private fun SummaryChip(
                 color = contentColor,
             )
             AdptText(
-                text = label,
+                text = " $label",
                 style = AdptTheme.typography.labelMedium,
                 color = contentColor,
             )
