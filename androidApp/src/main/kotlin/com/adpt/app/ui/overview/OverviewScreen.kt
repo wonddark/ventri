@@ -1,10 +1,21 @@
 package com.adpt.app.ui.overview
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,8 +34,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -38,7 +53,9 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -100,6 +117,23 @@ fun OverviewScreen(
     var topBarHeightPx by remember { mutableIntStateOf(0) }
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
+    val listState = rememberLazyListState()
+    val headerAlpha by remember {
+        derivedStateOf {
+            if (listState.firstVisibleItemIndex != 0) {
+                0f
+            } else {
+                val headerInfo = listState.layoutInfo.visibleItemsInfo
+                    .firstOrNull { it.key == "expanded_header" }
+                    ?: return@derivedStateOf 0f
+                val headerSize = headerInfo.size.toFloat()
+                if (headerSize == 0f) return@derivedStateOf 0f
+                (1f - listState.firstVisibleItemScrollOffset.toFloat() / headerSize)
+                    .coerceIn(0f, 1f)
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(colors.background)) {
         when (val state = uiState) {
             OverviewUiState.Loading -> Box(
@@ -124,46 +158,67 @@ fun OverviewScreen(
                 }
             } else {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         top = topBarHeightDp,
-                        bottom = navBarHeight + 72.dp, // extra space for FAB
+                        bottom = navBarHeight + 72.dp,
                         start = 16.dp,
                         end = 16.dp,
                     ),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    item(key = "chips") {
-                        Row(
+                    item(key = "expanded_header") {
+                        val criticalSelected = state.severityFilter == Severity.Critical
+                        val highSelected = state.severityFilter == Severity.High
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                .alpha(headerAlpha)
+                                .padding(top = 36.dp, bottom = 48.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            val criticalSelected = state.severityFilter == Severity.Critical
-                            SummaryChip(
-                                count = state.criticalCount,
-                                label = "Critical",
-                                containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
-                                contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
-                                onClick = {
-                                    viewModel.handleIntent(
-                                        OverviewIntent.ToggleSeverityFilter(Severity.Critical)
-                                    )
-                                },
+                            AdptText(
+                                text = "Overview",
+                                style = AdptTheme.typography.titleLarge.copy(
+                                    fontSize = 28.sp,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                color = colors.onBackground,
                             )
-                            val highSelected = state.severityFilter == Severity.High
-                            SummaryChip(
-                                count = state.highCount,
-                                label = "High",
-                                containerColor = if (highSelected) colors.warning else colors.warningContainer,
-                                contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
-                                onClick = {
-                                    viewModel.handleIntent(
-                                        OverviewIntent.ToggleSeverityFilter(Severity.High)
-                                    )
-                                },
+                            Spacer(Modifier.height(8.dp))
+                            AdptText(
+                                text = "Here are the items that need your attention right now.",
+                                style = AdptTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
+                                color = colors.onSurface.copy(alpha = 0.6f),
+                                modifier = Modifier.fillMaxWidth(fraction = 0.7f)
                             )
+                            Spacer(Modifier.height(32.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                SummaryChip(
+                                    count = state.criticalCount,
+                                    label = "Critical",
+                                    containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
+                                    contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
+                                    onClick = { viewModel.handleIntent(OverviewIntent.ToggleSeverityFilter(Severity.Critical)) },
+                                )
+                                SummaryChip(
+                                    count = state.highCount,
+                                    label = "High",
+                                    containerColor = if (highSelected) colors.warning else colors.warningContainer,
+                                    contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
+                                    onClick = { viewModel.handleIntent(OverviewIntent.ToggleSeverityFilter(Severity.High)) },
+                                )
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            AdptButton(
+                                onClick = { viewModel.addAllToShoppingList(state.items.map { it.id }) },
+                                modifier = Modifier.widthIn(min = 200.dp),
+                            ) {
+                                AdptText("Add all to my refill list", color = colors.onAccent)
+                            }
                         }
                     }
 
@@ -191,14 +246,10 @@ fun OverviewScreen(
                                 OverviewItemCard(
                                     item = item,
                                     onAddToShoppingList = {
-                                        viewModel.handleIntent(
-                                            OverviewIntent.AddToShoppingList(item.id)
-                                        )
+                                        viewModel.handleIntent(OverviewIntent.AddToShoppingList(item.id))
                                     },
                                     onIgnore = {
-                                        viewModel.handleIntent(
-                                            OverviewIntent.IgnoreItem(item.id)
-                                        )
+                                        viewModel.handleIntent(OverviewIntent.IgnoreItem(item.id))
                                     },
                                 )
                             }
@@ -208,9 +259,15 @@ fun OverviewScreen(
             }
         }
 
-        // Pinned top bar overlay
+        // Pinned top bar overlay — title only appears once the expanded header scrolls away
         AdptTopBar(
-            title = { AdptText("Overview", style = AdptTheme.typography.titleMedium) },
+            title = {
+                AdptText(
+                    text = "Overview",
+                    style = AdptTheme.typography.titleMedium,
+                    modifier = Modifier.alpha(1f - headerAlpha),
+                )
+            },
             actions = {
                 AdptIconButton(onClick = onOpenSettings) {
                     AdptIcon(
@@ -228,9 +285,9 @@ fun OverviewScreen(
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
         )
 
-        // FAB
+        // FAB — hidden while the expanded header (which has its own add-all button) is visible
         AnimatedVisibility(
-            visible = barsVisible && !successItems.isNullOrEmpty(),
+            visible = barsVisible && !successItems.isNullOrEmpty() && headerAlpha < 0.01f,
             enter = scaleIn() + fadeIn(),
             exit = scaleOut() + fadeOut(),
             modifier = Modifier
@@ -424,58 +481,149 @@ private fun OverviewItemCard(
     onIgnore: () -> Unit,
 ) {
     val colors = AdptTheme.colors
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 100.dp.toPx() }
+    val offsetX = remember { Animatable(0f) }
+    var cardWidth by remember { mutableIntStateOf(0) }
+
+    // Reset offset if isInShoppingList flips (e.g. after swiping right)
+    LaunchedEffect(item.isInShoppingList) { offsetX.snapTo(0f) }
+
     val accentColor = when (item.severity) {
         Severity.Critical -> colors.critical
         Severity.High -> colors.warning
         Severity.Normal, Severity.Low -> colors.ok
     }
 
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
+    Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
+        // Background reveal — clipped to card shape so corners stay rounded
+        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+            // Swipe-right: add to refill list (only when not already in list)
+            if (!item.isInShoppingList) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer { alpha = (offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                        .background(colors.ok),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    AdptIcon(
+                        imageVector = Icons.Default.AddShoppingCart,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .padding(start = 24.dp)
+                            .graphicsLayer {
+                                val p = (offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                                scaleX = 0.6f + 0.4f * p
+                                scaleY = scaleX
+                            },
+                    )
+                }
+            }
+            // Swipe-left: ignore
             Box(
                 modifier = Modifier
-                    .width(6.dp)
-                    .fillMaxHeight()
-                    .background(accentColor),
-            )
+                    .matchParentSize()
+                    .graphicsLayer { alpha = (-offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                    .background(colors.critical),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                AdptIcon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(end = 24.dp)
+                        .graphicsLayer {
+                            val p = (-offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                            scaleX = 0.6f + 0.4f * p
+                            scaleY = scaleX
+                        },
+                )
+            }
+        }
+
+        // Foreground card — slides with the drag gesture
+        AdptCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                .pointerInput(item.isInShoppingList) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                when {
+                                    offsetX.value > thresholdPx && !item.isInShoppingList -> {
+                                        offsetX.animateTo(
+                                            cardWidth.toFloat(),
+                                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+                                        )
+                                        onAddToShoppingList()
+                                    }
+                                    offsetX.value < -thresholdPx -> {
+                                        offsetX.animateTo(
+                                            -cardWidth.toFloat(),
+                                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+                                        )
+                                        onIgnore()
+                                    }
+                                    else -> offsetX.animateTo(
+                                        0f,
+                                        spring(stiffness = Spring.StiffnessMedium),
+                                    )
+                                }
+                            }
+                        },
+                        onDragCancel = {
+                            scope.launch { offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium)) }
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            scope.launch {
+                                val maxRight = if (item.isInShoppingList) 0f else cardWidth.toFloat()
+                                offsetX.snapTo(
+                                    (offsetX.value + dragAmount).coerceIn(-cardWidth.toFloat(), maxRight),
+                                )
+                            }
+                        },
+                    )
+                },
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(all = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    .height(IntrinsicSize.Min),
             ) {
-                DaysBadge(deltaMillis = item.deltaMillis, color = accentColor)
-                Column(modifier = Modifier.weight(1f)) {
-                    AdptText(
-                        text = item.name,
-                        style = AdptTheme.typography.titleMedium,
-                    )
-                    AdptText(
-                        text = item.deltaMillis?.toDaysText() ?: "Not in stock",
-                        style = AdptTheme.typography.bodySmall,
-                        color = colors.onSurface.copy(alpha = 0.6f),
-                    )
-                }
-                if (item.isInShoppingList) {
-                    InListBadge()
-                } else {
-                    AdptIconButton(onClick = onAddToShoppingList) {
-                        AdptIcon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = "Add to shopping list",
+                Box(
+                    modifier = Modifier
+                        .width(6.dp)
+                        .fillMaxHeight()
+                        .background(accentColor),
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    DaysBadge(deltaMillis = item.deltaMillis, color = accentColor)
+                    Column(modifier = Modifier.weight(1f)) {
+                        AdptText(
+                            text = item.name,
+                            style = AdptTheme.typography.titleMedium,
+                        )
+                        AdptText(
+                            text = item.deltaMillis?.toDaysText() ?: "Not in stock",
+                            style = AdptTheme.typography.bodySmall,
+                            color = colors.onSurface.copy(alpha = 0.6f),
                         )
                     }
-                }
-                AdptIconButton(onClick = onIgnore) {
-                    AdptIcon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Ignore item",
-                    )
+                    if (item.isInShoppingList) {
+                        InListBadge()
+                    }
                 }
             }
         }

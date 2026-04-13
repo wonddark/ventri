@@ -400,7 +400,8 @@ private fun ItemCard(
                 if (!selectionMode) {
                     Spacer(Modifier.height(2.dp))
                     AdptText(
-                        "${item.unit.name} · ${item.consumptionRate}/day",
+                        if (item.consumptionRate != null) "${item.unit.name} · ${item.consumptionRate}/day"
+                        else item.unit.name,
                         style = AdptTheme.typography.bodySmall,
                         color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
                     )
@@ -570,7 +571,7 @@ private fun ItemFormDialog(
     confirmLabel: String,
     initialItem: ItemUiModel?,
     onDismiss: () -> Unit,
-    onConfirm: (name: String, unit: ItemUnit, priority: ItemPriority, rate: Double) -> Unit,
+    onConfirm: (name: String, unit: ItemUnit, priority: ItemPriority, rate: Double?) -> Unit,
     resultFlow: kotlinx.coroutines.flow.SharedFlow<String?>,
     onSuccess: () -> Unit,
 ) {
@@ -590,11 +591,12 @@ private fun ItemFormDialog(
     fun validate(): Boolean {
         var valid = true
         if (name.isBlank()) { nameError = "Name is required"; valid = false }
-        val rate = rateText.toDoubleOrNull()
-        when {
-            rateText.isBlank() -> { rateError = "Consumption rate is required"; valid = false }
-            rate == null -> { rateError = "Enter a valid number"; valid = false }
-            rate <= 0.0 -> { rateError = "Must be greater than 0"; valid = false }
+        if (rateText.isNotBlank()) {
+            val rate = rateText.toDoubleOrNull()
+            when {
+                rate == null -> { rateError = "Enter a valid number"; valid = false }
+                rate <= 0.0 -> { rateError = "Must be greater than 0"; valid = false }
+            }
         }
         return valid
     }
@@ -624,6 +626,7 @@ private fun ItemFormDialog(
                         AdptDropdownMenuItem(
                             text = { AdptText(unit.name) },
                             onClick = { selectedUnit = unit; unitExpanded = false },
+                            selected = unit == selectedUnit,
                         )
                     }
                 }
@@ -638,13 +641,14 @@ private fun ItemFormDialog(
                         AdptDropdownMenuItem(
                             text = { AdptText(priority.name) },
                             onClick = { selectedPriority = priority; priorityExpanded = false },
+                            selected = priority == selectedPriority,
                         )
                     }
                 }
                 AdptTextField(
                     value = rateText,
                     onValueChange = { rateText = it; rateError = null },
-                    placeholder = "Consumption rate / day",
+                    placeholder = "Consumption rate / day (optional)",
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = rateError != null,
@@ -655,7 +659,7 @@ private fun ItemFormDialog(
         },
         confirmButton = {
             AdptTextButton(onClick = {
-                if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDouble())
+                if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDoubleOrNull())
             }) { AdptText(confirmLabel, color = AdptTheme.colors.accent) }
         },
         dismissButton = {

@@ -38,7 +38,7 @@ fun AdptFab(
                 indication = ripple(),
                 onClick = onClick,
             )
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {

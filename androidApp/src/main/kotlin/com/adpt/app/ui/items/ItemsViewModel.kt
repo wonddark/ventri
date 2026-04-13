@@ -42,7 +42,7 @@ data class ItemUiModel(
     val id: String,
     val name: String,
     val unit: ItemUnit,
-    val consumptionRate: Double,
+    val consumptionRate: Double?,
     val priority: ItemPriority,
 )
 
@@ -67,7 +67,7 @@ sealed interface ItemsIntent {
         val name: String,
         val unit: ItemUnit,
         val priority: ItemPriority,
-        val consumptionRate: Double,
+        val consumptionRate: Double?,
     ) : ItemsIntent
     data class EditItem(val itemId: String) : ItemsIntent
     data class EditItemConfirmed(
@@ -75,7 +75,7 @@ sealed interface ItemsIntent {
         val name: String,
         val unit: ItemUnit,
         val priority: ItemPriority,
-        val consumptionRate: Double,
+        val consumptionRate: Double?,
     ) : ItemsIntent
     data class RemoveItem(val itemId: String) : ItemsIntent
     data class AddToShoppingList(val itemId: String) : ItemsIntent
@@ -133,7 +133,7 @@ class ItemsViewModel(
                     SortOrder.NameDesc -> list.sortedByDescending { it.name.lowercase() }
                 }
             }
-            .map { item -> ItemUiModel(item.id, item.name, item.unit, item.consumptionRate, item.priority) }
+            .map { item -> ItemUiModel(item.id, item.name, item.unit, item.consumptionRate.takeIf { it > 0.0 }, item.priority) }
         ItemsUiState(
             isLoading = false,
             items = filtered,
@@ -192,7 +192,7 @@ class ItemsViewModel(
                         name = intent.name,
                         unit = intent.unit,
                         priority = intent.priority,
-                        consumptionRate = intent.consumptionRate,
+                        consumptionRate = intent.consumptionRate ?: 0.0,
                     )
                 }
                 when (result) {
@@ -214,7 +214,7 @@ class ItemsViewModel(
                         name = intent.name,
                         unit = intent.unit,
                         priority = intent.priority,
-                        consumptionRate = intent.consumptionRate,
+                        consumptionRate = intent.consumptionRate ?: 0.0,
                     )
                 }
                 when (result) {

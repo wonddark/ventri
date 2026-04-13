@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -67,9 +71,10 @@ fun AdptDropdownMenuItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
+    selected: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    Box(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(
@@ -78,11 +83,19 @@ fun AdptDropdownMenuItem(
                 onClick = onClick,
             )
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        contentAlignment = Alignment.CenterStart,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (leadingIcon != null) {
             Box(modifier = Modifier.padding(end = 8.dp)) { leadingIcon() }
         }
-        text()
+        Box(modifier = Modifier.weight(1f)) { text() }
+        if (selected) {
+            Spacer(modifier = Modifier.width(8.dp))
+            AdptIcon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = AdptTheme.colors.accent,
+            )
+        }
     }
 }

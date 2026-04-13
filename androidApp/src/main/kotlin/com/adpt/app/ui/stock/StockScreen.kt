@@ -60,23 +60,42 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
     var depletingItem by remember { mutableStateOf<StockItemUiModel?>(null) }
 
     depletingItem?.let { item ->
-        AdptDialog(
-            onDismissRequest = { depletingItem = null },
-            title = { AdptText("Update consumption rate?", style = AdptTheme.typography.titleSmall) },
-            text = { AdptText("Would you like to recalculate the consumption rate based on actual usage since the last purchase?") },
-            confirmButton = {
-                AdptTextButton(onClick = {
-                    viewModel.markDepleted(item.id, updateRate = true)
-                    depletingItem = null
-                }) { AdptText("Yes", color = AdptTheme.colors.accent) }
-            },
-            dismissButton = {
-                AdptTextButton(onClick = {
-                    viewModel.markDepleted(item.id, updateRate = false)
-                    depletingItem = null
-                }) { AdptText("No", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)) }
-            },
-        )
+        if (!item.rateKnown) {
+            AdptDialog(
+                onDismissRequest = { depletingItem = null },
+                title = { AdptText("Mark as depleted?", style = AdptTheme.typography.titleSmall) },
+                text = { AdptText("I'll calculate your consumption rate based on how long this lasted. This helps me predict when you'll run out next time.") },
+                confirmButton = {
+                    AdptTextButton(onClick = {
+                        viewModel.markDepleted(item.id, updateRate = true)
+                        depletingItem = null
+                    }) { AdptText("Mark depleted", color = AdptTheme.colors.accent) }
+                },
+                dismissButton = {
+                    AdptTextButton(onClick = { depletingItem = null }) {
+                        AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                    }
+                },
+            )
+        } else {
+            AdptDialog(
+                onDismissRequest = { depletingItem = null },
+                title = { AdptText("Update consumption rate?", style = AdptTheme.typography.titleSmall) },
+                text = { AdptText("Would you like me to recalculate the consumption rate based on actual usage since the last purchase?") },
+                confirmButton = {
+                    AdptTextButton(onClick = {
+                        viewModel.markDepleted(item.id, updateRate = true)
+                        depletingItem = null
+                    }) { AdptText("Yes", color = AdptTheme.colors.accent) }
+                },
+                dismissButton = {
+                    AdptTextButton(onClick = {
+                        viewModel.markDepleted(item.id, updateRate = false)
+                        depletingItem = null
+                    }) { AdptText("No", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)) }
+                },
+            )
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {

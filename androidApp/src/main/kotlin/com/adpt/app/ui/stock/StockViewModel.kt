@@ -24,6 +24,7 @@ data class StockItemUiModel(
     val unit: ItemUnit,
     val remainingQuantity: Double,
     val daysRemainingLabel: String,
+    val rateKnown: Boolean,
 )
 
 sealed interface StockUiState {
@@ -78,7 +79,18 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
     private fun Item.toStockUiModel(now: Long): StockItemUiModel? {
         val purchasedAt = lastPurchasedAt ?: return null
         val qty = purchasedQuantity ?: return null
-        if (consumptionRate == 0.0) return null
+
+        // Item is in stock but consumption rate is not yet known — show it so the user can mark it depleted
+        if (consumptionRate == 0.0) {
+            return StockItemUiModel(
+                id = id,
+                name = name,
+                unit = unit,
+                remainingQuantity = qty,
+                daysRemainingLabel = "Tracking usage...",
+                rateKnown = false,
+            )
+        }
 
         val millisSincePurchase = now - purchasedAt
         val remaining = qty - (consumptionRate * millisSincePurchase / MILLIS_PER_DAY)
@@ -100,6 +112,7 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
             unit = unit,
             remainingQuantity = remaining,
             daysRemainingLabel = label,
+            rateKnown = true,
         )
     }
 }

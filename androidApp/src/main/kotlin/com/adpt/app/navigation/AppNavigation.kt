@@ -1,9 +1,5 @@
 package com.adpt.app.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,16 +13,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -53,7 +44,7 @@ import kotlinx.coroutines.flow.filterNotNull
 private sealed class Screen(
     val route: String,
     val label: String,
-    val icon: ImageVector
+    val icon: ImageVector,
 ) {
     data object Overview : Screen("overview", "Overview", Icons.Default.AvTimer)
     data object Shopping : Screen("shopping", "Refills", Icons.Default.ShoppingCart)
@@ -86,25 +77,6 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 !selectionModeActive)
     }
 
-    var barsVisible by remember { mutableStateOf(true) }
-    val navScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                when {
-                    consumed.y < -5f -> barsVisible = false
-                    consumed.y > 5f -> barsVisible = true
-                }
-                return Offset.Zero
-            }
-        }
-    }
-
-    LaunchedEffect(currentRoute) { barsVisible = true }
-
     var navBarHeightPx by remember { mutableIntStateOf(0) }
     val navBarHeightDp = with(density) { navBarHeightPx.toDp() }
 
@@ -123,13 +95,12 @@ fun AppNavigation(modifier: Modifier = Modifier) {
 
     CompositionLocalProvider(
         LocalNavBarHeight provides navBarHeightDp,
-        LocalBarsVisible provides (isTopLevelRoute && barsVisible),
+        LocalBarsVisible provides true,
     ) {
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(AdptTheme.colors.background)
-                .nestedScroll(navScrollConnection),
+                .background(AdptTheme.colors.background),
         ) {
             NavHost(
                 navController = navController,
@@ -165,12 +136,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 ) { ItemsScreen(navController = navController) }
             }
 
-            androidx.compose.animation.AnimatedVisibility(
-                visible = isTopLevelRoute && barsVisible,
-                enter = slideInVertically { it } + fadeIn(),
-                exit = slideOutVertically { it } + fadeOut(),
-                modifier = Modifier.align(Alignment.BottomCenter),
-            ) {
+            if (isTopLevelRoute) {
                 AdptNavBar(
                     items = navItems,
                     currentRoute = currentRoute,
@@ -183,7 +149,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                             restoreState = true
                         }
                     },
-                    modifier = Modifier.onSizeChanged { navBarHeightPx = it.height },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .onSizeChanged { navBarHeightPx = it.height },
                 )
             }
         }
