@@ -118,7 +118,7 @@ fun AdptTextField(
                             .fillMaxWidth()
                             .padding(
                                 top = if (label != null) 24.dp else 14.dp,
-                                bottom = 10.dp,
+                                bottom = 14.dp,
                             ),
                         textStyle = typography.bodyMedium.copy(color = colors.onSurface),
                         cursorBrush = SolidColor(colors.accent),
