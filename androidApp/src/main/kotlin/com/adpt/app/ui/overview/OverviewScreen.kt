@@ -596,12 +596,6 @@ private fun OverviewItemCard(
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min),
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(6.dp)
-                        .fillMaxHeight()
-                        .background(accentColor),
-                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
