@@ -1,11 +1,15 @@
 package com.adpt.app.ui.shopping
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,9 +33,15 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +52,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -81,7 +95,7 @@ fun ShoppingScreen(
     pendingError?.let { error ->
         AdptDialog(
             onDismissRequest = { viewModel.clearPendingError() },
-            title = { AdptText("Could Not Update Shopping List", style = AdptTheme.typography.titleSmall) },
+            title = { AdptText("Could Not Update Refill List", style = AdptTheme.typography.titleSmall) },
             text = { AdptText(error) },
             confirmButton = {
                 AdptTextButton(onClick = { viewModel.clearPendingError() }) {
@@ -93,7 +107,6 @@ fun ShoppingScreen(
 
     var showEmptyConfirm by remember { mutableStateOf(false) }
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
-    var removingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
 
     if (showEmptyConfirm) {
         AdptDialog(
@@ -108,25 +121,6 @@ fun ShoppingScreen(
             },
             dismissButton = {
                 AdptTextButton(onClick = { showEmptyConfirm = false }) {
-                    AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
-                }
-            },
-        )
-    }
-
-    removingItem?.let { item ->
-        AdptDialog(
-            onDismissRequest = { removingItem = null },
-            title = { AdptText("Remove from Refills", style = AdptTheme.typography.titleSmall) },
-            text = { AdptText("Remove ${item.name} from your refill list?") },
-            confirmButton = {
-                AdptTextButton(onClick = {
-                    viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId))
-                    removingItem = null
-                }) { AdptText("Remove", color = AdptTheme.colors.critical) }
-            },
-            dismissButton = {
-                AdptTextButton(onClick = { removingItem = null }) {
                     AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
                 }
             },
@@ -209,10 +203,10 @@ fun ShoppingScreen(
                     }
                     items(state.items, key = { it.entryId }) { item ->
                         AnimatedListItem(index = state.items.indexOf(item)) {
-                            ShoppingItemCard(
+                            RefillItemCard(
                                 item = item,
                                 onMarkAsPurchased = { purchasingItem = item },
-                                onRemove = { removingItem = item },
+                                onRemove = { viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId)) },
                             )
                         }
                     }
@@ -336,45 +330,125 @@ private fun RefillsTipCard(icon: ImageVector, title: String, body: String) {
 }
 
 @Composable
-private fun ShoppingItemCard(
+private fun RefillItemCard(
     item: ShoppingItemUiModel,
     onMarkAsPurchased: () -> Unit,
     onRemove: () -> Unit,
 ) {
     val colors = AdptTheme.colors
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                AdptText(item.name, style = AdptTheme.typography.titleMedium)
-                Spacer(Modifier.height(4.dp))
-                val (chipBg, chipFg) = when (item.status) {
-                    ShoppingListStatus.Pending -> colors.warningContainer to colors.onWarningContainer
-                    ShoppingListStatus.Purchased -> colors.criticalContainer to colors.onCriticalContainer
-                }
-                AdptChip(containerColor = chipBg) {
-                    AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
-                }
-                if (item.status == ShoppingListStatus.Purchased) {
-                    item.purchasedQuantity?.let { qty ->
-                        Spacer(Modifier.height(2.dp))
-                        AdptText("Qty: $qty", style = AdptTheme.typography.bodySmall, color = colors.onSurface.copy(alpha = 0.5f))
-                    }
-                    item.depletionLabel?.let { label ->
-                        Spacer(Modifier.height(2.dp))
-                        AdptText(label, style = AdptTheme.typography.bodySmall, color = colors.accent)
-                    }
-                }
-            }
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 100.dp.toPx() }
+    val offsetX = remember { Animatable(0f) }
+    var cardWidth by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(item.entryId, item.status) { offsetX.snapTo(0f) }
+
+    Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
+        // Background layers
+        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+            // Right swipe — mark as purchased (green, only for pending)
             if (item.status == ShoppingListStatus.Pending) {
-                AdptIconButton(onClick = onMarkAsPurchased) {
-                    AdptIcon(Icons.Default.Check, contentDescription = "Mark as purchased")
+                Box(
+                    modifier = Modifier.matchParentSize()
+                        .graphicsLayer { alpha = (offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                        .background(colors.ok),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    AdptIcon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.padding(start = 24.dp).graphicsLayer {
+                            val p = (offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                            scaleX = 0.6f + 0.4f * p
+                            scaleY = scaleX
+                        },
+                    )
                 }
             }
-            AdptIconButton(onClick = onRemove) {
-                AdptIcon(Icons.Default.Delete, contentDescription = "Remove")
+            // Left swipe — remove (red)
+            Box(
+                modifier = Modifier.matchParentSize()
+                    .graphicsLayer { alpha = (-offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                    .background(colors.critical),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                AdptIcon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.padding(end = 24.dp).graphicsLayer {
+                        val p = (-offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                        scaleX = 0.6f + 0.4f * p
+                        scaleY = scaleX
+                    },
+                )
+            }
+        }
+
+        AdptCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                .pointerInput(item.entryId, item.status) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                when {
+                                    offsetX.value > thresholdPx && item.status == ShoppingListStatus.Pending -> {
+                                        offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                                        onMarkAsPurchased()
+                                    }
+                                    offsetX.value < -thresholdPx -> {
+                                        offsetX.animateTo(
+                                            -cardWidth.toFloat(),
+                                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+                                        )
+                                        onRemove()
+                                    }
+                                    else -> offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                                }
+                            }
+                        },
+                        onDragCancel = {
+                            scope.launch { offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium)) }
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            scope.launch {
+                                val maxRight = if (item.status == ShoppingListStatus.Pending) cardWidth.toFloat() else 0f
+                                offsetX.snapTo((offsetX.value + dragAmount).coerceIn(-cardWidth.toFloat(), maxRight))
+                            }
+                        },
+                    )
+                },
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    val (chipBg, chipFg) = when (item.status) {
+                        ShoppingListStatus.Pending -> colors.warningContainer to colors.onWarningContainer
+                        ShoppingListStatus.Purchased -> colors.criticalContainer to colors.onCriticalContainer
+                    }
+                    AdptChip(containerColor = chipBg) {
+                        AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
+                    }
+                    if (item.status == ShoppingListStatus.Purchased) {
+                        item.purchasedQuantity?.let { qty ->
+                            Spacer(Modifier.height(2.dp))
+                            AdptText("Qty: $qty", style = AdptTheme.typography.bodySmall, color = colors.onSurface.copy(alpha = 0.5f))
+                        }
+                        item.depletionLabel?.let { label ->
+                            Spacer(Modifier.height(2.dp))
+                            AdptText(label, style = AdptTheme.typography.bodySmall, color = colors.accent)
+                        }
+                    }
+                }
             }
         }
     }
