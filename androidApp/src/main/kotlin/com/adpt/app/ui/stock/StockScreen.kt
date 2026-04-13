@@ -234,7 +234,7 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                AdptText(item.name, style = AdptTheme.typography.titleSmall)
                 Spacer(Modifier.height(4.dp))
                 AdptText(
                     text = item.daysRemainingLabel,
