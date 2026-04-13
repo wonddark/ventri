@@ -1,6 +1,10 @@
 package com.adpt.app.ui.stock
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,17 +26,24 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,11 +54,12 @@ import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptDialog
 import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
 import com.adpt.app.ui.design.components.AdptText
 import com.adpt.app.ui.design.components.AdptTextButton
 import com.adpt.app.ui.design.components.AdptTopBar
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @Composable
 fun StockScreen(viewModel: StockViewModel = viewModel()) {
@@ -226,32 +239,87 @@ private fun StockTipCard(icon: ImageVector, title: String, body: String) {
 
 @Composable
 private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                AdptText(item.name, style = AdptTheme.typography.titleSmall)
-                Spacer(Modifier.height(4.dp))
-                AdptText(
-                    text = item.daysRemainingLabel,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                )
-            }
-            AdptText(
-                text = "${item.remainingQuantity.formatQuantity()} ${item.unit.name}",
-                style = AdptTheme.typography.bodyMedium,
-                color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-            )
-            AdptIconButton(onClick = onMarkDepleted) {
+    val colors = AdptTheme.colors
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 100.dp.toPx() }
+    val offsetX = remember(item.id) { Animatable(0f) }
+    var cardWidth by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(item.id) { offsetX.snapTo(0f) }
+
+    Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
+        // Right swipe background — mark as depleted
+        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+            Box(
+                modifier = Modifier.matchParentSize()
+                    .graphicsLayer { alpha = (offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                    .background(colors.warning),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 AdptIcon(
                     imageVector = Icons.Outlined.RemoveShoppingCart,
-                    contentDescription = "Mark as depleted",
-                    tint = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.padding(start = 24.dp).graphicsLayer {
+                        val p = (offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                        scaleX = 0.6f + 0.4f * p
+                        scaleY = scaleX
+                    },
+                )
+            }
+        }
+
+        AdptCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                .pointerInput(item.id) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                if (offsetX.value > thresholdPx) {
+                                    offsetX.animateTo(
+                                        cardWidth.toFloat(),
+                                        spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+                                    )
+                                    onMarkDepleted()
+                                } else {
+                                    offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                                }
+                            }
+                        },
+                        onDragCancel = {
+                            scope.launch { offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium)) }
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            scope.launch {
+                                offsetX.snapTo((offsetX.value + dragAmount).coerceIn(0f, cardWidth.toFloat()))
+                            }
+                        },
+                    )
+                },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                    Spacer(Modifier.height(2.dp))
+                    AdptText(
+                        text = item.daysRemainingLabel,
+                        style = AdptTheme.typography.bodySmall,
+                        color = colors.onSurface.copy(alpha = 0.5f),
+                    )
+                }
+                AdptText(
+                    text = "${item.remainingQuantity.formatQuantity()} ${item.unit.name}",
+                    style = AdptTheme.typography.bodyMedium,
+                    color = colors.onSurface.copy(alpha = 0.5f),
                 )
             }
         }
