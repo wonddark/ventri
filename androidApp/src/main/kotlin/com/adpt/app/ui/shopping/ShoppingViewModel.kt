@@ -7,6 +7,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.adpt.app.AdptApplication
 import com.adpt.shared.db.SelectAllWithItem
+import com.adpt.shared.model.ItemUnit
 import com.adpt.shared.model.ShoppingListStatus
 import com.adpt.shared.util.clearPurchasedEntries
 import com.adpt.shared.util.emptyShoppingList
@@ -28,6 +29,7 @@ data class ShoppingItemUiModel(
     val entryId: String,
     val itemId: String,
     val name: String,
+    val unit: ItemUnit,
     val status: ShoppingListStatus,
     val purchasedQuantity: Double?,
     val depletionLabel: String?,
@@ -69,6 +71,7 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
                             entryId = row.entryId,
                             itemId = row.item_id,
                             name = row.name,
+                            unit = row.unit,
                             status = row.status,
                             purchasedQuantity = row.purchasedQuantity,
                             depletionLabel = computeDepletionLabel(

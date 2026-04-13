@@ -21,41 +21,40 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -73,10 +72,12 @@ import com.adpt.app.ui.design.components.AdptIconButton
 import com.adpt.app.ui.design.components.AdptOutlinedButton
 import com.adpt.app.ui.design.components.AdptProgressIndicator
 import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTextField
 import com.adpt.app.ui.design.components.AdptTextButton
+import com.adpt.app.ui.design.components.AdptTextField
 import com.adpt.app.ui.design.components.AdptTopBar
 import com.adpt.shared.model.ShoppingListStatus
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun ShoppingScreen(
@@ -95,7 +96,12 @@ fun ShoppingScreen(
     pendingError?.let { error ->
         AdptDialog(
             onDismissRequest = { viewModel.clearPendingError() },
-            title = { AdptText("Could Not Update Refill List", style = AdptTheme.typography.titleSmall) },
+            title = {
+                AdptText(
+                    "Could Not Update Refill List",
+                    style = AdptTheme.typography.titleSmall
+                )
+            },
             text = { AdptText(error) },
             confirmButton = {
                 AdptTextButton(onClick = { viewModel.clearPendingError() }) {
@@ -111,7 +117,12 @@ fun ShoppingScreen(
     if (showEmptyConfirm) {
         AdptDialog(
             onDismissRequest = { showEmptyConfirm = false },
-            title = { AdptText("Empty Refills", style = AdptTheme.typography.titleSmall) },
+            title = {
+                AdptText(
+                    "Empty Refills",
+                    style = AdptTheme.typography.titleSmall
+                )
+            },
             text = { AdptText("Remove all items from your refill list?") },
             confirmButton = {
                 AdptTextButton(onClick = {
@@ -121,7 +132,10 @@ fun ShoppingScreen(
             },
             dismissButton = {
                 AdptTextButton(onClick = { showEmptyConfirm = false }) {
-                    AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                    AdptText(
+                        "Cancel",
+                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)
+                    )
                 }
             },
         )
@@ -132,7 +146,12 @@ fun ShoppingScreen(
         var quantityError by remember { mutableStateOf<String?>(null) }
         AdptDialog(
             onDismissRequest = { purchasingItem = null },
-            title = { AdptText("Mark as Purchased", style = AdptTheme.typography.titleSmall) },
+            title = {
+                AdptText(
+                    "Mark as Purchased",
+                    style = AdptTheme.typography.titleSmall
+                )
+            },
             text = {
                 Column {
                     AdptText("How much ${item.name} did you buy?")
@@ -140,7 +159,7 @@ fun ShoppingScreen(
                     AdptTextField(
                         value = quantity,
                         onValueChange = { quantity = it; quantityError = null },
-                        label = "Quantity",
+                        label = "Quantity (${item.unit.name})",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         isError = quantityError != null,
@@ -152,11 +171,21 @@ fun ShoppingScreen(
                 AdptTextButton(onClick = {
                     val amount = quantity.toDoubleOrNull()
                     when {
-                        quantity.isBlank() -> quantityError = "Quantity is required"
+                        quantity.isBlank() -> quantityError =
+                            "Quantity is required"
+
                         amount == null -> quantityError = "Enter a valid number"
-                        amount <= 0.0 -> quantityError = "Must be greater than 0"
+                        amount <= 0.0 -> quantityError =
+                            "Must be greater than 0"
+
                         else -> {
-                            viewModel.handleIntent(ShoppingIntent.MarkAsPurchased(item.entryId, item.itemId, amount))
+                            viewModel.handleIntent(
+                                ShoppingIntent.MarkAsPurchased(
+                                    item.entryId,
+                                    item.itemId,
+                                    amount
+                                )
+                            )
                             purchasingItem = null
                         }
                     }
@@ -164,16 +193,25 @@ fun ShoppingScreen(
             },
             dismissButton = {
                 AdptTextButton(onClick = { purchasingItem = null }) {
-                    AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                    AdptText(
+                        "Cancel",
+                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)
+                    )
                 }
             },
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AdptTheme.colors.background)
+    ) {
         when (val state = uiState) {
             ShoppingUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { AdptProgressIndicator() }
 
@@ -198,7 +236,10 @@ fun ShoppingScreen(
                             text = "${state.items.size} item${if (state.items.size != 1) "s" else ""}",
                             style = AdptTheme.typography.bodySmall,
                             color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                            modifier = Modifier.padding(
+                                top = 8.dp,
+                                bottom = 4.dp
+                            ),
                         )
                     }
                     items(state.items, key = { it.entryId }) { item ->
@@ -206,17 +247,30 @@ fun ShoppingScreen(
                             RefillItemCard(
                                 item = item,
                                 onMarkAsPurchased = { purchasingItem = item },
-                                onRemove = { viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId)) },
+                                onRemove = {
+                                    viewModel.handleIntent(
+                                        ShoppingIntent.RemoveEntry(item.entryId)
+                                    )
+                                },
                             )
                         }
                     }
                     item(key = "clear") {
                         Box(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            AdptOutlinedButton(onClick = { viewModel.handleIntent(ShoppingIntent.ClearList) }) {
-                                AdptText("Clear Purchased", color = AdptTheme.colors.onSurface)
+                            AdptOutlinedButton(onClick = {
+                                viewModel.handleIntent(
+                                    ShoppingIntent.ClearList
+                                )
+                            }) {
+                                AdptText(
+                                    "Clear Purchased",
+                                    color = AdptTheme.colors.onSurface
+                                )
                             }
                         }
                     }
@@ -226,10 +280,18 @@ fun ShoppingScreen(
 
         // Pinned top bar overlay
         AdptTopBar(
-            title = { AdptText("Refills", style = AdptTheme.typography.titleLarge) },
+            title = {
+                AdptText(
+                    "Refills",
+                    style = AdptTheme.typography.titleLarge
+                )
+            },
             actions = {
                 AdptIconButton(onClick = { showEmptyConfirm = true }) {
-                    AdptIcon(Icons.Default.Delete, contentDescription = "Empty list")
+                    AdptIcon(
+                        Icons.Default.Delete,
+                        contentDescription = "Empty list"
+                    )
                 }
             },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
@@ -245,7 +307,11 @@ fun ShoppingScreen(
                 .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
         ) {
             AdptFab(onClick = { navController.navigate("items?selectionMode=true") }) {
-                AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
+                AdptIcon(
+                    Icons.Default.Add,
+                    contentDescription = null,
+                    tint = AdptTheme.colors.onAccent
+                )
             }
         }
     }
@@ -257,7 +323,12 @@ private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+            .padding(
+                top = topPadding,
+                bottom = bottomPadding,
+                start = 24.dp,
+                end = 24.dp
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
@@ -266,7 +337,10 @@ private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
             contentDescription = null,
             tint = AdptTheme.colors.accent,
             modifier = Modifier
-                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .background(
+                    AdptTheme.colors.accentMuted,
+                    shape = AdptShapes.pill
+                )
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
@@ -314,7 +388,10 @@ private fun RefillsTipCard(icon: ImageVector, title: String, body: String) {
                 contentDescription = null,
                 tint = AdptTheme.colors.accent,
                 modifier = Modifier
-                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .background(
+                        AdptTheme.colors.accentMuted,
+                        shape = AdptShapes.small
+                    )
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -344,14 +421,23 @@ private fun RefillItemCard(
 
     LaunchedEffect(item.entryId, item.status) { offsetX.snapTo(0f) }
 
-    Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { cardWidth = it.width }) {
         // Background layers
-        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+        Box(modifier = Modifier
+            .matchParentSize()
+            .clip(AdptShapes.card)) {
             // Right swipe — mark as purchased (green, only for pending)
             if (item.status == ShoppingListStatus.Pending) {
                 Box(
-                    modifier = Modifier.matchParentSize()
-                        .graphicsLayer { alpha = (offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer {
+                            alpha =
+                                (offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                        }
                         .background(colors.ok),
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -359,18 +445,26 @@ private fun RefillItemCard(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.padding(start = 24.dp).graphicsLayer {
-                            val p = (offsetX.value / thresholdPx).coerceIn(0f, 1f)
-                            scaleX = 0.6f + 0.4f * p
-                            scaleY = scaleX
-                        },
+                        modifier = Modifier
+                            .padding(start = 24.dp)
+                            .graphicsLayer {
+                                val p = (offsetX.value / thresholdPx).coerceIn(
+                                    0f,
+                                    1f
+                                )
+                                scaleX = 0.6f + 0.4f * p
+                                scaleY = scaleX
+                            },
                     )
                 }
             }
             // Left swipe — remove (red)
             Box(
-                modifier = Modifier.matchParentSize()
-                    .graphicsLayer { alpha = (-offsetX.value / thresholdPx).coerceIn(0f, 1f) }
+                modifier = Modifier
+                    .matchParentSize()
+                    .graphicsLayer {
+                        alpha = (-offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                    }
                     .background(colors.critical),
                 contentAlignment = Alignment.CenterEnd,
             ) {
@@ -378,11 +472,14 @@ private fun RefillItemCard(
                     imageVector = Icons.Default.Delete,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.padding(end = 24.dp).graphicsLayer {
-                        val p = (-offsetX.value / thresholdPx).coerceIn(0f, 1f)
-                        scaleX = 0.6f + 0.4f * p
-                        scaleY = scaleX
-                    },
+                    modifier = Modifier
+                        .padding(end = 24.dp)
+                        .graphicsLayer {
+                            val p =
+                                (-offsetX.value / thresholdPx).coerceIn(0f, 1f)
+                            scaleX = 0.6f + 0.4f * p
+                            scaleY = scaleX
+                        },
                 )
             }
         }
@@ -397,59 +494,100 @@ private fun RefillItemCard(
                             scope.launch {
                                 when {
                                     offsetX.value > thresholdPx && item.status == ShoppingListStatus.Pending -> {
-                                        offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                                        offsetX.animateTo(
+                                            0f,
+                                            spring(stiffness = Spring.StiffnessMedium)
+                                        )
                                         onMarkAsPurchased()
                                     }
+
                                     offsetX.value < -thresholdPx -> {
                                         offsetX.animateTo(
                                             -cardWidth.toFloat(),
-                                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
+                                            ),
                                         )
                                         onRemove()
                                     }
-                                    else -> offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+
+                                    else -> offsetX.animateTo(
+                                        0f,
+                                        spring(stiffness = Spring.StiffnessMedium)
+                                    )
                                 }
                             }
                         },
                         onDragCancel = {
-                            scope.launch { offsetX.animateTo(0f, spring(stiffness = Spring.StiffnessMedium)) }
+                            scope.launch {
+                                offsetX.animateTo(
+                                    0f,
+                                    spring(stiffness = Spring.StiffnessMedium)
+                                )
+                            }
                         },
                         onHorizontalDrag = { change, dragAmount ->
                             change.consume()
                             scope.launch {
-                                val maxRight = if (item.status == ShoppingListStatus.Pending) cardWidth.toFloat() else 0f
-                                offsetX.snapTo((offsetX.value + dragAmount).coerceIn(-cardWidth.toFloat(), maxRight))
+                                val maxRight =
+                                    if (item.status == ShoppingListStatus.Pending) cardWidth.toFloat() else 0f
+                                offsetX.snapTo(
+                                    (offsetX.value + dragAmount).coerceIn(
+                                        -cardWidth.toFloat(),
+                                        maxRight
+                                    )
+                                )
                             }
                         },
                     )
                 },
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    AdptText(item.name, style = AdptTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-                    val (chipBg, chipFg) = when (item.status) {
-                        ShoppingListStatus.Pending -> colors.warningContainer to colors.onWarningContainer
-                        ShoppingListStatus.Purchased -> colors.criticalContainer to colors.onCriticalContainer
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                        val (chipBg, chipFg) = when (item.status) {
+                            ShoppingListStatus.Pending -> colors.warningContainer to colors.onWarningContainer
+                            ShoppingListStatus.Purchased -> colors.criticalContainer to colors.onCriticalContainer
+                        }
+                        AdptChip(containerColor = chipBg) {
+                            AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
+                        }
                     }
-                    AdptChip(containerColor = chipBg) {
-                        AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
-                    }
+                    Spacer(Modifier.height(2.dp))
                     if (item.status == ShoppingListStatus.Purchased) {
                         item.purchasedQuantity?.let { qty ->
-                            Spacer(Modifier.height(2.dp))
-                            AdptText("Qty: $qty", style = AdptTheme.typography.bodySmall, color = colors.onSurface.copy(alpha = 0.5f))
+                            AdptText(
+                                "${qty.formatQuantity()} ${item.unit.name}",
+                                style = AdptTheme.typography.bodySmall,
+                                color = colors.onSurface.copy(alpha = 0.5f),
+                            )
                         }
                         item.depletionLabel?.let { label ->
-                            Spacer(Modifier.height(2.dp))
                             AdptText(label, style = AdptTheme.typography.bodySmall, color = colors.accent)
                         }
+                    } else {
+                        AdptText(
+                            item.unit.name,
+                            style = AdptTheme.typography.bodySmall,
+                            color = colors.onSurface.copy(alpha = 0.5f),
+                        )
                     }
                 }
             }
         }
     }
 }
+
+private fun Double.formatQuantity(): String =
+    if (this % 1.0 == 0.0) toLong().toString() else "%.1f".format(this)

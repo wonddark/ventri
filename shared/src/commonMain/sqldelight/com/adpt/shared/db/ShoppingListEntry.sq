@@ -13,6 +13,7 @@ SELECT
     ShoppingListEntry.item_id,
     ShoppingListEntry.status,
     Item.name,
+    Item.unit,
     Item.consumptionRate,
     Item.lastPurchasedAt,
     Item.purchasedQuantity
