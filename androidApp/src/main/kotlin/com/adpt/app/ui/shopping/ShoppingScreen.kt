@@ -18,11 +18,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.adpt.app.ui.components.AnimatedListItem
+import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
 import com.adpt.app.ui.design.LocalBarsVisible
 import com.adpt.app.ui.design.LocalNavBarHeight
@@ -90,8 +98,8 @@ fun ShoppingScreen(
     if (showEmptyConfirm) {
         AdptDialog(
             onDismissRequest = { showEmptyConfirm = false },
-            title = { AdptText("Empty Shopping List", style = AdptTheme.typography.titleSmall) },
-            text = { AdptText("Remove all items from the shopping list?") },
+            title = { AdptText("Empty Refills", style = AdptTheme.typography.titleSmall) },
+            text = { AdptText("Remove all items from your refill list?") },
             confirmButton = {
                 AdptTextButton(onClick = {
                     viewModel.handleIntent(ShoppingIntent.EmptyList)
@@ -109,8 +117,8 @@ fun ShoppingScreen(
     removingItem?.let { item ->
         AdptDialog(
             onDismissRequest = { removingItem = null },
-            title = { AdptText("Remove Item", style = AdptTheme.typography.titleSmall) },
-            text = { AdptText("Remove ${item.name} from the shopping list?") },
+            title = { AdptText("Remove from Refills", style = AdptTheme.typography.titleSmall) },
+            text = { AdptText("Remove ${item.name} from your refill list?") },
             confirmButton = {
                 AdptTextButton(onClick = {
                     viewModel.handleIntent(ShoppingIntent.RemoveEntry(item.entryId))
@@ -176,18 +184,10 @@ fun ShoppingScreen(
             ) { AdptProgressIndicator() }
 
             is ShoppingUiState.Success -> if (state.items.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = topBarHeightDp, bottom = navBarHeight),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AdptText(
-                        "Nothing here to show",
-                        style = AdptTheme.typography.bodyMedium,
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                    )
-                }
+                RefillsEmptyState(
+                    topPadding = topBarHeightDp,
+                    bottomPadding = navBarHeight + 72.dp,
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -232,7 +232,7 @@ fun ShoppingScreen(
 
         // Pinned top bar overlay
         AdptTopBar(
-            title = { AdptText("Shopping", style = AdptTheme.typography.titleLarge) },
+            title = { AdptText("Refills", style = AdptTheme.typography.titleLarge) },
             actions = {
                 AdptIconButton(onClick = { showEmptyConfirm = true }) {
                     AdptIcon(Icons.Default.Delete, contentDescription = "Empty list")
@@ -252,6 +252,84 @@ fun ShoppingScreen(
         ) {
             AdptFab(onClick = { navController.navigate("items?selectionMode=true") }) {
                 AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        AdptIcon(
+            imageVector = Icons.Default.ShoppingCart,
+            contentDescription = null,
+            tint = AdptTheme.colors.accent,
+            modifier = Modifier
+                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .padding(20.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        AdptText(
+            text = "Nothing to refill",
+            style = AdptTheme.typography.titleLarge,
+            color = AdptTheme.colors.onBackground,
+        )
+        Spacer(Modifier.height(8.dp))
+        AdptText(
+            text = "This is your running list of things to buy. I'll help you keep it up to date so you never run out of what matters.",
+            style = AdptTheme.typography.bodyMedium,
+            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+        )
+        Spacer(Modifier.height(32.dp))
+        RefillsTipCard(
+            icon = Icons.AutoMirrored.Filled.PlaylistAdd,
+            title = "Add what you need",
+            body = "Tap + to pick items from your list and add them here. You can select multiple at once so the list is ready before you head out.",
+        )
+        Spacer(Modifier.height(12.dp))
+        RefillsTipCard(
+            icon = Icons.Default.Check,
+            title = "Log when you buy something",
+            body = "Tap ✓ next to an item and tell me how much you got. I'll move it to Stock right away and start tracking how long it'll last.",
+        )
+        Spacer(Modifier.height(12.dp))
+        RefillsTipCard(
+            icon = Icons.Default.AvTimer,
+            title = "I'll tell you what's running low",
+            body = "Keep an eye on the Overview screen — I'll flag items that are about to run out so you can add them here before it's too late.",
+        )
+    }
+}
+
+@Composable
+private fun RefillsTipCard(icon: ImageVector, title: String, body: String) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            AdptIcon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = AdptTheme.colors.accent,
+                modifier = Modifier
+                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .padding(8.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                AdptText(title, style = AdptTheme.typography.titleSmall)
+                AdptText(
+                    body,
+                    style = AdptTheme.typography.bodySmall,
+                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                )
             }
         }
     }

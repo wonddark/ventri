@@ -13,7 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,12 +28,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adpt.app.ui.components.AnimatedListItem
+import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
 import com.adpt.app.ui.design.LocalNavBarHeight
 import com.adpt.app.ui.design.components.AdptCard
@@ -79,18 +87,10 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
             ) { AdptProgressIndicator() }
 
             is StockUiState.Success -> if (state.items.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = topBarHeightDp, bottom = navBarHeight),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AdptText(
-                        "Nothing here to show",
-                        style = AdptTheme.typography.bodyMedium,
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                    )
-                }
+                StockEmptyState(
+                    topPadding = topBarHeightDp,
+                    bottomPadding = navBarHeight + 16.dp,
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -124,6 +124,84 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
             title = { AdptText("Stock", style = AdptTheme.typography.titleLarge) },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
         )
+    }
+}
+
+@Composable
+private fun StockEmptyState(topPadding: Dp, bottomPadding: Dp) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        AdptIcon(
+            imageVector = Icons.Default.Inventory,
+            contentDescription = null,
+            tint = AdptTheme.colors.accent,
+            modifier = Modifier
+                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .padding(20.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        AdptText(
+            text = "Nothing in stock",
+            style = AdptTheme.typography.titleLarge,
+            color = AdptTheme.colors.onBackground,
+        )
+        Spacer(Modifier.height(8.dp))
+        AdptText(
+            text = "This is where I keep track of what you currently have at home and how long it will last.",
+            style = AdptTheme.typography.bodyMedium,
+            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+        )
+        Spacer(Modifier.height(32.dp))
+        StockTipCard(
+            icon = Icons.Default.ShoppingCartCheckout,
+            title = "Items land here after shopping",
+            body = "When you mark something as purchased in your shopping list, I'll start tracking it here automatically.",
+        )
+        Spacer(Modifier.height(12.dp))
+        StockTipCard(
+            icon = Icons.Default.Schedule,
+            title = "I track how long things last",
+            body = "Based on the quantity you bought and your consumption rate, I'll tell you exactly how many days each item will last.",
+        )
+        Spacer(Modifier.height(12.dp))
+        StockTipCard(
+            icon = Icons.Outlined.RemoveShoppingCart,
+            title = "Mark items as depleted",
+            body = "Run out of something? Tap the cart icon to remove it from stock. I'll ask if you want me to recalibrate the consumption rate based on actual usage.",
+        )
+    }
+}
+
+@Composable
+private fun StockTipCard(icon: ImageVector, title: String, body: String) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            AdptIcon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = AdptTheme.colors.accent,
+                modifier = Modifier
+                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .padding(8.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                AdptText(title, style = AdptTheme.typography.titleSmall)
+                AdptText(
+                    body,
+                    style = AdptTheme.typography.bodySmall,
+                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                )
+            }
+        }
     }
 }
 

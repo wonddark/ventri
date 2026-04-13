@@ -92,6 +92,7 @@ class ItemsViewModel(
     private val db = (application as AdptApplication).database
 
     val selectionMode: Boolean = savedStateHandle.get<Boolean>("selectionMode") ?: false
+    val showAddOnStart: Boolean = savedStateHandle.get<Boolean>("add") ?: false
     // Immutable: set once from nav arg, does not update reactively
 
     private val _addItemResult = MutableSharedFlow<String?>()

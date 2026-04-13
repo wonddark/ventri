@@ -42,6 +42,7 @@ sealed interface OverviewUiState {
         val items: List<OverviewItemUiModel>,
         val criticalCount: Int,
         val highCount: Int,
+        val hasAnyItems: Boolean,
         val severityFilter: Severity?,
         val listVersion: Int = 0,
     ) : OverviewUiState
@@ -95,6 +96,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             items = allItems,
             criticalCount = allItems.count { it.severity == Severity.Critical },
             highCount = allItems.count { it.severity == Severity.High },
+            hasAnyItems = items.isNotEmpty(),
             severityFilter = null,
             listVersion = version,
         )

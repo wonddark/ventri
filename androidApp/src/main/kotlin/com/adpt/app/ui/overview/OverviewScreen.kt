@@ -25,14 +25,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +59,7 @@ import com.adpt.app.ui.design.AdptShapes
 import com.adpt.app.ui.design.AdptTheme
 import com.adpt.app.ui.design.LocalBarsVisible
 import com.adpt.app.ui.design.LocalNavBarHeight
+import com.adpt.app.ui.design.components.AdptButton
 import com.adpt.app.ui.design.components.AdptCard
 import com.adpt.app.ui.design.components.AdptFab
 import com.adpt.app.ui.design.components.AdptIcon
@@ -72,6 +79,7 @@ private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
 @Composable
 fun OverviewScreen(
     onOpenSettings: () -> Unit,
+    onAddItem: () -> Unit,
     viewModel: OverviewViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -102,16 +110,16 @@ fun OverviewScreen(
             }
 
             is OverviewUiState.Success -> if (state.criticalCount == 0 && state.highCount == 0) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = topBarHeightDp, bottom = navBarHeight),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AdptText(
-                        text = "Nothing to show here",
-                        style = AdptTheme.typography.bodyMedium,
-                        color = colors.onSurface.copy(alpha = 0.6f),
+                if (!state.hasAnyItems) {
+                    OverviewGetStartedState(
+                        topPadding = topBarHeightDp,
+                        bottomPadding = navBarHeight + 16.dp,
+                        onAddItem = onAddItem,
+                    )
+                } else {
+                    OverviewAllGoodState(
+                        topPadding = topBarHeightDp,
+                        bottomPadding = navBarHeight,
                     )
                 }
             } else {
@@ -249,6 +257,122 @@ fun OverviewScreen(
                 .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
         ) {
             AdptSnackbarHost(snackbarHostState)
+        }
+    }
+}
+
+@Composable
+private fun OverviewGetStartedState(
+    topPadding: Dp,
+    bottomPadding: Dp,
+    onAddItem: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        AdptIcon(
+            imageVector = Icons.Default.AvTimer,
+            contentDescription = null,
+            tint = AdptTheme.colors.accent,
+            modifier = Modifier
+                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .padding(20.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        AdptText(
+            text = "Let's get started",
+            style = AdptTheme.typography.titleLarge,
+            color = AdptTheme.colors.onBackground,
+        )
+        Spacer(Modifier.height(8.dp))
+        AdptText(
+            text = "This is your command centre. I watch everything you have at home and alert you the moment something is about to run out.",
+            style = AdptTheme.typography.bodyMedium,
+            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+        )
+        Spacer(Modifier.height(32.dp))
+        OverviewTipCard(
+            icon = Icons.Default.Inventory,
+            title = "I track what you have",
+            body = "Once you add items and log your stock, I'll calculate how quickly you're using them and predict when you'll run out.",
+        )
+        Spacer(Modifier.height(12.dp))
+        OverviewTipCard(
+            icon = Icons.Default.AddShoppingCart,
+            title = "I tell you what needs attention",
+            body = "I only surface items that are running low or out of stock — nothing else. One tap and they're added to your refill list.",
+        )
+        Spacer(Modifier.height(32.dp))
+        AdptButton(
+            onClick = onAddItem,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            AdptText("Add my first item", color = AdptTheme.colors.onAccent)
+        }
+    }
+}
+
+@Composable
+private fun OverviewAllGoodState(topPadding: Dp, bottomPadding: Dp) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            AdptIcon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = AdptTheme.colors.ok,
+                modifier = Modifier
+                    .background(AdptTheme.colors.ok.copy(alpha = 0.12f), shape = AdptShapes.pill)
+                    .padding(20.dp),
+            )
+            Spacer(Modifier.height(20.dp))
+            AdptText(
+                text = "You're all stocked up",
+                style = AdptTheme.typography.titleLarge,
+                color = AdptTheme.colors.onBackground,
+            )
+            Spacer(Modifier.height(8.dp))
+            AdptText(
+                text = "Nothing needs your attention right now. I'll let you know as soon as something starts running low.",
+                style = AdptTheme.typography.bodyMedium,
+                color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun OverviewTipCard(icon: ImageVector, title: String, body: String) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            AdptIcon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = AdptTheme.colors.accent,
+                modifier = Modifier
+                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .padding(8.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                AdptText(title, style = AdptTheme.typography.titleSmall)
+                AdptText(
+                    body,
+                    style = AdptTheme.typography.bodySmall,
+                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                )
+            }
         }
     }
 }

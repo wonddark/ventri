@@ -24,13 +24,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -87,7 +95,7 @@ fun ItemsScreen(
     viewModel: ItemsViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showAddDialog by rememberSaveable { mutableStateOf(false) }
+    var showAddDialog by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
     val snackbarState = rememberAdptSnackbarHostState()
     val navBarHeight = LocalNavBarHeight.current
@@ -143,17 +151,27 @@ fun ItemsScreen(
                 contentAlignment = Alignment.Center,
             ) { AdptProgressIndicator() }
 
-            uiState.items.isEmpty() -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = topBarHeightDp, bottom = navBarHeight),
-                contentAlignment = Alignment.Center,
-            ) {
-                AdptText(
-                    "Nothing here to show",
-                    style = AdptTheme.typography.bodyMedium,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
-                )
+            uiState.items.isEmpty() -> {
+                val filtersActive = uiState.isSearchActive || uiState.priorityFilter.isNotEmpty()
+                if (filtersActive) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = topBarHeightDp, bottom = navBarHeight),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        AdptText(
+                            "No items match your filters",
+                            style = AdptTheme.typography.bodyMedium,
+                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                        )
+                    }
+                } else {
+                    ItemsEmptyState(
+                        topPadding = topBarHeightDp,
+                        bottomPadding = navBarHeight + 72.dp,
+                    )
+                }
             }
 
             else -> LazyColumn(
@@ -348,6 +366,27 @@ private fun ItemCard(
     onIntent: (ItemsIntent) -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        AdptDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { AdptText("Remove item", style = AdptTheme.typography.titleSmall) },
+            text = { AdptText("Remove \"${item.name}\" from your items list?") },
+            confirmButton = {
+                AdptTextButton(onClick = {
+                    onIntent(ItemsIntent.RemoveItem(item.id))
+                    showDeleteConfirm = false
+                }) { AdptText("Remove", color = AdptTheme.colors.critical) }
+            },
+            dismissButton = {
+                AdptTextButton(onClick = { showDeleteConfirm = false }) {
+                    AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                }
+            },
+        )
+    }
+
     val cardContent: @Composable () -> Unit = {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -380,7 +419,7 @@ private fun ItemCard(
                         )
                         AdptDropdownMenuItem(
                             text = { AdptText("Remove") },
-                            onClick = { onIntent(ItemsIntent.RemoveItem(item.id)); showMenu = false },
+                            onClick = { showDeleteConfirm = true; showMenu = false },
                         )
                         AdptDropdownMenuItem(
                             text = { AdptText("Add to Shopping List") },
@@ -441,6 +480,91 @@ private fun PriorityBadge(priority: ItemPriority) {
 }
 
 @Composable
+private fun ItemsEmptyState(
+    topPadding: Dp,
+    bottomPadding: Dp,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        AdptIcon(
+            imageVector = Icons.Default.Category,
+            contentDescription = null,
+            tint = AdptTheme.colors.accent,
+            modifier = Modifier
+                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .padding(20.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        AdptText(
+            text = "No items yet",
+            style = AdptTheme.typography.titleLarge,
+            color = AdptTheme.colors.onBackground,
+        )
+        Spacer(Modifier.height(8.dp))
+        AdptText(
+            text = "These are the products you regularly buy. Add them here so I can track your consumption and help you build smarter shopping lists.",
+            style = AdptTheme.typography.bodyMedium,
+            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+        )
+        Spacer(Modifier.height(32.dp))
+        ItemsTipCard(
+            icon = Icons.Default.Speed,
+            title = "Set a consumption rate",
+            body = "Tell me how fast you use each item per day. I'll use that to predict when you'll run out and remind you to restock.",
+        )
+        Spacer(Modifier.height(12.dp))
+        ItemsTipCard(
+            icon = Icons.Default.Flag,
+            title = "Assign a priority",
+            body = "Mark items as High or Highest priority so I always know what's most critical when building your shopping list.",
+        )
+        Spacer(Modifier.height(12.dp))
+        ItemsTipCard(
+            icon = Icons.Default.AddShoppingCart,
+            title = "Add to your shopping list",
+            body = "Tap ⋮ next to any item to add it to your list, or use the \"+\" button from the Shopping screen to pick multiple at once.",
+        )
+    }
+}
+
+@Composable
+private fun ItemsTipCard(
+    icon: ImageVector,
+    title: String,
+    body: String,
+) {
+    AdptCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            AdptIcon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = AdptTheme.colors.accent,
+                modifier = Modifier
+                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .padding(8.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                AdptText(title, style = AdptTheme.typography.titleSmall)
+                AdptText(
+                    body,
+                    style = AdptTheme.typography.bodySmall,
+                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ItemFormDialog(
     title: String,
     confirmLabel: String,
@@ -483,7 +607,7 @@ private fun ItemFormDialog(
                 AdptTextField(
                     value = name,
                     onValueChange = { name = it; nameError = null },
-                    label = "Name",
+                    placeholder = "Name",
                     singleLine = true,
                     isError = nameError != null,
                     supportingText = nameError,
@@ -520,7 +644,7 @@ private fun ItemFormDialog(
                 AdptTextField(
                     value = rateText,
                     onValueChange = { rateText = it; rateError = null },
-                    label = "Consumption rate / day",
+                    placeholder = "Consumption rate / day",
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = rateError != null,

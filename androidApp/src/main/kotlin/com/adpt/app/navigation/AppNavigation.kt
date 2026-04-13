@@ -56,7 +56,7 @@ private sealed class Screen(
     val icon: ImageVector
 ) {
     data object Overview : Screen("overview", "Overview", Icons.Default.AvTimer)
-    data object Shopping : Screen("shopping", "Shopping", Icons.Default.ShoppingCart)
+    data object Shopping : Screen("shopping", "Refills", Icons.Default.ShoppingCart)
     data object Stock : Screen("stock", "Stock", Icons.Default.Inventory)
     data object Items : Screen("items", "Items", Icons.Default.Category)
 
@@ -136,7 +136,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 startDestination = Screen.Overview.route,
             ) {
                 composable(Screen.Overview.route) {
-                    OverviewScreen(onOpenSettings = { navController.navigate("preferences") })
+                    OverviewScreen(
+                        onOpenSettings = { navController.navigate("preferences") },
+                        onAddItem = { navController.navigate("items?add=true") },
+                    )
                 }
                 composable(Screen.Shopping.route) {
                     ShoppingScreen(navController = navController)
@@ -148,12 +151,16 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     PreferencesScreen(onNavigateUp = { navController.navigateUp() })
                 }
                 composable(
-                    route = "${Screen.Items.route}?selectionMode={selectionMode}",
+                    route = "${Screen.Items.route}?selectionMode={selectionMode}&add={add}",
                     arguments = listOf(
                         navArgument("selectionMode") {
                             type = NavType.BoolType
                             defaultValue = false
-                        }
+                        },
+                        navArgument("add") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        },
                     ),
                 ) { ItemsScreen(navController = navController) }
             }
