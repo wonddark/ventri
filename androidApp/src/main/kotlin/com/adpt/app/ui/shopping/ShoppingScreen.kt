@@ -564,25 +564,32 @@ private fun RefillItemCard(
                             AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
                         }
                     }
-                    Spacer(Modifier.height(2.dp))
-                    if (item.status == ShoppingListStatus.Purchased) {
-                        item.purchasedQuantity?.let { qty ->
+                    Spacer(Modifier.height(6.dp))
+
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (item.status == ShoppingListStatus.Purchased) {
+                            item.purchasedQuantity?.let { qty ->
+                                AdptText(
+                                    "${qty.formatQuantity()} ${item.unit.name}",
+                                    style = AdptTheme.typography.bodySmall,
+                                    color = colors.onSurface.copy(alpha = 0.5f),
+                                )
+                            }
+                            item.depletionLabel?.let { label ->
+                                AdptText(
+                                    label,
+                                    style = AdptTheme.typography.bodySmall,
+                                    color = colors.accent.copy(alpha = 0.7f))
+                            }
+                        } else {
                             AdptText(
-                                "${qty.formatQuantity()} ${item.unit.name}",
+                                item.unit.name,
                                 style = AdptTheme.typography.bodySmall,
                                 color = colors.onSurface.copy(alpha = 0.5f),
                             )
                         }
-                        item.depletionLabel?.let { label ->
-                            AdptText(label, style = AdptTheme.typography.bodySmall, color = colors.accent)
-                        }
-                    } else {
-                        AdptText(
-                            item.unit.name,
-                            style = AdptTheme.typography.bodySmall,
-                            color = colors.onSurface.copy(alpha = 0.5f),
-                        )
                     }
+
                 }
             }
         }
