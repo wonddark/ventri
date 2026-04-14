@@ -52,7 +52,7 @@ private sealed class Screen(
     data object Items : Screen("items", "Items", Icons.Default.Category)
 
     companion object {
-        val tabs = listOf(Overview, Shopping, Stock, Items)
+        val tabs = listOf(Overview, Stock, Items, Shopping)
     }
 }
 
