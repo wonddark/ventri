@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Depleted arc: 270° clockwise from 12 o'clock → 9 o'clock -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 256 76 A 180 180 0 1 1 76 256"
+        android:strokeColor="#2D2520"
+        android:strokeLineCap="round"
+        android:strokeWidth="42" />
+
+    <!-- Remaining arc: 90° clockwise from 9 o'clock → 12 o'clock -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 76 256 A 180 180 0 0 1 256 76"
+        android:strokeColor="#E8A07A"
+        android:strokeLineCap="round"
+        android:strokeWidth="42" />
+
+    <!-- Glow halo at transition point (9 o'clock) -->
+    <path
+        android:fillAlpha="0.18"
+        android:fillColor="#E8A07A"
+        android:pathData="M 110 256 A 34 34 0 1 0 42 256 A 34 34 0 1 0 110 256 Z" />
+
+    <!-- Dot at transition point -->
+    <path
+        android:fillColor="#E8A07A"
+        android:pathData="M 96 256 A 20 20 0 1 0 56 256 A 20 20 0 1 0 96 256 Z" />
+
+    <!-- Jar body -->
+    <path
+        android:fillColor="#2D2520"
+        android:pathData="M 216 210 L 296 210 Q 310 210 310 224 L 310 326 Q 310 340 296 340 L 216 340 Q 202 340 202 326 L 202 224 Q 202 210 216 210 Z"
+        android:strokeColor="#3D2F28"
+        android:strokeWidth="2" />
+
+    <!-- Jar fill: 25% from bottom, rounded bottom corners -->
+    <path
+        android:fillAlpha="0.80"
+        android:fillColor="#E8A07A"
+        android:pathData="M 202 307 L 202 326 Q 202 340 216 340 L 296 340 Q 310 340 310 326 L 310 307 Z" />
+
+    <!-- Fill surface highlight line -->
+    <path
+        android:fillAlpha="0.60"
+        android:fillColor="#F0C090"
+        android:pathData="M 202 305 L 310 305 L 310 309 L 202 309 Z" />
+
+    <!-- Jar lid band -->
+    <path
+        android:fillAlpha="0.55"
+        android:fillColor="#E8A07A"
+        android:pathData="M 201 193 L 311 193 Q 318 193 318 200 L 318 215 Q 318 215 311 215 L 201 215 Q 194 215 194 208 L 194 200 Q 194 193 201 193 Z" />
+
+    <!-- Jar lid cap -->
+    <path
+        android:fillAlpha="0.80"
+        android:fillColor="#E8A07A"
+        android:pathData="M 216 174 L 296 174 Q 306 174 306 184 L 306 196 Q 306 196 296 196 L 216 196 Q 206 196 206 186 L 206 184 Q 206 174 216 174 Z" />
+
+    <!-- Jar shine -->
+    <path
+        android:fillAlpha="0.10"
+        android:fillColor="#FFFFFF"
+        android:pathData="M 217.5 225.5 Q 217.5 220 212 220 Q 212 220 212 225.5 L 212 270.5 Q 212 276 217.5 276 Q 223 276 223 270.5 L 223 225.5 Q 223 220 217.5 220 Z" />
+
+</vector>
