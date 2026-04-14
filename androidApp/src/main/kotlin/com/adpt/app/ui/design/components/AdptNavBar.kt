@@ -44,7 +44,7 @@ fun AdptNavBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(colors.outline.copy(alpha = 0.3f))
+                .background(colors.surface.copy(alpha = 0.7f))
         )
         Row(
             modifier = Modifier
