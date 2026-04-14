@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.adpt.app"
+    namespace = "com.ventri.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.adpt.app"
+        applicationId = "com.ventri.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1

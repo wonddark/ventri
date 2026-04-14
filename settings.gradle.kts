@@ -26,6 +26,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "adpt"
+rootProject.name = "ventri"
 include(":shared")
 include(":androidApp")

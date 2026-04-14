@@ -34,7 +34,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.adpt.shared"
+    namespace = "com.ventri.shared"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -51,8 +51,8 @@ android {
 
 sqldelight {
     databases {
-        create("AdptDatabase") {
-            packageName.set("com.adpt.shared.db")
+        create("VentriDatabase") {
+            packageName.set("com.ventri.shared.db")
         }
     }
 }
