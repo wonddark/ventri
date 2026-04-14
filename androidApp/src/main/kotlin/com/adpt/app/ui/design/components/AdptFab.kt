@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,22 +16,22 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptFab(
+fun VentriFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
-            .shadow(elevation = 6.dp, shape = AdptShapes.pill)
-            .clip(AdptShapes.pill)
-            .background(color = colors.accent, shape = AdptShapes.pill)
+            .shadow(elevation = 6.dp, shape = VentriShapes.pill)
+            .clip(VentriShapes.pill)
+            .background(color = colors.accent, shape = VentriShapes.pill)
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,

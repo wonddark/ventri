@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptDialog(
+fun VentriDialog(
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit,
     text: @Composable () -> Unit,
@@ -27,8 +27,8 @@ fun AdptDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Column(
             modifier = Modifier
-                .clip(AdptShapes.card)
-                .background(color = AdptTheme.colors.surface, shape = AdptShapes.card)
+                .clip(VentriShapes.card)
+                .background(color = VentriTheme.colors.surface, shape = VentriShapes.card)
                 .padding(24.dp),
         ) {
             title()

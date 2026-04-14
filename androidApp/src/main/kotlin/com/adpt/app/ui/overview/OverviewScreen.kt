@@ -1,4 +1,4 @@
-package com.adpt.app.ui.overview
+package com.ventri.app.ui.overview
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -71,24 +71,24 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adpt.app.ui.components.AnimatedListItem
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.LocalBarsVisible
-import com.adpt.app.ui.design.LocalNavBarHeight
-import com.adpt.app.ui.design.components.AdptButton
-import com.adpt.app.ui.design.components.AdptCard
-import com.adpt.app.ui.design.components.AdptFab
-import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptIconButton
-import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptSnackbarHost
-import com.adpt.app.ui.design.components.AdptSurface
-import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTopBar
-import com.adpt.app.ui.design.components.rememberAdptSnackbarHostState
-import com.adpt.app.ui.design.components.ripple
-import com.adpt.shared.model.Severity
+import com.ventri.app.ui.components.AnimatedListItem
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.LocalBarsVisible
+import com.ventri.app.ui.design.LocalNavBarHeight
+import com.ventri.app.ui.design.components.VentriButton
+import com.ventri.app.ui.design.components.VentriCard
+import com.ventri.app.ui.design.components.VentriFab
+import com.ventri.app.ui.design.components.VentriIcon
+import com.ventri.app.ui.design.components.VentriIconButton
+import com.ventri.app.ui.design.components.VentriProgressIndicator
+import com.ventri.app.ui.design.components.VentriSnackbarHost
+import com.ventri.app.ui.design.components.VentriSurface
+import com.ventri.app.ui.design.components.VentriText
+import com.ventri.app.ui.design.components.VentriTopBar
+import com.ventri.app.ui.design.components.rememberVentriSnackbarHostState
+import com.ventri.app.ui.design.components.ripple
+import com.ventri.shared.model.Severity
 import kotlin.math.abs
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
@@ -100,7 +100,7 @@ fun OverviewScreen(
     viewModel: OverviewViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = rememberAdptSnackbarHostState()
+    val snackbarHostState = rememberVentriSnackbarHostState()
     val navBarHeight = LocalNavBarHeight.current
     val barsVisible = LocalBarsVisible.current
     val density = LocalDensity.current
@@ -112,7 +112,7 @@ fun OverviewScreen(
     }
 
     val successItems = (uiState as? OverviewUiState.Success)?.items
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
 
     var topBarHeightPx by remember { mutableIntStateOf(0) }
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
@@ -140,7 +140,7 @@ fun OverviewScreen(
                 modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) {
-                AdptProgressIndicator()
+                VentriProgressIndicator()
             }
 
             is OverviewUiState.Success -> if (state.criticalCount == 0 && state.highCount == 0) {
@@ -178,18 +178,18 @@ fun OverviewScreen(
                                 .padding(top = 36.dp, bottom = 48.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            AdptText(
+                            VentriText(
                                 text = "Overview",
-                                style = AdptTheme.typography.titleLarge.copy(
+                                style = VentriTheme.typography.titleLarge.copy(
                                     fontSize = 28.sp,
                                     textAlign = TextAlign.Center,
                                 ),
                                 color = colors.onBackground,
                             )
                             Spacer(Modifier.height(8.dp))
-                            AdptText(
+                            VentriText(
                                 text = "Here are the items that need your attention right now.",
-                                style = AdptTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
+                                style = VentriTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
                                 color = colors.onSurface.copy(alpha = 0.6f),
                                 modifier = Modifier.fillMaxWidth(fraction = 0.7f)
                             )
@@ -213,11 +213,11 @@ fun OverviewScreen(
                                 )
                             }
                             Spacer(Modifier.height(12.dp))
-                            AdptButton(
+                            VentriButton(
                                 onClick = { viewModel.addAllToShoppingList(state.items.map { it.id }) },
                                 modifier = Modifier.widthIn(min = 200.dp),
                             ) {
-                                AdptText("Add all to my refill list", color = colors.onAccent)
+                                VentriText("Add all to my refill list", color = colors.onAccent)
                             }
                         }
                     }
@@ -230,9 +230,9 @@ fun OverviewScreen(
                                     .height(200.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                AdptText(
+                                VentriText(
                                     text = "No items match this filter",
-                                    style = AdptTheme.typography.bodyMedium,
+                                    style = VentriTheme.typography.bodyMedium,
                                     color = colors.onSurface.copy(alpha = 0.6f),
                                 )
                             }
@@ -260,23 +260,23 @@ fun OverviewScreen(
         }
 
         // Pinned top bar overlay — title only appears once the expanded header scrolls away
-        AdptTopBar(
+        VentriTopBar(
             title = {
-                AdptText(
+                VentriText(
                     text = "Overview",
-                    style = AdptTheme.typography.titleMedium,
+                    style = VentriTheme.typography.titleMedium,
                     modifier = Modifier.alpha(1f - headerAlpha),
                 )
             },
             actions = {
-                AdptIconButton(onClick = onOpenSettings) {
-                    AdptIcon(
+                VentriIconButton(onClick = onOpenSettings) {
+                    VentriIcon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Settings",
                     )
                 }
-                AdptIconButton(onClick = { viewModel.refresh() }) {
-                    AdptIcon(
+                VentriIconButton(onClick = { viewModel.refresh() }) {
+                    VentriIcon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Refresh",
                     )
@@ -294,15 +294,15 @@ fun OverviewScreen(
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
         ) {
-            AdptFab(
+            VentriFab(
                 onClick = {
                     viewModel.addAllToShoppingList(successItems!!.map { it.id })
                 },
             ) {
-                AdptIcon(
+                VentriIcon(
                     imageVector = Icons.Default.AddShoppingCart,
                     contentDescription = null,
-                    tint = AdptTheme.colors.onAccent,
+                    tint = VentriTheme.colors.onAccent,
                 )
             }
         }
@@ -313,7 +313,7 @@ fun OverviewScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
         ) {
-            AdptSnackbarHost(snackbarHostState)
+            VentriSnackbarHost(snackbarHostState)
         }
     }
 }
@@ -332,25 +332,25 @@ private fun OverviewGetStartedState(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
-        AdptIcon(
+        VentriIcon(
             imageVector = Icons.Default.AvTimer,
             contentDescription = null,
-            tint = AdptTheme.colors.accent,
+            tint = VentriTheme.colors.accent,
             modifier = Modifier
-                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
-        AdptText(
+        VentriText(
             text = "Let's get started",
-            style = AdptTheme.typography.titleLarge,
-            color = AdptTheme.colors.onBackground,
+            style = VentriTheme.typography.titleLarge,
+            color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
-        AdptText(
+        VentriText(
             text = "This is your command centre. I watch everything you have at home and alert you the moment something is about to run out.",
-            style = AdptTheme.typography.bodyMedium,
-            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+            style = VentriTheme.typography.bodyMedium,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         OverviewTipCard(
@@ -365,11 +365,11 @@ private fun OverviewGetStartedState(
             body = "I only surface items that are running low or out of stock — nothing else. One tap and they're added to your refill list.",
         )
         Spacer(Modifier.height(32.dp))
-        AdptButton(
+        VentriButton(
             onClick = onAddItem,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            AdptText("Add my first item", color = AdptTheme.colors.onAccent)
+            VentriText("Add my first item", color = VentriTheme.colors.onAccent)
         }
     }
 }
@@ -383,25 +383,25 @@ private fun OverviewAllGoodState(topPadding: Dp, bottomPadding: Dp) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = AdptTheme.colors.ok,
+                tint = VentriTheme.colors.ok,
                 modifier = Modifier
-                    .background(AdptTheme.colors.ok.copy(alpha = 0.12f), shape = AdptShapes.pill)
+                    .background(VentriTheme.colors.ok.copy(alpha = 0.12f), shape = VentriShapes.pill)
                     .padding(20.dp),
             )
             Spacer(Modifier.height(20.dp))
-            AdptText(
+            VentriText(
                 text = "You're all stocked up",
-                style = AdptTheme.typography.titleLarge,
-                color = AdptTheme.colors.onBackground,
+                style = VentriTheme.typography.titleLarge,
+                color = VentriTheme.colors.onBackground,
             )
             Spacer(Modifier.height(8.dp))
-            AdptText(
+            VentriText(
                 text = "Nothing needs your attention right now. I'll let you know as soon as something starts running low.",
-                style = AdptTheme.typography.bodyMedium,
-                color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                style = VentriTheme.typography.bodyMedium,
+                color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
             )
         }
     }
@@ -409,25 +409,25 @@ private fun OverviewAllGoodState(topPadding: Dp, bottomPadding: Dp) {
 
 @Composable
 private fun OverviewTipCard(icon: ImageVector, title: String, body: String) {
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
+    VentriCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = AdptTheme.colors.accent,
+                tint = VentriTheme.colors.accent,
                 modifier = Modifier
-                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                AdptText(title, style = AdptTheme.typography.titleSmall)
-                AdptText(
+                VentriText(title, style = VentriTheme.typography.titleSmall)
+                VentriText(
                     body,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = VentriTheme.typography.bodySmall,
+                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
                 )
             }
         }
@@ -446,7 +446,7 @@ private fun SummaryChip(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .clip(AdptShapes.card)
+            .clip(VentriShapes.card)
             .background(color = containerColor)
             .clickable(
                 interactionSource = interactionSource,
@@ -459,15 +459,15 @@ private fun SummaryChip(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            AdptText(
+            VentriText(
                 text = count.toString(),
-                style = AdptTheme.typography.labelMedium,
+                style = VentriTheme.typography.labelMedium,
                 color = contentColor,
             )
             Spacer(modifier = Modifier.width(4.dp))
-            AdptText(
+            VentriText(
                 text = label,
-                style = AdptTheme.typography.labelMedium,
+                style = VentriTheme.typography.labelMedium,
                 color = contentColor,
             )
         }
@@ -480,7 +480,7 @@ private fun OverviewItemCard(
     onAddToShoppingList: () -> Unit,
     onIgnore: () -> Unit,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val thresholdPx = with(density) { 100.dp.toPx() }
@@ -498,7 +498,7 @@ private fun OverviewItemCard(
 
     Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
         // Background reveal — clipped to card shape so corners stay rounded
-        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+        Box(modifier = Modifier.matchParentSize().clip(VentriShapes.card)) {
             // Swipe-right: add to refill list (only when not already in list)
             if (!item.isInShoppingList) {
                 Box(
@@ -508,7 +508,7 @@ private fun OverviewItemCard(
                         .background(colors.ok),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    AdptIcon(
+                    VentriIcon(
                         imageVector = Icons.Default.AddShoppingCart,
                         contentDescription = null,
                         tint = Color.White,
@@ -530,7 +530,7 @@ private fun OverviewItemCard(
                     .background(colors.critical),
                 contentAlignment = Alignment.CenterEnd,
             ) {
-                AdptIcon(
+                VentriIcon(
                     imageVector = Icons.Default.Close,
                     contentDescription = null,
                     tint = Color.White,
@@ -546,7 +546,7 @@ private fun OverviewItemCard(
         }
 
         // Foreground card — slides with the drag gesture
-        AdptCard(
+        VentriCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
@@ -605,13 +605,13 @@ private fun OverviewItemCard(
                 ) {
                     DaysBadge(deltaMillis = item.deltaMillis, color = accentColor)
                     Column(modifier = Modifier.weight(1f)) {
-                        AdptText(
+                        VentriText(
                             text = item.name,
-                            style = AdptTheme.typography.titleMedium,
+                            style = VentriTheme.typography.titleMedium,
                         )
-                        AdptText(
+                        VentriText(
                             text = item.deltaMillis?.toDaysText() ?: "Not in stock",
-                            style = AdptTheme.typography.bodySmall,
+                            style = VentriTheme.typography.bodySmall,
                             color = colors.onSurface.copy(alpha = 0.6f),
                         )
                     }
@@ -626,25 +626,25 @@ private fun OverviewItemCard(
 
 @Composable
 private fun InListBadge() {
-    val colors = AdptTheme.colors
-    AdptSurface(
+    val colors = VentriTheme.colors
+    VentriSurface(
         color = colors.accentMuted,
-        shape = AdptShapes.small,
+        shape = VentriShapes.small,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
                 tint = colors.accent,
             )
-            AdptText(
+            VentriText(
                 text = "In list",
-                style = AdptTheme.typography.labelSmall,
+                style = VentriTheme.typography.labelSmall,
                 color = colors.accent,
             )
         }
@@ -664,9 +664,9 @@ private fun DaysBadge(deltaMillis: Long?, color: Color) {
             .border(2.dp, color, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        AdptText(
+        VentriText(
             text = label,
-            style = AdptTheme.typography.labelMedium,
+            style = VentriTheme.typography.labelMedium,
             color = color,
         )
     }

@@ -1,4 +1,4 @@
-package com.adpt.shared.model
+package com.ventri.shared.model
 
 sealed class UpdateItemResult {
     data object Success : UpdateItemResult()

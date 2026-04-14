@@ -1,13 +1,13 @@
-package com.adpt.app.notifications
+package com.ventri.app.notifications
 
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.adpt.app.AdptApplication
-import com.adpt.shared.model.ItemPriority
-import com.adpt.shared.model.Severity
-import com.adpt.shared.util.deltaToSeverity
-import com.adpt.shared.util.estimatedDepletionDate
+import com.ventri.app.VentriApplication
+import com.ventri.shared.model.ItemPriority
+import com.ventri.shared.model.Severity
+import com.ventri.shared.util.deltaToSeverity
+import com.ventri.shared.util.estimatedDepletionDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -22,7 +22,7 @@ class CriticalItemsWorker(
     }
 
     override suspend fun doWork(): Result {
-        val app = applicationContext as AdptApplication
+        val app = applicationContext as VentriApplication
         val db = app.database
         val thresholds = app.prefs.thresholdConfig.value
         val now = Clock.System.now().toEpochMilliseconds()

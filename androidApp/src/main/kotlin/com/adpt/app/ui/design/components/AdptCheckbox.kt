@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -21,15 +21,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptCheckbox(
+fun VentriCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val checkProgress by animateFloatAsState(
         targetValue = if (checked) 1f else 0f,
         animationSpec = tween(durationMillis = 150),

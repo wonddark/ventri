@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,10 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptTopBar(
+fun VentriTopBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable (() -> Unit)? = null,
@@ -26,7 +26,7 @@ fun AdptTopBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(AdptTheme.colors.background)
+            .background(VentriTheme.colors.background)
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = 4.dp),
     ) {

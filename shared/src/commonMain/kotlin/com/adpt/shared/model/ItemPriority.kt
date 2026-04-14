@@ -1,4 +1,4 @@
-package com.adpt.shared.model
+package com.ventri.shared.model
 
 enum class ItemPriority {
     Highest,

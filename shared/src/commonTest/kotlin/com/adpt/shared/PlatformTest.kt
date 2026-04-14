@@ -1,4 +1,4 @@
-package com.adpt.shared
+package com.ventri.shared
 
 import kotlin.test.Test
 import kotlin.test.assertNotNull

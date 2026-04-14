@@ -1,4 +1,4 @@
-package com.adpt.shared.db
+package com.ventri.shared.db
 
 import app.cash.sqldelight.db.SqlDriver
 

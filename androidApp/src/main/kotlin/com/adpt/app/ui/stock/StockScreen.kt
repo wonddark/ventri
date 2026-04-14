@@ -1,4 +1,4 @@
-package com.adpt.app.ui.stock
+package com.ventri.app.ui.stock
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -47,17 +47,17 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adpt.app.ui.components.AnimatedListItem
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.LocalNavBarHeight
-import com.adpt.app.ui.design.components.AdptCard
-import com.adpt.app.ui.design.components.AdptDialog
-import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTextButton
-import com.adpt.app.ui.design.components.AdptTopBar
+import com.ventri.app.ui.components.AnimatedListItem
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.LocalNavBarHeight
+import com.ventri.app.ui.design.components.VentriCard
+import com.ventri.app.ui.design.components.VentriDialog
+import com.ventri.app.ui.design.components.VentriIcon
+import com.ventri.app.ui.design.components.VentriProgressIndicator
+import com.ventri.app.ui.design.components.VentriText
+import com.ventri.app.ui.design.components.VentriTextButton
+import com.ventri.app.ui.design.components.VentriTopBar
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -74,49 +74,49 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
 
     depletingItem?.let { item ->
         if (!item.rateKnown) {
-            AdptDialog(
+            VentriDialog(
                 onDismissRequest = { depletingItem = null },
-                title = { AdptText("Mark as depleted?", style = AdptTheme.typography.titleSmall) },
-                text = { AdptText("I'll calculate your consumption rate based on how long this lasted. This helps me predict when you'll run out next time.") },
+                title = { VentriText("Mark as depleted?", style = VentriTheme.typography.titleSmall) },
+                text = { VentriText("I'll calculate your consumption rate based on how long this lasted. This helps me predict when you'll run out next time.") },
                 confirmButton = {
-                    AdptTextButton(onClick = {
+                    VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = true)
                         depletingItem = null
-                    }) { AdptText("Mark depleted", color = AdptTheme.colors.accent) }
+                    }) { VentriText("Mark depleted", color = VentriTheme.colors.accent) }
                 },
                 dismissButton = {
-                    AdptTextButton(onClick = { depletingItem = null }) {
-                        AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                    VentriTextButton(onClick = { depletingItem = null }) {
+                        VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
                     }
                 },
             )
         } else {
-            AdptDialog(
+            VentriDialog(
                 onDismissRequest = { depletingItem = null },
-                title = { AdptText("Update consumption rate?", style = AdptTheme.typography.titleSmall) },
-                text = { AdptText("Would you like me to recalculate the consumption rate based on actual usage since the last purchase?") },
+                title = { VentriText("Update consumption rate?", style = VentriTheme.typography.titleSmall) },
+                text = { VentriText("Would you like me to recalculate the consumption rate based on actual usage since the last purchase?") },
                 confirmButton = {
-                    AdptTextButton(onClick = {
+                    VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = true)
                         depletingItem = null
-                    }) { AdptText("Yes", color = AdptTheme.colors.accent) }
+                    }) { VentriText("Yes", color = VentriTheme.colors.accent) }
                 },
                 dismissButton = {
-                    AdptTextButton(onClick = {
+                    VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = false)
                         depletingItem = null
-                    }) { AdptText("No", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)) }
+                    }) { VentriText("No", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)) }
                 },
             )
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
+    Box(modifier = Modifier.fillMaxSize().background(VentriTheme.colors.background)) {
         when (val state = uiState) {
             StockUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
-            ) { AdptProgressIndicator() }
+            ) { VentriProgressIndicator() }
 
             is StockUiState.Success -> if (state.items.isEmpty()) {
                 StockEmptyState(
@@ -135,10 +135,10 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     item(key = "header") {
-                        AdptText(
+                        VentriText(
                             text = "${state.items.size} item${if (state.items.size != 1) "s" else ""} in stock",
-                            style = AdptTheme.typography.bodySmall,
-                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            style = VentriTheme.typography.bodySmall,
+                            color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                         )
                     }
@@ -152,8 +152,8 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
         }
 
         // Pinned top bar overlay
-        AdptTopBar(
-            title = { AdptText("Stock", style = AdptTheme.typography.titleLarge) },
+        VentriTopBar(
+            title = { VentriText("Stock", style = VentriTheme.typography.titleLarge) },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
         )
     }
@@ -169,25 +169,25 @@ private fun StockEmptyState(topPadding: Dp, bottomPadding: Dp) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
-        AdptIcon(
+        VentriIcon(
             imageVector = Icons.Default.Inventory,
             contentDescription = null,
-            tint = AdptTheme.colors.accent,
+            tint = VentriTheme.colors.accent,
             modifier = Modifier
-                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
-        AdptText(
+        VentriText(
             text = "Nothing in stock",
-            style = AdptTheme.typography.titleLarge,
-            color = AdptTheme.colors.onBackground,
+            style = VentriTheme.typography.titleLarge,
+            color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
-        AdptText(
+        VentriText(
             text = "This is where I keep track of what you currently have at home and how long it will last.",
-            style = AdptTheme.typography.bodyMedium,
-            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+            style = VentriTheme.typography.bodyMedium,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         StockTipCard(
@@ -212,25 +212,25 @@ private fun StockEmptyState(topPadding: Dp, bottomPadding: Dp) {
 
 @Composable
 private fun StockTipCard(icon: ImageVector, title: String, body: String) {
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
+    VentriCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = AdptTheme.colors.accent,
+                tint = VentriTheme.colors.accent,
                 modifier = Modifier
-                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                AdptText(title, style = AdptTheme.typography.titleSmall)
-                AdptText(
+                VentriText(title, style = VentriTheme.typography.titleSmall)
+                VentriText(
                     body,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = VentriTheme.typography.bodySmall,
+                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
                 )
             }
         }
@@ -239,7 +239,7 @@ private fun StockTipCard(icon: ImageVector, title: String, body: String) {
 
 @Composable
 private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val thresholdPx = with(density) { 100.dp.toPx() }
@@ -250,14 +250,14 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
 
     Box(modifier = Modifier.fillMaxWidth().onSizeChanged { cardWidth = it.width }) {
         // Right swipe background — mark as depleted
-        Box(modifier = Modifier.matchParentSize().clip(AdptShapes.card)) {
+        Box(modifier = Modifier.matchParentSize().clip(VentriShapes.card)) {
             Box(
                 modifier = Modifier.matchParentSize()
                     .graphicsLayer { alpha = (offsetX.value / thresholdPx).coerceIn(0f, 1f) }
                     .background(colors.warning),
                 contentAlignment = Alignment.CenterStart,
             ) {
-                AdptIcon(
+                VentriIcon(
                     imageVector = Icons.Outlined.RemoveShoppingCart,
                     contentDescription = null,
                     tint = Color.White,
@@ -270,7 +270,7 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
             }
         }
 
-        AdptCard(
+        VentriCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
@@ -308,17 +308,17 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                    VentriText(item.name, style = VentriTheme.typography.titleMedium)
                     Spacer(Modifier.height(2.dp))
-                    AdptText(
+                    VentriText(
                         text = item.daysRemainingLabel,
-                        style = AdptTheme.typography.bodySmall,
+                        style = VentriTheme.typography.bodySmall,
                         color = colors.onSurface.copy(alpha = 0.5f),
                     )
                 }
-                AdptText(
+                VentriText(
                     text = "${item.remainingQuantity.formatQuantity()} ${item.unit.name}",
-                    style = AdptTheme.typography.bodyMedium,
+                    style = VentriTheme.typography.bodyMedium,
                     color = colors.onSurface.copy(alpha = 0.5f),
                 )
             }

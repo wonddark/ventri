@@ -1,8 +1,8 @@
-package com.adpt.app.ui.design
+package com.ventri.app.ui.design
 
 import androidx.compose.ui.unit.dp
 
-object AdptSpacing {
+object VentriSpacing {
     val xs = 4.dp
     val sm = 8.dp
     val md = 16.dp

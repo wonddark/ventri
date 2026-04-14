@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,24 +15,24 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptButton(
+fun VentriButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .clip(AdptShapes.pill)
+            .clip(VentriShapes.pill)
             .background(
                 color = if (enabled) colors.accent else colors.surfaceMuted,
-                shape = AdptShapes.pill,
+                shape = VentriShapes.pill,
             )
             .semantics { role = Role.Button }
             .clickable(
@@ -49,18 +49,18 @@ fun AdptButton(
 }
 
 @Composable
-fun AdptOutlinedButton(
+fun VentriOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .clip(AdptShapes.pill)
-            .border(1.dp, if (enabled) colors.outline else colors.surfaceMuted, AdptShapes.pill)
+            .clip(VentriShapes.pill)
+            .border(1.dp, if (enabled) colors.outline else colors.surfaceMuted, VentriShapes.pill)
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,
@@ -76,7 +76,7 @@ fun AdptOutlinedButton(
 }
 
 @Composable
-fun AdptTextButton(
+fun VentriTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -85,7 +85,7 @@ fun AdptTextButton(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .clip(AdptShapes.pill)
+            .clip(VentriShapes.pill)
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,

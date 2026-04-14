@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.Indication
 import androidx.compose.material.ripple.rememberRipple

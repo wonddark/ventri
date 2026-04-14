@@ -1,12 +1,12 @@
 CREATE TABLE Item (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    unit TEXT AS com.adpt.shared.model.ItemUnit NOT NULL,
+    unit TEXT AS com.ventri.shared.model.ItemUnit NOT NULL,
     consumptionRate REAL NOT NULL,
     lastPurchasedAt INTEGER,
     purchasedQuantity REAL,
     isInStock INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
-    priority TEXT AS com.adpt.shared.model.ItemPriority NOT NULL DEFAULT 'Normal'
+    priority TEXT AS com.ventri.shared.model.ItemPriority NOT NULL DEFAULT 'Normal'
 );
 
 selectAll:

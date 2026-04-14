@@ -1,4 +1,4 @@
-package com.adpt.app.navigation
+package com.ventri.app.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,17 +28,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.adpt.app.AdptApplication
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.LocalBarsVisible
-import com.adpt.app.ui.design.LocalNavBarHeight
-import com.adpt.app.ui.design.components.AdptNavBar
-import com.adpt.app.ui.design.components.AdptNavItem
-import com.adpt.app.ui.items.ItemsScreen
-import com.adpt.app.ui.overview.OverviewScreen
-import com.adpt.app.ui.preferences.PreferencesScreen
-import com.adpt.app.ui.shopping.ShoppingScreen
-import com.adpt.app.ui.stock.StockScreen
+import com.ventri.app.VentriApplication
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.LocalBarsVisible
+import com.ventri.app.ui.design.LocalNavBarHeight
+import com.ventri.app.ui.design.components.VentriNavBar
+import com.ventri.app.ui.design.components.VentriNavItem
+import com.ventri.app.ui.items.ItemsScreen
+import com.ventri.app.ui.overview.OverviewScreen
+import com.ventri.app.ui.preferences.PreferencesScreen
+import com.ventri.app.ui.shopping.ShoppingScreen
+import com.ventri.app.ui.stock.StockScreen
 import kotlinx.coroutines.flow.filterNotNull
 
 private sealed class Screen(
@@ -57,12 +57,12 @@ private sealed class Screen(
 }
 
 private val navItems = Screen.tabs.map { screen ->
-    AdptNavItem(route = screen.route, label = screen.label, icon = screen.icon)
+    VentriNavItem(route = screen.route, label = screen.label, icon = screen.icon)
 }
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
-    val app = LocalContext.current.applicationContext as AdptApplication
+    val app = LocalContext.current.applicationContext as VentriApplication
     val density = LocalDensity.current
 
     val navController = rememberNavController()
@@ -100,7 +100,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(AdptTheme.colors.background),
+                .background(VentriTheme.colors.background),
         ) {
             NavHost(
                 navController = navController,
@@ -137,7 +137,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             }
 
             if (isTopLevelRoute) {
-                AdptNavBar(
+                VentriNavBar(
                     items = navItems,
                     currentRoute = currentRoute,
                     onItemSelected = { item ->

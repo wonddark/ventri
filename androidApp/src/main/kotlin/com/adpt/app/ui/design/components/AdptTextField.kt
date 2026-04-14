@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -23,13 +23,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
-enum class AdptTextFieldVariant { Outlined, Transparent }
+enum class VentriTextFieldVariant { Outlined, Transparent }
 
 @Composable
-fun AdptTextField(
+fun VentriTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -44,10 +44,10 @@ fun AdptTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    variant: AdptTextFieldVariant = AdptTextFieldVariant.Outlined,
+    variant: VentriTextFieldVariant = VentriTextFieldVariant.Outlined,
 ) {
-    val colors = AdptTheme.colors
-    val typography = AdptTheme.typography
+    val colors = VentriTheme.colors
+    val typography = VentriTheme.typography
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val hasContent = value.isNotEmpty()
@@ -75,10 +75,10 @@ fun AdptTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    if (variant == AdptTextFieldVariant.Outlined) {
+                    if (variant == VentriTextFieldVariant.Outlined) {
                         Modifier
-                            .clip(AdptShapes.small)
-                            .border(1.dp, borderColor, AdptShapes.small)
+                            .clip(VentriShapes.small)
+                            .border(1.dp, borderColor, VentriShapes.small)
                     } else Modifier
                 )
         ) {
@@ -92,7 +92,7 @@ fun AdptTextField(
                 Box(modifier = Modifier.weight(1f)) {
                     // Floating label
                     if (label != null) {
-                        AdptText(
+                        VentriText(
                             text = label,
                             style = typography.bodyMedium.copy(
                                 fontSize = (typography.bodyMedium.fontSize.value * labelScale).sp,
@@ -103,7 +103,7 @@ fun AdptTextField(
                                 },
                             ),
                             modifier = Modifier
-                                .padding(top = if (label != null && variant == AdptTextFieldVariant.Outlined) 18.dp else 0.dp)
+                                .padding(top = if (label != null && variant == VentriTextFieldVariant.Outlined) 18.dp else 0.dp)
                                 .then(
                                     if (focused || hasContent)
                                         Modifier.padding(top = 0.dp)
@@ -131,7 +131,7 @@ fun AdptTextField(
                         decorationBox = { innerTextField ->
                             Box {
                                 if (value.isEmpty() && placeholder != null && (label == null || focused)) {
-                                    AdptText(
+                                    VentriText(
                                         text = placeholder,
                                         style = typography.bodyMedium,
                                         color = colors.onSurface.copy(alpha = 0.4f),
@@ -148,7 +148,7 @@ fun AdptTextField(
             }
         }
         if (supportingText != null) {
-            AdptText(
+            VentriText(
                 text = supportingText,
                 style = typography.labelSmall,
                 color = if (isError) colors.critical else colors.onSurface.copy(alpha = 0.6f),

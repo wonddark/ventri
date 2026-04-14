@@ -1,14 +1,14 @@
-package com.adpt.app.notifications
+package com.ventri.app.notifications
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
-import com.adpt.app.AdptApplication
-import com.adpt.app.MainActivity
-import com.adpt.app.Routes
-import com.adpt.shared.model.AddToShoppingListResult
-import com.adpt.shared.util.addToShoppingList
+import com.ventri.app.VentriApplication
+import com.ventri.app.MainActivity
+import com.ventri.app.Routes
+import com.ventri.shared.model.AddToShoppingListResult
+import com.ventri.shared.util.addToShoppingList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ class AddToShoppingListReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val app = context.applicationContext as AdptApplication
+                val app = context.applicationContext as VentriApplication
                 var addedCount = 0
 
                 itemIds.forEach { itemId ->
@@ -46,7 +46,7 @@ class AddToShoppingListReceiver : BroadcastReceiver() {
     }
 
     private fun handleError(context: Context, message: String) {
-        val app = context.applicationContext as AdptApplication
+        val app = context.applicationContext as VentriApplication
         app.pendingShoppingError.value = message
         app.pendingNavTarget.value = Routes.SHOPPING
         NotificationManagerCompat.from(context).cancel(NotificationHelper.NOTIFICATION_ID)

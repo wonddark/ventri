@@ -1,4 +1,4 @@
-package com.adpt.app.ui.preferences
+package com.ventri.app.ui.preferences
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,15 +35,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adpt.app.preferences.NotificationFrequency
-import com.adpt.app.preferences.ThemeMode
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptIconButton
-import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTopBar
-import com.adpt.app.ui.design.components.ripple
+import com.ventri.app.preferences.NotificationFrequency
+import com.ventri.app.preferences.ThemeMode
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.components.VentriIcon
+import com.ventri.app.ui.design.components.VentriIconButton
+import com.ventri.app.ui.design.components.VentriText
+import com.ventri.app.ui.design.components.VentriTopBar
+import com.ventri.app.ui.design.components.ripple
 
 @Composable
 fun PreferencesScreen(
@@ -51,8 +51,8 @@ fun PreferencesScreen(
     viewModel: PreferencesViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val colors = AdptTheme.colors
-    val typography = AdptTheme.typography
+    val colors = VentriTheme.colors
+    val typography = VentriTheme.typography
     val density = LocalDensity.current
 
     var topBarHeightPx by remember { mutableIntStateOf(0) }
@@ -69,7 +69,7 @@ fun PreferencesScreen(
         ) {
             // ── Appearance ──────────────────────────────────────────────────
             SectionHeader("Appearance")
-            AdptText(
+            VentriText(
                 text = "Theme",
                 style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp),
@@ -78,8 +78,8 @@ fun PreferencesScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, colors.outline, AdptShapes.pill)
-                    .clip(AdptShapes.pill),
+                    .border(1.dp, colors.outline, VentriShapes.pill)
+                    .clip(VentriShapes.pill),
             ) {
                 ThemeMode.entries.forEach { mode ->
                     val selected = uiState.themeMode == mode
@@ -98,7 +98,7 @@ fun PreferencesScreen(
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        AdptText(
+                        VentriText(
                             text = when (mode) {
                                 ThemeMode.Light -> "Light"
                                 ThemeMode.Dark -> "Dark"
@@ -117,7 +117,7 @@ fun PreferencesScreen(
 
             // ── Notifications ───────────────────────────────────────────────
             SectionHeader("Notifications")
-            AdptText(
+            VentriText(
                 text = "Depletion check frequency",
                 style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp),
@@ -152,7 +152,7 @@ fun PreferencesScreen(
                             ),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    AdptText(
+                    VentriText(
                         text = when (freq) {
                             NotificationFrequency.OncePerDay -> "Once per day (24 h)"
                             NotificationFrequency.TwicePerDay -> "Twice per day (12 h)"
@@ -168,7 +168,7 @@ fun PreferencesScreen(
 
             // ── Depletion Thresholds ────────────────────────────────────────
             SectionHeader("Depletion Thresholds")
-            AdptText(
+            VentriText(
                 text = "Items are flagged when their estimated days remaining fall at or below each threshold.",
                 style = typography.bodySmall,
                 color = colors.onSurface.copy(alpha = 0.6f),
@@ -217,11 +217,11 @@ fun PreferencesScreen(
         }
 
         // Pinned top bar overlay
-        AdptTopBar(
-            title = { AdptText("Preferences", style = typography.titleMedium) },
+        VentriTopBar(
+            title = { VentriText("Preferences", style = typography.titleMedium) },
             navigationIcon = {
-                AdptIconButton(onClick = onNavigateUp) {
-                    AdptIcon(
+                VentriIconButton(onClick = onNavigateUp) {
+                    VentriIcon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                     )
@@ -234,10 +234,10 @@ fun PreferencesScreen(
 
 @Composable
 private fun SectionHeader(title: String) {
-    AdptText(
+    VentriText(
         text = title.uppercase(),
-        style = AdptTheme.typography.labelSmall,
-        color = AdptTheme.colors.accent,
+        style = VentriTheme.typography.labelSmall,
+        color = VentriTheme.colors.accent,
         modifier = Modifier.padding(bottom = 12.dp),
     )
 }
@@ -248,7 +248,7 @@ private fun SectionDivider() {
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(AdptTheme.colors.outline),
+            .background(VentriTheme.colors.outline),
     )
 }
 
@@ -264,8 +264,8 @@ private fun ThresholdRow(
     readOnly: Boolean = false,
     daysSuffix: String = "",
 ) {
-    val colors = AdptTheme.colors
-    val typography = AdptTheme.typography
+    val colors = VentriTheme.colors
+    val typography = VentriTheme.typography
 
     Row(
         modifier = Modifier
@@ -273,48 +273,48 @@ private fun ThresholdRow(
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AdptIcon(
+        VentriIcon(
             imageVector = Icons.Default.Circle,
             contentDescription = null,
             tint = dotColor,
             modifier = Modifier.size(10.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
-        AdptText(
+        VentriText(
             text = label,
             style = typography.bodyMedium,
             modifier = Modifier.weight(1f),
             color = if (readOnly) colors.onSurface.copy(alpha = 0.5f) else colors.onSurface,
         )
         if (readOnly) {
-            AdptText(
+            VentriText(
                 text = "${days}d$daysSuffix",
                 style = typography.bodyMedium,
                 color = colors.onSurface.copy(alpha = 0.5f),
             )
         } else {
-            AdptIconButton(
+            VentriIconButton(
                 onClick = onDecrement,
                 enabled = decrementEnabled,
             ) {
-                AdptText(
+                VentriText(
                     text = "−",
                     style = typography.titleLarge,
                     color = if (decrementEnabled) colors.accent
                             else colors.onSurface.copy(alpha = 0.38f),
                 )
             }
-            AdptText(
+            VentriText(
                 text = "${days}d",
                 style = typography.bodyMedium,
                 modifier = Modifier.width(36.dp),
                 color = colors.onSurface,
             )
-            AdptIconButton(
+            VentriIconButton(
                 onClick = onIncrement,
                 enabled = incrementEnabled,
             ) {
-                AdptText(
+                VentriText(
                     text = "+",
                     style = typography.titleLarge,
                     color = if (incrementEnabled) colors.accent

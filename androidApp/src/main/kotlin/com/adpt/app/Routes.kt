@@ -1,4 +1,4 @@
-package com.adpt.app
+package com.ventri.app
 
 object Routes {
     const val OVERVIEW = "overview"

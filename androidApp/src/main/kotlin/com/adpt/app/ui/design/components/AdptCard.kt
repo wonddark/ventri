@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,25 +14,25 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptCard(
+fun VentriCard(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier = modifier
-            .shadow(elevation = 2.dp, shape = AdptShapes.card)
-            .clip(AdptShapes.card)
-            .background(color = AdptTheme.colors.surface, shape = AdptShapes.card),
+            .shadow(elevation = 2.dp, shape = VentriShapes.card)
+            .clip(VentriShapes.card)
+            .background(color = VentriTheme.colors.surface, shape = VentriShapes.card),
         content = content,
     )
 }
 
 @Composable
-fun AdptClickableCard(
+fun VentriClickableCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
@@ -40,9 +40,9 @@ fun AdptClickableCard(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .shadow(elevation = 2.dp, shape = AdptShapes.card)
-            .clip(AdptShapes.card)
-            .background(color = AdptTheme.colors.surface, shape = AdptShapes.card)
+            .shadow(elevation = 2.dp, shape = VentriShapes.card)
+            .clip(VentriShapes.card)
+            .background(color = VentriTheme.colors.surface, shape = VentriShapes.card)
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,

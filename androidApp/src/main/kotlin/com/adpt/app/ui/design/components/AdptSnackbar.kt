@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -18,11 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 import kotlinx.coroutines.delay
 
-class AdptSnackbarHostState {
+class VentriSnackbarHostState {
     var message by mutableStateOf<String?>(null)
         private set
 
@@ -36,10 +36,10 @@ class AdptSnackbarHostState {
 }
 
 @Composable
-fun rememberAdptSnackbarHostState() = remember { AdptSnackbarHostState() }
+fun rememberVentriSnackbarHostState() = remember { VentriSnackbarHostState() }
 
 @Composable
-fun AdptSnackbarHost(hostState: AdptSnackbarHostState) {
+fun VentriSnackbarHost(hostState: VentriSnackbarHostState) {
     AnimatedVisibility(
         visible = hostState.message != null,
         enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
@@ -48,15 +48,15 @@ fun AdptSnackbarHost(hostState: AdptSnackbarHostState) {
         hostState.message?.let { msg ->
             Box(
                 modifier = Modifier
-                    .shadow(elevation = 4.dp, shape = AdptShapes.small)
-                    .clip(AdptShapes.small)
-                    .background(color = AdptTheme.colors.onBackground, shape = AdptShapes.small)
+                    .shadow(elevation = 4.dp, shape = VentriShapes.small)
+                    .clip(VentriShapes.small)
+                    .background(color = VentriTheme.colors.onBackground, shape = VentriShapes.small)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                AdptText(
+                VentriText(
                     text = msg,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.background,
+                    style = VentriTheme.typography.bodySmall,
+                    color = VentriTheme.colors.background,
                 )
             }
         }

@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -9,18 +9,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
+import com.ventri.app.ui.design.VentriShapes
 
 @Composable
-fun AdptChip(
+fun VentriChip(
     containerColor: Color,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Box(
         modifier = modifier
-            .clip(AdptShapes.pill)
-            .background(color = containerColor, shape = AdptShapes.pill)
+            .clip(VentriShapes.pill)
+            .background(color = containerColor, shape = VentriShapes.pill)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {

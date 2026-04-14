@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -18,12 +18,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptProgressIndicator(
+fun VentriProgressIndicator(
     modifier: Modifier = Modifier,
-    color: Color = AdptTheme.colors.accent,
+    color: Color = VentriTheme.colors.accent,
     strokeWidth: Dp = 3.dp,
     size: Dp = 40.dp,
 ) {

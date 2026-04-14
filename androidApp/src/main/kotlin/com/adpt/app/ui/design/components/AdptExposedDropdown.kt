@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,11 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptExposedDropdown(
+fun VentriExposedDropdown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     selectedText: String,
@@ -31,16 +31,16 @@ fun AdptExposedDropdown(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val colors = AdptTheme.colors
-    val typography = AdptTheme.typography
+    val colors = VentriTheme.colors
+    val typography = VentriTheme.typography
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(AdptShapes.small)
-                .border(1.dp, if (expanded) colors.accent else colors.outline, AdptShapes.small)
+                .clip(VentriShapes.small)
+                .border(1.dp, if (expanded) colors.accent else colors.outline, VentriShapes.small)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = ripple(),
@@ -49,25 +49,25 @@ fun AdptExposedDropdown(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                AdptText(
+                VentriText(
                     text = label,
                     style = typography.labelSmall,
                     color = if (expanded) colors.accent else colors.onSurface.copy(alpha = 0.6f),
                 )
                 Spacer(Modifier.height(2.dp))
-                AdptText(
+                VentriText(
                     text = selectedText,
                     style = typography.bodyMedium,
                     color = colors.onSurface,
                 )
             }
-            AdptIcon(
+            VentriIcon(
                 imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                 contentDescription = if (expanded) "Collapse" else "Expand",
                 tint = colors.onSurface.copy(alpha = 0.6f),
             )
         }
-        AdptDropdownMenu(
+        VentriDropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
         ) {

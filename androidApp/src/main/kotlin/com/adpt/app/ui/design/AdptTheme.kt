@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design
+package com.ventri.app.ui.design
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
@@ -6,29 +6,29 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 
 @Composable
-fun AdptTheme(
+fun VentriTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalAdptColors provides if (darkTheme) DarkColors else LightColors,
-        LocalAdptTypography provides DefaultTypography,
+        LocalVentriColors provides if (darkTheme) DarkColors else LightColors,
+        LocalVentriTypography provides DefaultTypography,
         content = content,
     )
 }
 
-object AdptTheme {
-    val colors: AdptColors
+object VentriTheme {
+    val colors: VentriColors
         @Composable @ReadOnlyComposable
-        get() = LocalAdptColors.current
+        get() = LocalVentriColors.current
 
-    val typography: AdptTypography
+    val typography: VentriTypography
         @Composable @ReadOnlyComposable
-        get() = LocalAdptTypography.current
+        get() = LocalVentriTypography.current
 
-    val shapes: AdptShapes
-        get() = AdptShapes
+    val shapes: VentriShapes
+        get() = VentriShapes
 
-    val spacing: AdptSpacing
-        get() = AdptSpacing
+    val spacing: VentriSpacing
+        get() = VentriSpacing
 }

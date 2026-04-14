@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design
+package com.ventri.app.ui.design
 
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.Dp

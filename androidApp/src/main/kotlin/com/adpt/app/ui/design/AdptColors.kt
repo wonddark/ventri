@@ -1,9 +1,9 @@
-package com.adpt.app.ui.design
+package com.ventri.app.ui.design
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-data class AdptColors(
+data class VentriColors(
     val background: Color,
     val onBackground: Color,
     val surface: Color,
@@ -25,7 +25,7 @@ data class AdptColors(
     val onWarningContainer: Color,
 )
 
-val LightColors = AdptColors(
+val LightColors = VentriColors(
     background        = Color(0xFFFAF7F3),
     onBackground      = Color(0xFF2A1F17),
     surface           = Color(0xFFFFFFFF),
@@ -47,7 +47,7 @@ val LightColors = AdptColors(
     onWarningContainer = Color(0xFF8A5E00),
 )
 
-val DarkColors = AdptColors(
+val DarkColors = VentriColors(
     background        = Color(0xFF1F1A17),
     onBackground      = Color(0xFFEDE6DC),
     surface           = Color(0xFF2D2520),
@@ -69,4 +69,4 @@ val DarkColors = AdptColors(
     onWarningContainer = Color(0xFFF0D890),
 )
 
-val LocalAdptColors = staticCompositionLocalOf<AdptColors> { LightColors }
+val LocalVentriColors = staticCompositionLocalOf<VentriColors> { LightColors }

@@ -1,4 +1,4 @@
-package com.adpt.app.ui.items
+package com.ventri.app.ui.items
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -6,18 +6,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.adpt.app.AdptApplication
-import com.adpt.shared.db.Item
-import com.adpt.shared.db.SelectAllWithItem
-import com.adpt.shared.model.AddToShoppingListResult
-import com.adpt.shared.model.InsertItemResult
-import com.adpt.shared.model.ItemPriority
-import com.adpt.shared.model.ItemUnit
-import com.adpt.shared.model.UpdateItemResult
-import com.adpt.shared.util.addToShoppingList
-import com.adpt.shared.util.deleteItem
-import com.adpt.shared.util.insertItem
-import com.adpt.shared.util.updateItem
+import com.ventri.app.VentriApplication
+import com.ventri.shared.db.Item
+import com.ventri.shared.db.SelectAllWithItem
+import com.ventri.shared.model.AddToShoppingListResult
+import com.ventri.shared.model.InsertItemResult
+import com.ventri.shared.model.ItemPriority
+import com.ventri.shared.model.ItemUnit
+import com.ventri.shared.model.UpdateItemResult
+import com.ventri.shared.util.addToShoppingList
+import com.ventri.shared.util.deleteItem
+import com.ventri.shared.util.insertItem
+import com.ventri.shared.util.updateItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,7 +89,7 @@ class ItemsViewModel(
     savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
 
-    private val db = (application as AdptApplication).database
+    private val db = (application as VentriApplication).database
 
     val selectionMode: Boolean = savedStateHandle.get<Boolean>("selectionMode") ?: false
     val showAddOnStart: Boolean = savedStateHandle.get<Boolean>("add") ?: false

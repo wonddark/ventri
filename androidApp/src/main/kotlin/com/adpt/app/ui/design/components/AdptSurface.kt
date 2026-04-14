@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,14 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptSurface(
+fun VentriSurface(
     modifier: Modifier = Modifier,
-    color: Color = AdptTheme.colors.surface,
-    shape: Shape = AdptShapes.card,
+    color: Color = VentriTheme.colors.surface,
+    shape: Shape = VentriShapes.card,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(

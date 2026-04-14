@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AdptCircleBadge(
+fun VentriCircleBadge(
     borderColor: Color,
     size: Dp = 48.dp,
     strokeWidth: Dp = 2.dp,

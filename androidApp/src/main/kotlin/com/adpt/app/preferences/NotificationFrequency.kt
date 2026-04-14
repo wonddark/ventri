@@ -1,4 +1,4 @@
-package com.adpt.app.preferences
+package com.ventri.app.preferences
 
 enum class NotificationFrequency {
     OncePerDay,   // 24h WorkManager interval

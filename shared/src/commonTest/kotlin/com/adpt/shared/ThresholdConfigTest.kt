@@ -1,6 +1,6 @@
-package com.adpt.shared
+package com.ventri.shared
 
-import com.adpt.shared.model.ThresholdConfig
+import com.ventri.shared.model.ThresholdConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -1,4 +1,4 @@
-package com.adpt.app
+package com.ventri.app
 
 import android.Manifest
 import android.content.Intent
@@ -13,9 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.adpt.app.navigation.AppNavigation
-import com.adpt.app.preferences.ThemeMode
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.navigation.AppNavigation
+import com.ventri.app.preferences.ThemeMode
+import com.ventri.app.ui.design.VentriTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
         requestNotificationPermissionIfNeeded()
 
-        val app = application as AdptApplication
+        val app = application as VentriApplication
         setContent {
             val themeMode by app.prefs.themeMode.collectAsStateWithLifecycle()
             val isDark = when (themeMode) {
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.Dark -> true
                 ThemeMode.System -> isSystemInDarkTheme()
             }
-            AdptTheme(darkTheme = isDark) {
+            VentriTheme(darkTheme = isDark) {
                 AppNavigation()
             }
         }
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
     private fun handleIntent(intent: Intent) {
         intent.getStringExtra(EXTRA_NAVIGATE_TO)?.let { route ->
-            (application as AdptApplication).pendingNavTarget.value = route
+            (application as VentriApplication).pendingNavTarget.value = route
         }
     }
 

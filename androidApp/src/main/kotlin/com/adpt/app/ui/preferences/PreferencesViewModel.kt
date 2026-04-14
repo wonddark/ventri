@@ -1,12 +1,12 @@
-package com.adpt.app.ui.preferences
+package com.ventri.app.ui.preferences
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.adpt.app.AdptApplication
-import com.adpt.app.preferences.NotificationFrequency
-import com.adpt.app.preferences.ThemeMode
-import com.adpt.shared.model.ThresholdConfig
+import com.ventri.app.VentriApplication
+import com.ventri.app.preferences.NotificationFrequency
+import com.ventri.app.preferences.ThemeMode
+import com.ventri.shared.model.ThresholdConfig
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -21,7 +21,7 @@ data class PreferencesUiState(
 
 class PreferencesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val prefs = (application as AdptApplication).prefs
+    private val prefs = (application as VentriApplication).prefs
 
     val uiState: StateFlow<PreferencesUiState> = combine(
         prefs.themeMode,

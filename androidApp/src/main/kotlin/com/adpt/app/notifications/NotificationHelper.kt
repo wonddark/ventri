@@ -1,4 +1,4 @@
-package com.adpt.app.notifications
+package com.ventri.app.notifications
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,10 +7,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.adpt.app.MainActivity
-import com.adpt.app.R
-import com.adpt.app.Routes
-import com.adpt.shared.db.Item
+import com.ventri.app.MainActivity
+import com.ventri.app.R
+import com.ventri.app.Routes
+import com.ventri.shared.db.Item
 
 object NotificationHelper {
 

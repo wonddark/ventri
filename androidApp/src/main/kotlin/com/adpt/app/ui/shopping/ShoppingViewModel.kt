@@ -1,18 +1,18 @@
-package com.adpt.app.ui.shopping
+package com.ventri.app.ui.shopping
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.adpt.app.AdptApplication
-import com.adpt.shared.db.SelectAllWithItem
-import com.adpt.shared.model.ItemUnit
-import com.adpt.shared.model.ShoppingListStatus
-import com.adpt.shared.util.clearPurchasedEntries
-import com.adpt.shared.util.emptyShoppingList
-import com.adpt.shared.util.markAsPurchased
-import com.adpt.shared.util.removeShoppingListEntry
+import com.ventri.app.VentriApplication
+import com.ventri.shared.db.SelectAllWithItem
+import com.ventri.shared.model.ItemUnit
+import com.ventri.shared.model.ShoppingListStatus
+import com.ventri.shared.util.clearPurchasedEntries
+import com.ventri.shared.util.emptyShoppingList
+import com.ventri.shared.util.markAsPurchased
+import com.ventri.shared.util.removeShoppingListEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,13 +51,13 @@ sealed interface ShoppingIntent {
 
 class ShoppingViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = (application as AdptApplication).database
+    private val db = (application as VentriApplication).database
 
     val pendingError: StateFlow<String?> =
-        getApplication<AdptApplication>().pendingShoppingError.asStateFlow()
+        getApplication<VentriApplication>().pendingShoppingError.asStateFlow()
 
     fun clearPendingError() {
-        getApplication<AdptApplication>().pendingShoppingError.value = null
+        getApplication<VentriApplication>().pendingShoppingError.value = null
     }
 
     val uiState: StateFlow<ShoppingUiState> =

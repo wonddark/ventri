@@ -1,13 +1,13 @@
-package com.adpt.shared.util
+package com.ventri.shared.util
 
-import com.adpt.shared.db.Item
-import com.adpt.shared.db.ItemQueries
-import com.adpt.shared.model.InsertItemResult
-import com.adpt.shared.model.ItemPriority
-import com.adpt.shared.model.ItemUnit
-import com.adpt.shared.model.Severity
-import com.adpt.shared.model.ThresholdConfig
-import com.adpt.shared.model.UpdateItemResult
+import com.ventri.shared.db.Item
+import com.ventri.shared.db.ItemQueries
+import com.ventri.shared.model.InsertItemResult
+import com.ventri.shared.model.ItemPriority
+import com.ventri.shared.model.ItemUnit
+import com.ventri.shared.model.Severity
+import com.ventri.shared.model.ThresholdConfig
+import com.ventri.shared.model.UpdateItemResult
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn

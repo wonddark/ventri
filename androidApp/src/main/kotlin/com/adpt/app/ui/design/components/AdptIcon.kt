@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
@@ -10,14 +10,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptIcon(
+fun VentriIcon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = AdptTheme.colors.onSurface,
+    tint: Color = VentriTheme.colors.onSurface,
 ) {
     val painter = rememberVectorPainter(image = imageVector)
     Image(

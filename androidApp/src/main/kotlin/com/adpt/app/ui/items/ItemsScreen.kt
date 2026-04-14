@@ -1,4 +1,4 @@
-package com.adpt.app.ui.items
+package com.ventri.app.ui.items
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -59,35 +59,35 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.adpt.app.ui.components.AnimatedListItem
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.LocalBarsVisible
-import com.adpt.app.ui.design.LocalNavBarHeight
-import com.adpt.app.ui.design.components.AdptButton
-import com.adpt.app.ui.design.components.AdptCard
-import com.adpt.app.ui.design.components.AdptCheckbox
-import com.adpt.app.ui.design.components.AdptChip
-import com.adpt.app.ui.design.components.AdptClickableCard
-import com.adpt.app.ui.design.components.AdptDialog
-import com.adpt.app.ui.design.components.AdptDropdownMenu
-import com.adpt.app.ui.design.components.AdptDropdownMenuItem
-import com.adpt.app.ui.design.components.AdptExposedDropdown
-import com.adpt.app.ui.design.components.AdptFab
-import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptIconButton
-import com.adpt.app.ui.design.components.AdptOutlinedButton
-import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptSnackbarHost
-import com.adpt.app.ui.design.components.AdptSurface
-import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTextField
-import com.adpt.app.ui.design.components.AdptTextButton
-import com.adpt.app.ui.design.components.AdptTextFieldVariant
-import com.adpt.app.ui.design.components.AdptTopBar
-import com.adpt.app.ui.design.components.rememberAdptSnackbarHostState
-import com.adpt.shared.model.ItemPriority
-import com.adpt.shared.model.ItemUnit
+import com.ventri.app.ui.components.AnimatedListItem
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.LocalBarsVisible
+import com.ventri.app.ui.design.LocalNavBarHeight
+import com.ventri.app.ui.design.components.VentriButton
+import com.ventri.app.ui.design.components.VentriCard
+import com.ventri.app.ui.design.components.VentriCheckbox
+import com.ventri.app.ui.design.components.VentriChip
+import com.ventri.app.ui.design.components.VentriClickableCard
+import com.ventri.app.ui.design.components.VentriDialog
+import com.ventri.app.ui.design.components.VentriDropdownMenu
+import com.ventri.app.ui.design.components.VentriDropdownMenuItem
+import com.ventri.app.ui.design.components.VentriExposedDropdown
+import com.ventri.app.ui.design.components.VentriFab
+import com.ventri.app.ui.design.components.VentriIcon
+import com.ventri.app.ui.design.components.VentriIconButton
+import com.ventri.app.ui.design.components.VentriOutlinedButton
+import com.ventri.app.ui.design.components.VentriProgressIndicator
+import com.ventri.app.ui.design.components.VentriSnackbarHost
+import com.ventri.app.ui.design.components.VentriSurface
+import com.ventri.app.ui.design.components.VentriText
+import com.ventri.app.ui.design.components.VentriTextField
+import com.ventri.app.ui.design.components.VentriTextButton
+import com.ventri.app.ui.design.components.VentriTextFieldVariant
+import com.ventri.app.ui.design.components.VentriTopBar
+import com.ventri.app.ui.design.components.rememberVentriSnackbarHostState
+import com.ventri.shared.model.ItemPriority
+import com.ventri.shared.model.ItemUnit
 
 @Composable
 fun ItemsScreen(
@@ -97,7 +97,7 @@ fun ItemsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddDialog by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
-    val snackbarState = rememberAdptSnackbarHostState()
+    val snackbarState = rememberVentriSnackbarHostState()
     val navBarHeight = LocalNavBarHeight.current
     val barsVisible = LocalBarsVisible.current
     val density = LocalDensity.current
@@ -144,12 +144,12 @@ fun ItemsScreen(
     // Bottom padding: in selection mode, reserve space for the SelectionActionStrip
     val selectionStripHeight = if (uiState.selectionMode) 80.dp else 0.dp
 
-    Box(modifier = Modifier.fillMaxSize().background(AdptTheme.colors.background)) {
+    Box(modifier = Modifier.fillMaxSize().background(VentriTheme.colors.background)) {
         when {
             uiState.isLoading -> Box(
                 modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
-            ) { AdptProgressIndicator() }
+            ) { VentriProgressIndicator() }
 
             uiState.items.isEmpty() -> {
                 val filtersActive = uiState.isSearchActive || uiState.priorityFilter.isNotEmpty()
@@ -160,10 +160,10 @@ fun ItemsScreen(
                             .padding(top = topBarHeightDp, bottom = navBarHeight),
                         contentAlignment = Alignment.Center,
                     ) {
-                        AdptText(
+                        VentriText(
                             "No items match your filters",
-                            style = AdptTheme.typography.bodyMedium,
-                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            style = VentriTheme.typography.bodyMedium,
+                            color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                         )
                     }
                 } else {
@@ -187,10 +187,10 @@ fun ItemsScreen(
             ) {
                 if (!uiState.selectionMode) {
                     item(key = "header") {
-                        AdptText(
+                        VentriText(
                             text = "${uiState.items.size} item${if (uiState.items.size != 1) "s" else ""}",
-                            style = AdptTheme.typography.bodySmall,
-                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            style = VentriTheme.typography.bodySmall,
+                            color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                         )
                     }
@@ -229,8 +229,8 @@ fun ItemsScreen(
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
             ) {
-                AdptFab(onClick = { showAddDialog = true }) {
-                    AdptIcon(Icons.Default.Add, contentDescription = null, tint = AdptTheme.colors.onAccent)
+                VentriFab(onClick = { showAddDialog = true }) {
+                    VentriIcon(Icons.Default.Add, contentDescription = null, tint = VentriTheme.colors.onAccent)
                 }
             }
         }
@@ -255,7 +255,7 @@ fun ItemsScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
         ) {
-            AdptSnackbarHost(snackbarState)
+            VentriSnackbarHost(snackbarState)
         }
     }
 }
@@ -269,37 +269,37 @@ private fun ItemsTopBar(
     if (uiState.isSearchActive) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
-        AdptTopBar(
+        VentriTopBar(
             title = {
-                AdptTextField(
+                VentriTextField(
                     value = uiState.searchQuery,
                     onValueChange = { onIntent(ItemsIntent.SearchQueryChanged(it)) },
                     placeholder = "Search items…",
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = {}),
-                    variant = AdptTextFieldVariant.Transparent,
+                    variant = VentriTextFieldVariant.Transparent,
                     modifier = Modifier.focusRequester(focusRequester),
                 )
             },
             navigationIcon = {
-                AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    AdptIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
+                VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
+                    VentriIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
                 }
             },
             modifier = modifier,
         )
     } else if (uiState.selectionMode) {
-        AdptTopBar(
-            title = { AdptText("Add to shopping list", style = AdptTheme.typography.titleLarge) },
+        VentriTopBar(
+            title = { VentriText("Add to shopping list", style = VentriTheme.typography.titleLarge) },
             navigationIcon = {
-                AdptIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
-                    AdptIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel selection")
+                VentriIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
+                    VentriIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel selection")
                 }
             },
             actions = {
-                AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    AdptIcon(Icons.Default.Search, contentDescription = "Search")
+                VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
+                    VentriIcon(Icons.Default.Search, contentDescription = "Search")
                 }
             },
             modifier = modifier,
@@ -307,24 +307,24 @@ private fun ItemsTopBar(
     } else {
         var showSortMenu by remember { mutableStateOf(false) }
         var showFilterMenu by remember { mutableStateOf(false) }
-        AdptTopBar(
-            title = { AdptText("Items", style = AdptTheme.typography.titleLarge) },
+        VentriTopBar(
+            title = { VentriText("Items", style = VentriTheme.typography.titleLarge) },
             actions = {
-                AdptIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    AdptIcon(Icons.Default.Search, contentDescription = "Search")
+                VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
+                    VentriIcon(Icons.Default.Search, contentDescription = "Search")
                 }
                 Box {
-                    AdptIconButton(onClick = { showSortMenu = true }) {
-                        AdptIcon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+                    VentriIconButton(onClick = { showSortMenu = true }) {
+                        VentriIcon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
                     }
-                    AdptDropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
+                    VentriDropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
                         SortOrder.entries.forEach { order ->
-                            AdptDropdownMenuItem(
+                            VentriDropdownMenuItem(
                                 text = {
-                                    AdptText(
+                                    VentriText(
                                         text = order.label + if (uiState.sortOrder == order) " ✓" else "",
-                                        color = if (uiState.sortOrder == order) AdptTheme.colors.accent
-                                                else AdptTheme.colors.onSurface,
+                                        color = if (uiState.sortOrder == order) VentriTheme.colors.accent
+                                                else VentriTheme.colors.onSurface,
                                     )
                                 },
                                 onClick = { onIntent(ItemsIntent.SortOrderChanged(order)); showSortMenu = false },
@@ -333,16 +333,16 @@ private fun ItemsTopBar(
                     }
                 }
                 Box {
-                    AdptIconButton(onClick = { showFilterMenu = true }) {
-                        AdptIcon(Icons.Default.FilterList, contentDescription = "Filter by priority")
+                    VentriIconButton(onClick = { showFilterMenu = true }) {
+                        VentriIcon(Icons.Default.FilterList, contentDescription = "Filter by priority")
                     }
-                    AdptDropdownMenu(expanded = showFilterMenu, onDismissRequest = { showFilterMenu = false }) {
+                    VentriDropdownMenu(expanded = showFilterMenu, onDismissRequest = { showFilterMenu = false }) {
                         ItemPriority.entries.forEach { priority ->
-                            AdptDropdownMenuItem(
-                                text = { AdptText(priority.name) },
+                            VentriDropdownMenuItem(
+                                text = { VentriText(priority.name) },
                                 onClick = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
                                 leadingIcon = {
-                                    AdptCheckbox(
+                                    VentriCheckbox(
                                         checked = priority in uiState.priorityFilter,
                                         onCheckedChange = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
                                     )
@@ -369,19 +369,19 @@ private fun ItemCard(
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (showDeleteConfirm) {
-        AdptDialog(
+        VentriDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { AdptText("Remove item", style = AdptTheme.typography.titleSmall) },
-            text = { AdptText("Remove \"${item.name}\" from your items list?") },
+            title = { VentriText("Remove item", style = VentriTheme.typography.titleSmall) },
+            text = { VentriText("Remove \"${item.name}\" from your items list?") },
             confirmButton = {
-                AdptTextButton(onClick = {
+                VentriTextButton(onClick = {
                     onIntent(ItemsIntent.RemoveItem(item.id))
                     showDeleteConfirm = false
-                }) { AdptText("Remove", color = AdptTheme.colors.critical) }
+                }) { VentriText("Remove", color = VentriTheme.colors.critical) }
             },
             dismissButton = {
-                AdptTextButton(onClick = { showDeleteConfirm = false }) {
-                    AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+                VentriTextButton(onClick = { showDeleteConfirm = false }) {
+                    VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
                 }
             },
         )
@@ -393,37 +393,37 @@ private fun ItemCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (selectionMode) {
-                AdptCheckbox(checked = isSelected, onCheckedChange = null)
+                VentriCheckbox(checked = isSelected, onCheckedChange = null)
             }
             Column(modifier = Modifier.weight(1f)) {
-                AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                VentriText(item.name, style = VentriTheme.typography.titleMedium)
                 if (!selectionMode) {
                     Spacer(Modifier.height(2.dp))
-                    AdptText(
+                    VentriText(
                         if (item.consumptionRate != null) "${item.unit.name} · ${item.consumptionRate}/day"
                         else item.unit.name,
-                        style = AdptTheme.typography.bodySmall,
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                        style = VentriTheme.typography.bodySmall,
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                     )
                 }
             }
             PriorityBadge(priority = item.priority)
             if (!selectionMode) {
                 Box {
-                    AdptIconButton(onClick = { showMenu = true }) {
-                        AdptIcon(Icons.Default.MoreVert, contentDescription = "More options")
+                    VentriIconButton(onClick = { showMenu = true }) {
+                        VentriIcon(Icons.Default.MoreVert, contentDescription = "More options")
                     }
-                    AdptDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                        AdptDropdownMenuItem(
-                            text = { AdptText("Edit") },
+                    VentriDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                        VentriDropdownMenuItem(
+                            text = { VentriText("Edit") },
                             onClick = { onEdit(); showMenu = false },
                         )
-                        AdptDropdownMenuItem(
-                            text = { AdptText("Remove") },
+                        VentriDropdownMenuItem(
+                            text = { VentriText("Remove") },
                             onClick = { showDeleteConfirm = true; showMenu = false },
                         )
-                        AdptDropdownMenuItem(
-                            text = { AdptText("Add to Shopping List") },
+                        VentriDropdownMenuItem(
+                            text = { VentriText("Add to Shopping List") },
                             onClick = { onIntent(ItemsIntent.AddToShoppingList(item.id)); showMenu = false },
                         )
                     }
@@ -433,33 +433,33 @@ private fun ItemCard(
     }
 
     if (selectionMode) {
-        AdptClickableCard(
+        VentriClickableCard(
             modifier = Modifier.fillMaxWidth(),
             onClick = { onIntent(ItemsIntent.ToggleItemSelection(item.id)) },
         ) { cardContent() }
     } else {
-        AdptCard(modifier = Modifier.fillMaxWidth()) { cardContent() }
+        VentriCard(modifier = Modifier.fillMaxWidth()) { cardContent() }
     }
 }
 
 @Composable
 private fun SelectionActionStrip(selectedCount: Int, onCancel: () -> Unit, onConfirm: () -> Unit) {
-    AdptSurface(
-        color = AdptTheme.colors.surface,
-        shape = AdptShapes.small,
+    VentriSurface(
+        color = VentriTheme.colors.surface,
+        shape = VentriShapes.small,
         modifier = Modifier.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.navigationBars),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            AdptOutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
-                AdptText("Cancel", color = AdptTheme.colors.onSurface)
+            VentriOutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
+                VentriText("Cancel", color = VentriTheme.colors.onSurface)
             }
-            AdptButton(onClick = onConfirm, enabled = selectedCount > 0, modifier = Modifier.weight(1f)) {
-                AdptText(
+            VentriButton(onClick = onConfirm, enabled = selectedCount > 0, modifier = Modifier.weight(1f)) {
+                VentriText(
                     text = if (selectedCount == 1) "Add 1 item" else "Add $selectedCount items",
-                    color = AdptTheme.colors.onAccent,
+                    color = VentriTheme.colors.onAccent,
                 )
             }
         }
@@ -468,15 +468,15 @@ private fun SelectionActionStrip(selectedCount: Int, onCancel: () -> Unit, onCon
 
 @Composable
 private fun PriorityBadge(priority: ItemPriority) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val (bg, fg) = when (priority) {
         ItemPriority.Highest -> colors.criticalContainer to colors.onCriticalContainer
         ItemPriority.High -> colors.warningContainer to colors.onWarningContainer
         ItemPriority.Normal -> colors.accentMuted to colors.accent
         ItemPriority.Low, ItemPriority.Lowest -> colors.surfaceMuted to colors.onSurface.copy(alpha = 0.5f)
     }
-    AdptChip(containerColor = bg, modifier = Modifier.padding(end = 4.dp)) {
-        AdptText(priority.name, style = AdptTheme.typography.labelSmall, color = fg)
+    VentriChip(containerColor = bg, modifier = Modifier.padding(end = 4.dp)) {
+        VentriText(priority.name, style = VentriTheme.typography.labelSmall, color = fg)
     }
 }
 
@@ -493,25 +493,25 @@ private fun ItemsEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
-        AdptIcon(
+        VentriIcon(
             imageVector = Icons.Default.Category,
             contentDescription = null,
-            tint = AdptTheme.colors.accent,
+            tint = VentriTheme.colors.accent,
             modifier = Modifier
-                .background(AdptTheme.colors.accentMuted, shape = AdptShapes.pill)
+                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
-        AdptText(
+        VentriText(
             text = "No items yet",
-            style = AdptTheme.typography.titleLarge,
-            color = AdptTheme.colors.onBackground,
+            style = VentriTheme.typography.titleLarge,
+            color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
-        AdptText(
+        VentriText(
             text = "These are the products you regularly buy. Add them here so I can track your consumption and help you build smarter shopping lists.",
-            style = AdptTheme.typography.bodyMedium,
-            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+            style = VentriTheme.typography.bodyMedium,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         ItemsTipCard(
@@ -540,25 +540,25 @@ private fun ItemsTipCard(
     title: String,
     body: String,
 ) {
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
+    VentriCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = AdptTheme.colors.accent,
+                tint = VentriTheme.colors.accent,
                 modifier = Modifier
-                    .background(AdptTheme.colors.accentMuted, shape = AdptShapes.small)
+                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                AdptText(title, style = AdptTheme.typography.titleSmall)
-                AdptText(
+                VentriText(title, style = VentriTheme.typography.titleSmall)
+                VentriText(
                     body,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = VentriTheme.typography.bodySmall,
+                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
                 )
             }
         }
@@ -601,12 +601,12 @@ private fun ItemFormDialog(
         return valid
     }
 
-    AdptDialog(
+    VentriDialog(
         onDismissRequest = onDismiss,
-        title = { AdptText(title, style = AdptTheme.typography.titleSmall) },
+        title = { VentriText(title, style = VentriTheme.typography.titleSmall) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                AdptTextField(
+                VentriTextField(
                     value = name,
                     onValueChange = { name = it; nameError = null },
                     placeholder = "Name",
@@ -615,7 +615,7 @@ private fun ItemFormDialog(
                     supportingText = nameError,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                AdptExposedDropdown(
+                VentriExposedDropdown(
                     expanded = unitExpanded,
                     onExpandedChange = { unitExpanded = it },
                     selectedText = selectedUnit.name,
@@ -623,14 +623,14 @@ private fun ItemFormDialog(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     ItemUnit.entries.forEach { unit ->
-                        AdptDropdownMenuItem(
-                            text = { AdptText(unit.name) },
+                        VentriDropdownMenuItem(
+                            text = { VentriText(unit.name) },
                             onClick = { selectedUnit = unit; unitExpanded = false },
                             selected = unit == selectedUnit,
                         )
                     }
                 }
-                AdptExposedDropdown(
+                VentriExposedDropdown(
                     expanded = priorityExpanded,
                     onExpandedChange = { priorityExpanded = it },
                     selectedText = selectedPriority.name,
@@ -638,14 +638,14 @@ private fun ItemFormDialog(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     ItemPriority.entries.forEach { priority ->
-                        AdptDropdownMenuItem(
-                            text = { AdptText(priority.name) },
+                        VentriDropdownMenuItem(
+                            text = { VentriText(priority.name) },
                             onClick = { selectedPriority = priority; priorityExpanded = false },
                             selected = priority == selectedPriority,
                         )
                     }
                 }
-                AdptTextField(
+                VentriTextField(
                     value = rateText,
                     onValueChange = { rateText = it; rateError = null },
                     placeholder = "Consumption rate / day (optional)",
@@ -658,13 +658,13 @@ private fun ItemFormDialog(
             }
         },
         confirmButton = {
-            AdptTextButton(onClick = {
+            VentriTextButton(onClick = {
                 if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDoubleOrNull())
-            }) { AdptText(confirmLabel, color = AdptTheme.colors.accent) }
+            }) { VentriText(confirmLabel, color = VentriTheme.colors.accent) }
         },
         dismissButton = {
-            AdptTextButton(onClick = onDismiss) {
-                AdptText("Cancel", color = AdptTheme.colors.onSurface.copy(alpha = 0.6f))
+            VentriTextButton(onClick = onDismiss) {
+                VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
             }
         },
     )

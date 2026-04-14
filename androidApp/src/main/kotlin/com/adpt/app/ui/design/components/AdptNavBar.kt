@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,22 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriTheme
 
-data class AdptNavItem(
+data class VentriNavItem(
     val route: String,
     val label: String,
     val icon: ImageVector,
 )
 
 @Composable
-fun AdptNavBar(
-    items: List<AdptNavItem>,
+fun VentriNavBar(
+    items: List<VentriNavItem>,
     currentRoute: String?,
-    onItemSelected: (AdptNavItem) -> Unit,
+    onItemSelected: (VentriNavItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val navBottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -56,7 +56,7 @@ fun AdptNavBar(
             items.forEach { item ->
                 val selected = currentRoute == item.route ||
                     currentRoute?.startsWith("${item.route}?") == true
-                AdptNavBarItem(
+                VentriNavBarItem(
                     item = item,
                     selected = selected,
                     onSelected = { onItemSelected(item) },
@@ -68,13 +68,13 @@ fun AdptNavBar(
 }
 
 @Composable
-private fun AdptNavBarItem(
-    item: AdptNavItem,
+private fun VentriNavBarItem(
+    item: VentriNavItem,
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
@@ -88,14 +88,14 @@ private fun AdptNavBarItem(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = item.icon,
                 contentDescription = item.label,
                 tint = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.5f),
             )
-            AdptText(
+            VentriText(
                 text = item.label,
-                style = AdptTheme.typography.labelSmall,
+                style = VentriTheme.typography.labelSmall,
                 color = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.5f),
             )
         }

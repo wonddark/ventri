@@ -1,9 +1,9 @@
-package com.adpt.shared.db
+package com.ventri.shared.db
 
 import app.cash.sqldelight.ColumnAdapter
-import com.adpt.shared.model.ItemPriority
-import com.adpt.shared.model.ItemUnit
-import com.adpt.shared.model.ShoppingListStatus
+import com.ventri.shared.model.ItemPriority
+import com.ventri.shared.model.ItemUnit
+import com.ventri.shared.model.ShoppingListStatus
 
 private val itemUnitAdapter = object : ColumnAdapter<ItemUnit, String> {
     override fun decode(databaseValue: String): ItemUnit = ItemUnit.valueOf(databaseValue)
@@ -20,9 +20,9 @@ private val shoppingListStatusAdapter = object : ColumnAdapter<ShoppingListStatu
     override fun encode(value: ShoppingListStatus): String = value.name
 }
 
-fun createDatabase(driverFactory: DatabaseDriverFactory): AdptDatabase {
+fun createDatabase(driverFactory: DatabaseDriverFactory): VentriDatabase {
     val driver = driverFactory.createDriver()
-    return AdptDatabase(
+    return VentriDatabase(
         driver = driver,
         ItemAdapter = Item.Adapter(
             unitAdapter = itemUnitAdapter,

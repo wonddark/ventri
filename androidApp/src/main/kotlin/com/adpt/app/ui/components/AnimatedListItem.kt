@@ -1,4 +1,4 @@
-package com.adpt.app.ui.components
+package com.ventri.app.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing

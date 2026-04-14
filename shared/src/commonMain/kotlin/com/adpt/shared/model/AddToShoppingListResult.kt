@@ -1,4 +1,4 @@
-package com.adpt.shared.model
+package com.ventri.shared.model
 
 sealed class AddToShoppingListResult {
     data class Success(val entryId: String) : AddToShoppingListResult()

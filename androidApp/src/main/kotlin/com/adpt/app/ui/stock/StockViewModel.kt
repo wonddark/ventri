@@ -1,13 +1,13 @@
-package com.adpt.app.ui.stock
+package com.ventri.app.ui.stock
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.adpt.app.AdptApplication
-import com.adpt.shared.db.Item
-import com.adpt.shared.model.ItemUnit
+import com.ventri.app.VentriApplication
+import com.ventri.shared.db.Item
+import com.ventri.shared.model.ItemUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +34,7 @@ sealed interface StockUiState {
 
 class StockViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = (application as AdptApplication).database
+    private val db = (application as VentriApplication).database
 
     val uiState: StateFlow<StockUiState> = db.itemQueries
         .selectAll()

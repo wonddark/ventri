@@ -1,4 +1,4 @@
-package com.adpt.app.ui.design.components
+package com.ventri.app.ui.design.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -31,11 +31,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
 
 @Composable
-fun AdptDropdownMenu(
+fun VentriDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -55,9 +55,9 @@ fun AdptDropdownMenu(
                 Column(
                     modifier = modifier
                         .widthIn(min = 160.dp).width(intrinsicSize = IntrinsicSize.Min)
-                        .shadow(elevation = 4.dp, shape = AdptShapes.small)
-                        .clip(AdptShapes.small)
-                        .background(color = AdptTheme.colors.surface, shape = AdptShapes.small),
+                        .shadow(elevation = 4.dp, shape = VentriShapes.small)
+                        .clip(VentriShapes.small)
+                        .background(color = VentriTheme.colors.surface, shape = VentriShapes.small),
                     content = content,
                 )
             }
@@ -66,7 +66,7 @@ fun AdptDropdownMenu(
 }
 
 @Composable
-fun AdptDropdownMenuItem(
+fun VentriDropdownMenuItem(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -91,10 +91,10 @@ fun AdptDropdownMenuItem(
         Box(modifier = Modifier.weight(1f)) { text() }
         if (selected) {
             Spacer(modifier = Modifier.width(8.dp))
-            AdptIcon(
+            VentriIcon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = AdptTheme.colors.accent,
+                tint = VentriTheme.colors.accent,
             )
         }
     }

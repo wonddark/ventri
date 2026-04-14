@@ -1,4 +1,4 @@
-package com.adpt.app.ui.shopping
+package com.ventri.app.ui.shopping
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -58,24 +58,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.adpt.app.ui.components.AnimatedListItem
-import com.adpt.app.ui.design.AdptShapes
-import com.adpt.app.ui.design.AdptTheme
-import com.adpt.app.ui.design.LocalBarsVisible
-import com.adpt.app.ui.design.LocalNavBarHeight
-import com.adpt.app.ui.design.components.AdptCard
-import com.adpt.app.ui.design.components.AdptChip
-import com.adpt.app.ui.design.components.AdptDialog
-import com.adpt.app.ui.design.components.AdptFab
-import com.adpt.app.ui.design.components.AdptIcon
-import com.adpt.app.ui.design.components.AdptIconButton
-import com.adpt.app.ui.design.components.AdptOutlinedButton
-import com.adpt.app.ui.design.components.AdptProgressIndicator
-import com.adpt.app.ui.design.components.AdptText
-import com.adpt.app.ui.design.components.AdptTextButton
-import com.adpt.app.ui.design.components.AdptTextField
-import com.adpt.app.ui.design.components.AdptTopBar
-import com.adpt.shared.model.ShoppingListStatus
+import com.ventri.app.ui.components.AnimatedListItem
+import com.ventri.app.ui.design.VentriShapes
+import com.ventri.app.ui.design.VentriTheme
+import com.ventri.app.ui.design.LocalBarsVisible
+import com.ventri.app.ui.design.LocalNavBarHeight
+import com.ventri.app.ui.design.components.VentriCard
+import com.ventri.app.ui.design.components.VentriChip
+import com.ventri.app.ui.design.components.VentriDialog
+import com.ventri.app.ui.design.components.VentriFab
+import com.ventri.app.ui.design.components.VentriIcon
+import com.ventri.app.ui.design.components.VentriIconButton
+import com.ventri.app.ui.design.components.VentriOutlinedButton
+import com.ventri.app.ui.design.components.VentriProgressIndicator
+import com.ventri.app.ui.design.components.VentriText
+import com.ventri.app.ui.design.components.VentriTextButton
+import com.ventri.app.ui.design.components.VentriTextField
+import com.ventri.app.ui.design.components.VentriTopBar
+import com.ventri.shared.model.ShoppingListStatus
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -94,18 +94,18 @@ fun ShoppingScreen(
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
     pendingError?.let { error ->
-        AdptDialog(
+        VentriDialog(
             onDismissRequest = { viewModel.clearPendingError() },
             title = {
-                AdptText(
+                VentriText(
                     "Could Not Update Refill List",
-                    style = AdptTheme.typography.titleSmall
+                    style = VentriTheme.typography.titleSmall
                 )
             },
-            text = { AdptText(error) },
+            text = { VentriText(error) },
             confirmButton = {
-                AdptTextButton(onClick = { viewModel.clearPendingError() }) {
-                    AdptText("OK", color = AdptTheme.colors.accent)
+                VentriTextButton(onClick = { viewModel.clearPendingError() }) {
+                    VentriText("OK", color = VentriTheme.colors.accent)
                 }
             },
         )
@@ -115,26 +115,26 @@ fun ShoppingScreen(
     var purchasingItem by remember { mutableStateOf<ShoppingItemUiModel?>(null) }
 
     if (showEmptyConfirm) {
-        AdptDialog(
+        VentriDialog(
             onDismissRequest = { showEmptyConfirm = false },
             title = {
-                AdptText(
+                VentriText(
                     "Empty Refills",
-                    style = AdptTheme.typography.titleSmall
+                    style = VentriTheme.typography.titleSmall
                 )
             },
-            text = { AdptText("Remove all items from your refill list?") },
+            text = { VentriText("Remove all items from your refill list?") },
             confirmButton = {
-                AdptTextButton(onClick = {
+                VentriTextButton(onClick = {
                     viewModel.handleIntent(ShoppingIntent.EmptyList)
                     showEmptyConfirm = false
-                }) { AdptText("Empty", color = AdptTheme.colors.accent) }
+                }) { VentriText("Empty", color = VentriTheme.colors.accent) }
             },
             dismissButton = {
-                AdptTextButton(onClick = { showEmptyConfirm = false }) {
-                    AdptText(
+                VentriTextButton(onClick = { showEmptyConfirm = false }) {
+                    VentriText(
                         "Cancel",
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                 }
             },
@@ -144,19 +144,19 @@ fun ShoppingScreen(
     purchasingItem?.let { item ->
         var quantity by remember { mutableStateOf("") }
         var quantityError by remember { mutableStateOf<String?>(null) }
-        AdptDialog(
+        VentriDialog(
             onDismissRequest = { purchasingItem = null },
             title = {
-                AdptText(
+                VentriText(
                     "Mark as Purchased",
-                    style = AdptTheme.typography.titleSmall
+                    style = VentriTheme.typography.titleSmall
                 )
             },
             text = {
                 Column {
-                    AdptText("How much ${item.name} did you buy?")
+                    VentriText("How much ${item.name} did you buy?")
                     Spacer(Modifier.height(8.dp))
-                    AdptTextField(
+                    VentriTextField(
                         value = quantity,
                         onValueChange = { quantity = it; quantityError = null },
                         label = "Quantity (${item.unit.name})",
@@ -168,7 +168,7 @@ fun ShoppingScreen(
                 }
             },
             confirmButton = {
-                AdptTextButton(onClick = {
+                VentriTextButton(onClick = {
                     val amount = quantity.toDoubleOrNull()
                     when {
                         quantity.isBlank() -> quantityError =
@@ -189,13 +189,13 @@ fun ShoppingScreen(
                             purchasingItem = null
                         }
                     }
-                }) { AdptText("Confirm", color = AdptTheme.colors.accent) }
+                }) { VentriText("Confirm", color = VentriTheme.colors.accent) }
             },
             dismissButton = {
-                AdptTextButton(onClick = { purchasingItem = null }) {
-                    AdptText(
+                VentriTextButton(onClick = { purchasingItem = null }) {
+                    VentriText(
                         "Cancel",
-                        color = AdptTheme.colors.onSurface.copy(alpha = 0.6f)
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                 }
             },
@@ -205,7 +205,7 @@ fun ShoppingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AdptTheme.colors.background)
+            .background(VentriTheme.colors.background)
     ) {
         when (val state = uiState) {
             ShoppingUiState.Loading -> Box(
@@ -213,7 +213,7 @@ fun ShoppingScreen(
                     .fillMaxSize()
                     .padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
-            ) { AdptProgressIndicator() }
+            ) { VentriProgressIndicator() }
 
             is ShoppingUiState.Success -> if (state.items.isEmpty()) {
                 RefillsEmptyState(
@@ -232,10 +232,10 @@ fun ShoppingScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     item(key = "header") {
-                        AdptText(
+                        VentriText(
                             text = "${state.items.size} item${if (state.items.size != 1) "s" else ""}",
-                            style = AdptTheme.typography.bodySmall,
-                            color = AdptTheme.colors.onSurface.copy(alpha = 0.5f),
+                            style = VentriTheme.typography.bodySmall,
+                            color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(
                                 top = 8.dp,
                                 bottom = 4.dp
@@ -262,14 +262,14 @@ fun ShoppingScreen(
                                 .padding(top = 8.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            AdptOutlinedButton(onClick = {
+                            VentriOutlinedButton(onClick = {
                                 viewModel.handleIntent(
                                     ShoppingIntent.ClearList
                                 )
                             }) {
-                                AdptText(
+                                VentriText(
                                     "Clear Purchased",
-                                    color = AdptTheme.colors.onSurface
+                                    color = VentriTheme.colors.onSurface
                                 )
                             }
                         }
@@ -279,16 +279,16 @@ fun ShoppingScreen(
         }
 
         // Pinned top bar overlay
-        AdptTopBar(
+        VentriTopBar(
             title = {
-                AdptText(
+                VentriText(
                     "Refills",
-                    style = AdptTheme.typography.titleLarge
+                    style = VentriTheme.typography.titleLarge
                 )
             },
             actions = {
-                AdptIconButton(onClick = { showEmptyConfirm = true }) {
-                    AdptIcon(
+                VentriIconButton(onClick = { showEmptyConfirm = true }) {
+                    VentriIcon(
                         Icons.Default.Delete,
                         contentDescription = "Empty list"
                     )
@@ -306,11 +306,11 @@ fun ShoppingScreen(
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
         ) {
-            AdptFab(onClick = { navController.navigate("items?selectionMode=true") }) {
-                AdptIcon(
+            VentriFab(onClick = { navController.navigate("items?selectionMode=true") }) {
+                VentriIcon(
                     Icons.Default.Add,
                     contentDescription = null,
-                    tint = AdptTheme.colors.onAccent
+                    tint = VentriTheme.colors.onAccent
                 )
             }
         }
@@ -332,28 +332,28 @@ private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
-        AdptIcon(
+        VentriIcon(
             imageVector = Icons.Default.ShoppingCart,
             contentDescription = null,
-            tint = AdptTheme.colors.accent,
+            tint = VentriTheme.colors.accent,
             modifier = Modifier
                 .background(
-                    AdptTheme.colors.accentMuted,
-                    shape = AdptShapes.pill
+                    VentriTheme.colors.accentMuted,
+                    shape = VentriShapes.pill
                 )
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
-        AdptText(
+        VentriText(
             text = "Nothing to refill",
-            style = AdptTheme.typography.titleLarge,
-            color = AdptTheme.colors.onBackground,
+            style = VentriTheme.typography.titleLarge,
+            color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
-        AdptText(
+        VentriText(
             text = "This is your running list of things to buy. I'll help you keep it up to date so you never run out of what matters.",
-            style = AdptTheme.typography.bodyMedium,
-            color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+            style = VentriTheme.typography.bodyMedium,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         RefillsTipCard(
@@ -378,28 +378,28 @@ private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
 
 @Composable
 private fun RefillsTipCard(icon: ImageVector, title: String, body: String) {
-    AdptCard(modifier = Modifier.fillMaxWidth()) {
+    VentriCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            AdptIcon(
+            VentriIcon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = AdptTheme.colors.accent,
+                tint = VentriTheme.colors.accent,
                 modifier = Modifier
                     .background(
-                        AdptTheme.colors.accentMuted,
-                        shape = AdptShapes.small
+                        VentriTheme.colors.accentMuted,
+                        shape = VentriShapes.small
                     )
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                AdptText(title, style = AdptTheme.typography.titleSmall)
-                AdptText(
+                VentriText(title, style = VentriTheme.typography.titleSmall)
+                VentriText(
                     body,
-                    style = AdptTheme.typography.bodySmall,
-                    color = AdptTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = VentriTheme.typography.bodySmall,
+                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
                 )
             }
         }
@@ -412,7 +412,7 @@ private fun RefillItemCard(
     onMarkAsPurchased: () -> Unit,
     onRemove: () -> Unit,
 ) {
-    val colors = AdptTheme.colors
+    val colors = VentriTheme.colors
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val thresholdPx = with(density) { 100.dp.toPx() }
@@ -428,7 +428,7 @@ private fun RefillItemCard(
         // Background layers
         Box(modifier = Modifier
             .matchParentSize()
-            .clip(AdptShapes.card)) {
+            .clip(VentriShapes.card)) {
             // Right swipe — mark as purchased (green, only for pending)
             if (item.status == ShoppingListStatus.Pending) {
                 Box(
@@ -441,7 +441,7 @@ private fun RefillItemCard(
                         .background(colors.ok),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    AdptIcon(
+                    VentriIcon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
                         tint = Color.White,
@@ -468,7 +468,7 @@ private fun RefillItemCard(
                     .background(colors.critical),
                 contentAlignment = Alignment.CenterEnd,
             ) {
-                AdptIcon(
+                VentriIcon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = null,
                     tint = Color.White,
@@ -484,7 +484,7 @@ private fun RefillItemCard(
             }
         }
 
-        AdptCard(
+        VentriCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
@@ -555,13 +555,13 @@ private fun RefillItemCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AdptText(item.name, style = AdptTheme.typography.titleMedium)
+                        VentriText(item.name, style = VentriTheme.typography.titleMedium)
                         val (chipBg, chipFg) = when (item.status) {
                             ShoppingListStatus.Pending -> colors.warningContainer to colors.onWarningContainer
                             ShoppingListStatus.Purchased -> colors.criticalContainer to colors.onCriticalContainer
                         }
-                        AdptChip(containerColor = chipBg) {
-                            AdptText(item.status.name, style = AdptTheme.typography.labelSmall, color = chipFg)
+                        VentriChip(containerColor = chipBg) {
+                            VentriText(item.status.name, style = VentriTheme.typography.labelSmall, color = chipFg)
                         }
                     }
                     Spacer(Modifier.height(6.dp))
@@ -569,22 +569,22 @@ private fun RefillItemCard(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         if (item.status == ShoppingListStatus.Purchased) {
                             item.purchasedQuantity?.let { qty ->
-                                AdptText(
+                                VentriText(
                                     "${qty.formatQuantity()} ${item.unit.name}",
-                                    style = AdptTheme.typography.bodySmall,
+                                    style = VentriTheme.typography.bodySmall,
                                     color = colors.onSurface.copy(alpha = 0.5f),
                                 )
                             }
                             item.depletionLabel?.let { label ->
-                                AdptText(
+                                VentriText(
                                     label,
-                                    style = AdptTheme.typography.bodySmall,
+                                    style = VentriTheme.typography.bodySmall,
                                     color = colors.accent.copy(alpha = 0.7f))
                             }
                         } else {
-                            AdptText(
+                            VentriText(
                                 item.unit.name,
-                                style = AdptTheme.typography.bodySmall,
+                                style = VentriTheme.typography.bodySmall,
                                 color = colors.onSurface.copy(alpha = 0.5f),
                             )
                         }

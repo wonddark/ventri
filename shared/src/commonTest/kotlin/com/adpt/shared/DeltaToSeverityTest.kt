@@ -1,8 +1,8 @@
-package com.adpt.shared
+package com.ventri.shared
 
-import com.adpt.shared.model.Severity
-import com.adpt.shared.model.ThresholdConfig
-import com.adpt.shared.util.deltaToSeverity
+import com.ventri.shared.model.Severity
+import com.ventri.shared.model.ThresholdConfig
+import com.ventri.shared.util.deltaToSeverity
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

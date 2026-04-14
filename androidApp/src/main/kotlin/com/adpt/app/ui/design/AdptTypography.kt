@@ -1,11 +1,11 @@
-package com.adpt.app.ui.design
+package com.ventri.app.ui.design
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-data class AdptTypography(
+data class VentriTypography(
     val titleLarge: TextStyle,
     val titleMedium: TextStyle,
     val titleSmall: TextStyle,
@@ -15,7 +15,7 @@ data class AdptTypography(
     val labelSmall: TextStyle,
 )
 
-val DefaultTypography = AdptTypography(
+val DefaultTypography = VentriTypography(
     titleLarge  = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
     titleMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
     titleSmall  = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
@@ -25,4 +25,4 @@ val DefaultTypography = AdptTypography(
     labelSmall  = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.SemiBold),
 )
 
-val LocalAdptTypography = staticCompositionLocalOf<AdptTypography> { DefaultTypography }
+val LocalVentriTypography = staticCompositionLocalOf<VentriTypography> { DefaultTypography }

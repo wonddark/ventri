@@ -1,17 +1,17 @@
-package com.adpt.app
+package com.ventri.app
 
 import android.app.Application
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.adpt.app.notifications.CriticalItemsWorker
-import com.adpt.app.notifications.NotificationHelper
-import com.adpt.app.preferences.AppPreferencesRepository
-import com.adpt.app.preferences.NotificationFrequency
-import com.adpt.shared.db.AdptDatabase
-import com.adpt.shared.db.DatabaseDriverFactory
-import com.adpt.shared.db.createDatabase
+import com.ventri.app.notifications.CriticalItemsWorker
+import com.ventri.app.notifications.NotificationHelper
+import com.ventri.app.preferences.AppPreferencesRepository
+import com.ventri.app.preferences.NotificationFrequency
+import com.ventri.shared.db.VentriDatabase
+import com.ventri.shared.db.DatabaseDriverFactory
+import com.ventri.shared.db.createDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,9 +22,9 @@ import java.util.concurrent.TimeUnit
 
 private val Application.dataStore by preferencesDataStore(name = "app_prefs")
 
-class AdptApplication : Application() {
+class VentriApplication : Application() {
 
-    lateinit var database: AdptDatabase
+    lateinit var database: VentriDatabase
         private set
 
     lateinit var prefs: AppPreferencesRepository
