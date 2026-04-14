@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Clip jar fill to jar body shape -->
+    <clipPath id="jar-clip">
+      <rect x="202" y="210" width="108" height="130" rx="14"/>
+    </clipPath>
+    <!-- Soft glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background: dark warm square -->
+  <rect width="512" height="512" rx="112" fill="#1F1A17"/>
+
+  <!-- ── Ring ───────────────────────────────────────────────── -->
+
+  <!-- Depleted portion: 270° clockwise from 12 o'clock → 9 o'clock -->
+  <!-- Path goes: top (256,76) → right → bottom → left (76,256) -->
+  <path d="M 256 76 A 180 180 0 1 1 76 256"
+        fill="none"
+        stroke="#2D2520"
+        stroke-width="42"
+        stroke-linecap="round"/>
+
+  <!-- Remaining portion: 90° clockwise from 9 o'clock → 12 o'clock -->
+  <!-- Path goes: left (76,256) → top (256,76) -->
+  <path d="M 76 256 A 180 180 0 0 1 256 76"
+        fill="none"
+        stroke="#E8A07A"
+        stroke-width="42"
+        stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- Glow halo at the transition point (9 o'clock = where remaining begins) -->
+  <circle cx="76" cy="256" r="34" fill="#E8A07A" opacity="0.18"/>
+  <!-- Dot at transition point -->
+  <circle cx="76" cy="256" r="20" fill="#E8A07A"/>
+
+  <!-- ── Jar ────────────────────────────────────────────────── -->
+
+  <!-- Jar body -->
+  <rect x="202" y="210" width="108" height="130" rx="14"
+        fill="#2D2520" stroke="#3D2F28" stroke-width="2"/>
+
+  <!-- Jar fill: 25% from bottom (clipped to jar body) -->
+  <rect x="202" y="307" width="108" height="133"
+        fill="#E8A07A" opacity="0.80"
+        clip-path="url(#jar-clip)"/>
+
+  <!-- Fill surface highlight line -->
+  <rect x="202" y="305" width="108" height="4"
+        fill="#F0C090" opacity="0.6"
+        clip-path="url(#jar-clip)"/>
+
+  <!-- Jar lid band (slightly wider than body) -->
+  <rect x="194" y="193" width="124" height="22" rx="7"
+        fill="#E8A07A" opacity="0.55"/>
+
+  <!-- Jar lid cap -->
+  <rect x="206" y="174" width="100" height="22" rx="10"
+        fill="#E8A07A" opacity="0.80"/>
+
+  <!-- Jar inner shine -->
+  <rect x="212" y="220" width="11" height="56" rx="5.5"
+        fill="white" opacity="0.10"/>
+</svg>

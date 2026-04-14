@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#2A1F17"/>
+
+  <!-- Jar lid band -->
+  <rect x="168" y="108" width="176" height="28" rx="8" fill="#B5613A"/>
+  <!-- Jar lid top -->
+  <rect x="180" y="88" width="152" height="28" rx="14" fill="#E8A07A"/>
+
+  <!-- Jar body -->
+  <path d="M152 136 Q144 160 144 200 L144 370 Q144 396 168 396 L344 396 Q368 396 368 370 L368 200 Q368 160 360 136 Z" fill="#FAF7F3"/>
+
+  <!-- Jar neck taper shadow -->
+  <path d="M152 136 Q144 160 144 200 L168 200 Q168 168 174 148 Z" fill="#E8E2D8"/>
+  <path d="M360 136 Q368 160 368 200 L344 200 Q344 168 338 148 Z" fill="#E8E2D8"/>
+
+  <!-- Inventory grid lines inside jar -->
+  <line x1="144" y1="240" x2="368" y2="240" stroke="#F0EBE3" stroke-width="4"/>
+  <line x1="144" y1="300" x2="368" y2="300" stroke="#F0EBE3" stroke-width="4"/>
+  <line x1="144" y1="355" x2="368" y2="355" stroke="#F0EBE3" stroke-width="4"/>
+  <line x1="220" y1="200" x2="220" y2="396" stroke="#F0EBE3" stroke-width="4"/>
+  <line x1="292" y1="200" x2="292" y2="396" stroke="#F0EBE3" stroke-width="4"/>
+
+  <!-- Dot markers at grid intersections -->
+  <circle cx="182" cy="220" r="10" fill="#B5613A"/>
+  <circle cx="256" cy="220" r="10" fill="#5A7A5C"/>
+  <circle cx="330" cy="220" r="10" fill="#B5613A"/>
+
+  <circle cx="182" cy="270" r="10" fill="#5A7A5C"/>
+  <circle cx="256" cy="270" r="10" fill="#B5613A"/>
+  <circle cx="330" cy="270" r="10" fill="#5A7A5C"/>
+
+  <circle cx="182" cy="327" r="10" fill="#B5613A"/>
+  <circle cx="256" cy="327" r="10" fill="#5A7A5C"/>
+  <circle cx="330" cy="327" r="10" fill="#B5613A"/>
+
+  <!-- Jar shine -->
+  <rect x="170" y="160" width="12" height="80" rx="6" fill="white" opacity="0.25"/>
+</svg>

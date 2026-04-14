@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#FAF7F3"/>
+
+  <!-- Cabinet outer frame -->
+  <rect x="72" y="72" width="368" height="368" rx="24" fill="#F0EBE3" stroke="#B5613A" stroke-width="10"/>
+
+  <!-- Cabinet middle divider (vertical) -->
+  <rect x="247" y="72" width="18" height="368" rx="0" fill="#B5613A"/>
+
+  <!-- Cabinet top divider (horizontal) -->
+  <rect x="72" y="212" width="368" height="14" fill="#B5613A"/>
+
+  <!-- Top-left compartment: 2 jars -->
+  <rect x="110" y="140" width="50" height="58" rx="10" fill="#B5613A" opacity="0.8"/>
+  <rect x="110" y="132" width="50" height="14" rx="5" fill="#E8A07A"/>
+  <rect x="174" y="146" width="50" height="52" rx="10" fill="#5A7A5C" opacity="0.75"/>
+  <rect x="174" y="138" width="50" height="14" rx="5" fill="#A3C4A6"/>
+
+  <!-- Top-right compartment: 2 jars -->
+  <rect x="272" y="140" width="50" height="58" rx="10" fill="#5A7A5C" opacity="0.75"/>
+  <rect x="272" y="132" width="50" height="14" rx="5" fill="#A3C4A6"/>
+  <rect x="336" y="146" width="50" height="52" rx="10" fill="#B5613A" opacity="0.8"/>
+  <rect x="336" y="138" width="50" height="14" rx="5" fill="#E8A07A"/>
+
+  <!-- Bottom-left compartment: 3 cans in a row -->
+  <rect x="96"  y="248" width="42" height="54" rx="10" fill="#B5613A" opacity="0.6"/>
+  <rect x="149" y="248" width="42" height="54" rx="10" fill="#5A7A5C" opacity="0.6"/>
+  <rect x="202" y="248" width="42" height="54" rx="10" fill="#B5613A" opacity="0.9"/>
+  <!-- shelf line under bottom cans -->
+  <rect x="88" y="304" width="150" height="8" rx="4" fill="#B5613A" opacity="0.3"/>
+
+  <!-- Bottom-left small items row -->
+  <circle cx="110" cy="336" r="16" fill="#2A1F17" opacity="0.2"/>
+  <circle cx="148" cy="336" r="16" fill="#2A1F17" opacity="0.2"/>
+  <circle cx="186" cy="336" r="16" fill="#2A1F17" opacity="0.2"/>
+  <circle cx="224" cy="336" r="16" fill="#2A1F17" opacity="0.2"/>
+
+  <!-- Bottom-right compartment: checklist feel -->
+  <rect x="276" y="244" width="152" height="12" rx="6" fill="#2A1F17" opacity="0.15"/>
+  <rect x="276" y="270" width="152" height="12" rx="6" fill="#2A1F17" opacity="0.15"/>
+  <rect x="276" y="296" width="152" height="12" rx="6" fill="#2A1F17" opacity="0.15"/>
+  <rect x="276" y="322" width="152" height="12" rx="6" fill="#2A1F17" opacity="0.15"/>
+  <!-- check marks -->
+  <polyline points="276,250 284,258 300,242" stroke="#5A7A5C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polyline points="276,276 284,284 300,268" stroke="#5A7A5C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polyline points="276,302 284,310 300,294" stroke="#B5613A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- last row: x mark (out of stock) -->
+  <line x1="276" y1="318" x2="292" y2="334" stroke="#B5613A" stroke-width="7" stroke-linecap="round" opacity="0.5"/>
+  <line x1="292" y1="318" x2="276" y2="334" stroke="#B5613A" stroke-width="7" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Cabinet door knobs -->
+  <circle cx="236" cy="252" r="10" fill="#B5613A"/>
+  <circle cx="276" cy="252" r="10" fill="#B5613A"/>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#FAF7F3"/>
+
+  <!-- Gauge arc background (full range: ~210° arc, from ~195° to ~-15°) -->
+  <!-- Arc goes from bottom-left to bottom-right, opening downward -->
+  <path d="M 96 340 A 170 170 0 1 1 416 340"
+        fill="none" stroke="#F0EBE3" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- Gauge fill: colored arc showing level (~30% remaining = danger zone) -->
+  <!-- Full arc stroke-dasharray trick: circumference of r=170 is ~1068, half+ arc ~623 -->
+  <!-- Show only the "empty" portion in red/terracotta, rest in muted -->
+
+  <!-- OK zone (left ~40%) -->
+  <path d="M 96 340 A 170 170 0 0 1 174 148"
+        fill="none" stroke="#5A7A5C" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- Warning zone (middle ~30%) -->
+  <path d="M 174 148 A 170 170 0 0 1 338 148"
+        fill="none" stroke="#C09030" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- Critical zone (right ~30%) -->
+  <path d="M 338 148 A 170 170 0 0 1 416 340"
+        fill="none" stroke="#B5613A" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- Zone tick marks -->
+  <line x1="168" y1="160" x2="152" y2="132" stroke="#FAF7F3" stroke-width="6" stroke-linecap="round"/>
+  <line x1="332" y1="160" x2="348" y2="132" stroke="#FAF7F3" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Needle pointing to ~20% (nearly empty = critical) -->
+  <!-- Needle angle: 0% is far left (~195° from right), 100% far right (~-15°) -->
+  <!-- 20% ≈ about -120° from horizontal (pointing toward critical zone) -->
+  <line x1="256" y1="296"
+        x2="370" y2="220"
+        stroke="#2A1F17" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Needle pivot -->
+  <circle cx="256" cy="296" r="22" fill="#2A1F17"/>
+  <circle cx="256" cy="296" r="10" fill="#FAF7F3"/>
+
+  <!-- Center label: jar icon -->
+  <rect x="224" y="346" width="64" height="72" rx="10" fill="#F0EBE3" stroke="#B5613A" stroke-width="4"/>
+  <rect x="230" y="334" width="52" height="16" rx="6" fill="#B5613A"/>
+
+  <!-- Fill level inside jar (low) -->
+  <rect x="228" y="392" width="56" height="22" rx="0 0 6 6" fill="#B5613A" opacity="0.5"
+        style="border-radius:0 0 6px 6px"/>
+  <rect x="228" y="390" width="56" height="26" rx="6" fill="#B5613A" opacity="0.4"/>
+
+  <!-- Labels -->
+  <text x="80" y="400" font-family="sans-serif" font-size="28" font-weight="bold" fill="#5A7A5C" opacity="0.7">OK</text>
+  <text x="390" y="400" font-family="sans-serif" font-size="22" font-weight="bold" fill="#B5613A" opacity="0.9" text-anchor="middle">!</text>
+</svg>

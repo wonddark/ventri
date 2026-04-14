@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#FAF7F3"/>
+
+  <!-- V shape formed by two angled shelves -->
+  <!-- Left arm of V (shelf going down-right) -->
+  <rect x="68" y="100" width="220" height="22" rx="11" fill="#B5613A"
+        transform="rotate(35 68 100)"/>
+  <!-- Right arm of V (shelf going down-left) -->
+  <rect x="224" y="100" width="220" height="22" rx="11" fill="#B5613A"
+        transform="rotate(-35 444 100)"/>
+
+  <!-- Bottom point connector -->
+  <circle cx="256" cy="338" r="18" fill="#B5613A"/>
+
+  <!-- Items on left shelf arm -->
+  <circle cx="128" cy="138" r="20" fill="#2A1F17" opacity="0.85"/>
+  <circle cx="170" cy="168" r="20" fill="#2A1F17" opacity="0.85"/>
+  <circle cx="212" cy="198" r="20" fill="#2A1F17" opacity="0.85"/>
+
+  <!-- Items on right shelf arm -->
+  <circle cx="384" cy="138" r="20" fill="#2A1F17" opacity="0.85"/>
+  <circle cx="342" cy="168" r="20" fill="#2A1F17" opacity="0.85"/>
+  <circle cx="300" cy="198" r="20" fill="#2A1F17" opacity="0.85"/>
+
+  <!-- Second row: horizontal shelf -->
+  <rect x="90" y="270" width="332" height="20" rx="10" fill="#B5613A" opacity="0.35"/>
+  <!-- Items on horizontal shelf -->
+  <circle cx="130" cy="252" r="16" fill="#5A7A5C" opacity="0.9"/>
+  <circle cx="178" cy="252" r="16" fill="#B5613A" opacity="0.7"/>
+  <circle cx="226" cy="252" r="16" fill="#5A7A5C" opacity="0.9"/>
+  <circle cx="286" cy="252" r="16" fill="#B5613A" opacity="0.7"/>
+  <circle cx="334" cy="252" r="16" fill="#5A7A5C" opacity="0.9"/>
+  <circle cx="382" cy="252" r="16" fill="#B5613A" opacity="0.7"/>
+
+  <!-- Third horizontal shelf -->
+  <rect x="90" y="360" width="332" height="20" rx="10" fill="#B5613A" opacity="0.35"/>
+  <!-- Items on bottom shelf -->
+  <rect x="108" y="332" width="40" height="28" rx="7" fill="#2A1F17" opacity="0.7"/>
+  <rect x="162" y="332" width="40" height="28" rx="7" fill="#5A7A5C" opacity="0.8"/>
+  <rect x="216" y="332" width="40" height="28" rx="7" fill="#2A1F17" opacity="0.7"/>
+  <rect x="270" y="332" width="40" height="28" rx="7" fill="#5A7A5C" opacity="0.8"/>
+  <rect x="324" y="332" width="40" height="28" rx="7" fill="#2A1F17" opacity="0.7"/>
+  <rect x="378" y="332" width="40" height="28" rx="7" fill="#5A7A5C" opacity="0.8"/>
+
+  <!-- Bottom shelf line -->
+  <rect x="90" y="400" width="332" height="16" rx="8" fill="#B5613A" opacity="0.2"/>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#2A1F17"/>
+
+  <!-- Hourglass outer shape using clip -->
+  <defs>
+    <clipPath id="hg-clip">
+      <!-- Top half trapezoid -->
+      <polygon points="108,88 404,88 296,256 216,256"/>
+      <!-- Bottom half trapezoid -->
+      <polygon points="216,256 296,256 404,424 108,424"/>
+    </clipPath>
+  </defs>
+
+  <!-- Hourglass body background -->
+  <polygon points="108,88 404,88 296,256 216,256" fill="#F0EBE3"/>
+  <polygon points="216,256 296,256 404,424 108,424" fill="#F0EBE3"/>
+
+  <!-- Top chamber: full of items (dots) -->
+  <circle cx="160" cy="130" r="18" fill="#B5613A"/>
+  <circle cx="210" cy="120" r="18" fill="#E8A07A"/>
+  <circle cx="260" cy="130" r="18" fill="#B5613A"/>
+  <circle cx="310" cy="120" r="18" fill="#E8A07A"/>
+  <circle cx="356" cy="130" r="18" fill="#B5613A"/>
+
+  <circle cx="178" cy="168" r="18" fill="#E8A07A"/>
+  <circle cx="228" cy="158" r="18" fill="#B5613A"/>
+  <circle cx="278" cy="168" r="18" fill="#E8A07A"/>
+  <circle cx="328" cy="158" r="18" fill="#B5613A"/>
+
+  <circle cx="200" cy="205" r="16" fill="#B5613A" opacity="0.7"/>
+  <circle cx="248" cy="215" r="14" fill="#E8A07A" opacity="0.7"/>
+  <circle cx="290" cy="205" r="14" fill="#B5613A" opacity="0.5"/>
+
+  <!-- Falling dots through neck -->
+  <circle cx="252" cy="248" r="7" fill="#B5613A" opacity="0.9"/>
+  <circle cx="258" cy="268" r="5" fill="#E8A07A" opacity="0.7"/>
+  <circle cx="254" cy="283" r="4" fill="#B5613A" opacity="0.5"/>
+
+  <!-- Bottom chamber: nearly empty — just a few dots settled at bottom -->
+  <circle cx="200" cy="390" r="16" fill="#B5613A" opacity="0.5"/>
+  <circle cx="240" cy="396" r="14" fill="#E8A07A" opacity="0.4"/>
+  <circle cx="278" cy="390" r="14" fill="#B5613A" opacity="0.3"/>
+
+  <!-- Hourglass frame: top bar -->
+  <rect x="88" y="76" width="336" height="24" rx="12" fill="#B5613A"/>
+  <!-- Hourglass frame: bottom bar -->
+  <rect x="88" y="412" width="336" height="24" rx="12" fill="#B5613A"/>
+  <!-- Neck outline -->
+  <polygon points="108,88 404,88 296,256 216,256 404,424 108,424 216,256 296,256"
+           fill="none" stroke="#2A1F17" stroke-width="6"/>
+</svg>
