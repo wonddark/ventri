@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -504,6 +505,7 @@ private fun ItemCard(
         ) {
             if (selectionMode) {
                 VentriCheckbox(checked = isSelected, onCheckedChange = null)
+                Spacer(modifier = Modifier.width(12.dp))
             }
             Column(modifier = Modifier.weight(1f)) {
                 VentriText(
@@ -888,7 +890,7 @@ private fun ItemFormDialog(
                     onCheckedChange = { dontKnowRate = it; rateError = null },
                     label = "Don't know",
                 )
-                
+
                 if (dontKnowRate) {
                     VentriText(
                         text = "After you add this item to the stock I will ask you regularly if it is already depleted to calculate the consumption rate.",
