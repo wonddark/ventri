@@ -5,10 +5,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -28,6 +31,7 @@ fun VentriCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
+    label: String? = null,
 ) {
     val colors = VentriTheme.colors
     val checkProgress by animateFloatAsState(
@@ -47,45 +51,65 @@ fun VentriCheckbox(
             )
     } else Modifier
 
-    Canvas(
-        modifier = modifier
-            .size(20.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(top = 2.dp)
             .then(clickModifier),
     ) {
-        val strokeWidth = 1.5.dp.toPx()
-        val cornerRadius = CornerRadius(4.dp.toPx())
-        val boxColor = if (checked) colors.accent else Color.Transparent
-        val borderColor = if (checked) colors.accent else colors.outline
+        Canvas(
+            modifier = modifier
+                .size(20.dp)
+        ) {
+            val strokeWidth = 1.5.dp.toPx()
+            val cornerRadius = CornerRadius(4.dp.toPx())
+            val boxColor = if (checked) colors.accent else Color.Transparent
+            val borderColor = if (checked) colors.accent else colors.outline
 
-        drawRoundRect(color = boxColor, cornerRadius = cornerRadius)
-        drawRoundRect(
-            color = borderColor,
-            cornerRadius = cornerRadius,
-            style = Stroke(width = strokeWidth),
-        )
-
-        if (checkProgress > 0f) {
-            val checkPath = Path().apply {
-                moveTo(size.width * 0.20f, size.height * 0.50f)
-                lineTo(size.width * 0.42f, size.height * 0.72f)
-                lineTo(size.width * 0.80f, size.height * 0.28f)
-            }
-            val pathMeasure = PathMeasure().apply { setPath(checkPath, forceClosed = false) }
-            val animatedPath = Path()
-            pathMeasure.getSegment(
-                startDistance = 0f,
-                stopDistance = pathMeasure.length * checkProgress,
-                destination = animatedPath,
-                startWithMoveTo = true,
+            drawRoundRect(color = boxColor, cornerRadius = cornerRadius)
+            drawRoundRect(
+                color = borderColor,
+                cornerRadius = cornerRadius,
+                style = Stroke(width = strokeWidth),
             )
-            drawPath(
-                path = animatedPath,
-                color = colors.onAccent,
-                style = Stroke(
-                    width = 2.dp.toPx(),
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                ),
+
+            if (checkProgress > 0f) {
+                val checkPath = Path().apply {
+                    moveTo(size.width * 0.20f, size.height * 0.50f)
+                    lineTo(size.width * 0.42f, size.height * 0.72f)
+                    lineTo(size.width * 0.80f, size.height * 0.28f)
+                }
+                val pathMeasure = PathMeasure().apply {
+                    setPath(
+                        checkPath,
+                        forceClosed = false
+                    )
+                }
+                val animatedPath = Path()
+                pathMeasure.getSegment(
+                    startDistance = 0f,
+                    stopDistance = pathMeasure.length * checkProgress,
+                    destination = animatedPath,
+                    startWithMoveTo = true,
+                )
+                drawPath(
+                    path = animatedPath,
+                    color = colors.onAccent,
+                    style = Stroke(
+                        width = 2.dp.toPx(),
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                    ),
+                )
+            }
+        }
+
+        if (label !== null) {
+            VentriText(
+                text = label,
+                style = VentriTheme.typography.bodySmall,
+                color = VentriTheme.colors.onSurface.copy(alpha = 0.7f),
+                modifier = Modifier.padding(start = 4.dp),
             )
         }
     }

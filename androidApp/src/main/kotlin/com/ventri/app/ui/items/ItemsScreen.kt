@@ -123,7 +123,14 @@ fun ItemsScreen(
             initialItem = null,
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
-                viewModel.handleIntent(ItemsIntent.AddItemConfirmed(name, unit, priority, rate))
+                viewModel.handleIntent(
+                    ItemsIntent.AddItemConfirmed(
+                        name,
+                        unit,
+                        priority,
+                        rate
+                    )
+                )
             },
             resultFlow = viewModel.addItemResult,
             onSuccess = { showAddDialog = false },
@@ -137,7 +144,15 @@ fun ItemsScreen(
             initialItem = item,
             onDismiss = { editingItem = null },
             onConfirm = { name, unit, priority, rate ->
-                viewModel.handleIntent(ItemsIntent.EditItemConfirmed(item.id, name, unit, priority, rate))
+                viewModel.handleIntent(
+                    ItemsIntent.EditItemConfirmed(
+                        item.id,
+                        name,
+                        unit,
+                        priority,
+                        rate
+                    )
+                )
             },
             resultFlow = viewModel.editItemResult,
             onSuccess = { editingItem = null },
@@ -147,20 +162,30 @@ fun ItemsScreen(
     // Bottom padding: in selection mode, reserve space for the SelectionActionStrip
     val selectionStripHeight = if (uiState.selectionMode) 80.dp else 0.dp
 
-    Box(modifier = Modifier.fillMaxSize().background(VentriTheme.colors.background)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(VentriTheme.colors.background)
+    ) {
         when {
             uiState.isLoading -> Box(
-                modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { VentriProgressIndicator() }
 
             uiState.items.isEmpty() -> {
-                val filtersActive = uiState.isSearchActive || uiState.priorityFilter.isNotEmpty()
+                val filtersActive =
+                    uiState.isSearchActive || uiState.priorityFilter.isNotEmpty()
                 if (filtersActive) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = topBarHeightDp, bottom = navBarHeight),
+                            .padding(
+                                top = topBarHeightDp,
+                                bottom = navBarHeight
+                            ),
                         contentAlignment = Alignment.Center,
                     ) {
                         VentriText(
@@ -182,7 +207,7 @@ fun ItemsScreen(
                 contentPadding = PaddingValues(
                     top = topBarHeightDp,
                     bottom = if (uiState.selectionMode) selectionStripHeight + 16.dp
-                             else navBarHeight + 72.dp, // extra space for FAB when browsing
+                    else navBarHeight + 72.dp, // extra space for FAB when browsing
                     start = 16.dp,
                     end = 16.dp,
                 ),
@@ -202,14 +227,20 @@ fun ItemsScreen(
                             text = "${uiState.items.size} item${if (uiState.items.size != 1) "s" else ""}",
                             style = VentriTheme.typography.bodySmall,
                             color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
-                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                            modifier = Modifier.padding(
+                                top = 8.dp,
+                                bottom = 4.dp
+                            ),
                         )
                     }
                 }
                 items(uiState.items, key = { it.id }) { item ->
                     AnimatedListItem(
                         index = uiState.items.indexOf(item),
-                        animationKey = Pair(uiState.sortOrder, uiState.priorityFilter),
+                        animationKey = Pair(
+                            uiState.sortOrder,
+                            uiState.priorityFilter
+                        ),
                     ) {
                         ItemCard(
                             item = item,
@@ -241,7 +272,11 @@ fun ItemsScreen(
                     .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
             ) {
                 VentriFab(onClick = { showAddDialog = true }) {
-                    VentriIcon(Icons.Default.Add, contentDescription = null, tint = VentriTheme.colors.onAccent)
+                    VentriIcon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        tint = VentriTheme.colors.onAccent
+                    )
                 }
             }
         }
@@ -264,7 +299,11 @@ fun ItemsScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = navBarHeight + 8.dp, start = 16.dp, end = 16.dp),
+                .padding(
+                    bottom = navBarHeight + 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
         ) {
             VentriSnackbarHost(snackbarState)
         }
@@ -295,22 +334,36 @@ private fun ItemsTopBar(
             },
             navigationIcon = {
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    VentriIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
+                    VentriIcon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Close search"
+                    )
                 }
             },
             modifier = modifier,
         )
     } else if (uiState.selectionMode) {
         VentriTopBar(
-            title = { VentriText("Add to shopping list", style = VentriTheme.typography.titleLarge) },
+            title = {
+                VentriText(
+                    "Add to shopping list",
+                    style = VentriTheme.typography.titleLarge
+                )
+            },
             navigationIcon = {
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
-                    VentriIcon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel selection")
+                    VentriIcon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Cancel selection"
+                    )
                 }
             },
             actions = {
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    VentriIcon(Icons.Default.Search, contentDescription = "Search")
+                    VentriIcon(
+                        Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
                 }
             },
             modifier = modifier,
@@ -319,43 +372,79 @@ private fun ItemsTopBar(
         var showSortMenu by remember { mutableStateOf(false) }
         var showFilterMenu by remember { mutableStateOf(false) }
         VentriTopBar(
-            title = { VentriText("Items", style = VentriTheme.typography.titleLarge) },
+            title = {
+                VentriText(
+                    "Items",
+                    style = VentriTheme.typography.titleLarge
+                )
+            },
             actions = {
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
-                    VentriIcon(Icons.Default.Search, contentDescription = "Search")
+                    VentriIcon(
+                        Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
                 }
                 Box {
                     VentriIconButton(onClick = { showSortMenu = true }) {
-                        VentriIcon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+                        VentriIcon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = "Sort"
+                        )
                     }
-                    VentriDropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
+                    VentriDropdownMenu(
+                        expanded = showSortMenu,
+                        onDismissRequest = { showSortMenu = false }) {
                         SortOrder.entries.forEach { order ->
                             VentriDropdownMenuItem(
                                 text = {
                                     VentriText(
                                         text = order.label + if (uiState.sortOrder == order) " ✓" else "",
                                         color = if (uiState.sortOrder == order) VentriTheme.colors.accent
-                                                else VentriTheme.colors.onSurface,
+                                        else VentriTheme.colors.onSurface,
                                     )
                                 },
-                                onClick = { onIntent(ItemsIntent.SortOrderChanged(order)); showSortMenu = false },
+                                onClick = {
+                                    onIntent(
+                                        ItemsIntent.SortOrderChanged(
+                                            order
+                                        )
+                                    ); showSortMenu = false
+                                },
                             )
                         }
                     }
                 }
                 Box {
                     VentriIconButton(onClick = { showFilterMenu = true }) {
-                        VentriIcon(Icons.Default.FilterList, contentDescription = "Filter by priority")
+                        VentriIcon(
+                            Icons.Default.FilterList,
+                            contentDescription = "Filter by priority"
+                        )
                     }
-                    VentriDropdownMenu(expanded = showFilterMenu, onDismissRequest = { showFilterMenu = false }) {
+                    VentriDropdownMenu(
+                        expanded = showFilterMenu,
+                        onDismissRequest = { showFilterMenu = false }) {
                         ItemPriority.entries.forEach { priority ->
                             VentriDropdownMenuItem(
                                 text = { VentriText(priority.name) },
-                                onClick = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
+                                onClick = {
+                                    onIntent(
+                                        ItemsIntent.PriorityFilterToggled(
+                                            priority
+                                        )
+                                    )
+                                },
                                 leadingIcon = {
                                     VentriCheckbox(
                                         checked = priority in uiState.priorityFilter,
-                                        onCheckedChange = { onIntent(ItemsIntent.PriorityFilterToggled(priority)) },
+                                        onCheckedChange = {
+                                            onIntent(
+                                                ItemsIntent.PriorityFilterToggled(
+                                                    priority
+                                                )
+                                            )
+                                        },
                                     )
                                 },
                             )
@@ -382,7 +471,12 @@ private fun ItemCard(
     if (showDeleteConfirm) {
         VentriDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { VentriText("Remove item", style = VentriTheme.typography.titleSmall) },
+            title = {
+                VentriText(
+                    "Remove item",
+                    style = VentriTheme.typography.titleSmall
+                )
+            },
             text = { VentriText("Remove \"${item.name}\" from your items list?") },
             confirmButton = {
                 VentriTextButton(onClick = {
@@ -392,7 +486,10 @@ private fun ItemCard(
             },
             dismissButton = {
                 VentriTextButton(onClick = { showDeleteConfirm = false }) {
-                    VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
+                    VentriText(
+                        "Cancel",
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
+                    )
                 }
             },
         )
@@ -400,14 +497,19 @@ private fun ItemCard(
 
     val cardContent: @Composable () -> Unit = {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (selectionMode) {
                 VentriCheckbox(checked = isSelected, onCheckedChange = null)
             }
             Column(modifier = Modifier.weight(1f)) {
-                VentriText(item.name, style = VentriTheme.typography.titleMedium)
+                VentriText(
+                    item.name,
+                    style = VentriTheme.typography.titleMedium
+                )
                 if (!selectionMode) {
                     Spacer(Modifier.height(2.dp))
                     VentriText(
@@ -422,20 +524,33 @@ private fun ItemCard(
             if (!selectionMode) {
                 Box {
                     VentriIconButton(onClick = { showMenu = true }) {
-                        VentriIcon(Icons.Default.MoreVert, contentDescription = "More options")
+                        VentriIcon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "More options"
+                        )
                     }
-                    VentriDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    VentriDropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }) {
                         VentriDropdownMenuItem(
                             text = { VentriText("Edit") },
                             onClick = { onEdit(); showMenu = false },
                         )
                         VentriDropdownMenuItem(
                             text = { VentriText("Remove") },
-                            onClick = { showDeleteConfirm = true; showMenu = false },
+                            onClick = {
+                                showDeleteConfirm = true; showMenu = false
+                            },
                         )
                         VentriDropdownMenuItem(
                             text = { VentriText("Add to Shopping List") },
-                            onClick = { onIntent(ItemsIntent.AddToShoppingList(item.id)); showMenu = false },
+                            onClick = {
+                                onIntent(
+                                    ItemsIntent.AddToShoppingList(
+                                        item.id
+                                    )
+                                ); showMenu = false
+                            },
                         )
                     }
                 }
@@ -454,20 +569,33 @@ private fun ItemCard(
 }
 
 @Composable
-private fun SelectionActionStrip(selectedCount: Int, onCancel: () -> Unit, onConfirm: () -> Unit) {
+private fun SelectionActionStrip(
+    selectedCount: Int,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
     VentriSurface(
         color = VentriTheme.colors.surface,
         shape = VentriShapes.small,
         modifier = Modifier.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.navigationBars),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            VentriOutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
+            VentriOutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f)
+            ) {
                 VentriText("Cancel", color = VentriTheme.colors.onSurface)
             }
-            VentriButton(onClick = onConfirm, enabled = selectedCount > 0, modifier = Modifier.weight(1f)) {
+            VentriButton(
+                onClick = onConfirm,
+                enabled = selectedCount > 0,
+                modifier = Modifier.weight(1f)
+            ) {
                 VentriText(
                     text = if (selectedCount == 1) "Add 1 item" else "Add $selectedCount items",
                     color = VentriTheme.colors.onAccent,
@@ -484,19 +612,31 @@ private fun PriorityBadge(priority: ItemPriority) {
         ItemPriority.Highest -> colors.criticalContainer to colors.onCriticalContainer
         ItemPriority.High -> colors.warningContainer to colors.onWarningContainer
         ItemPriority.Normal -> colors.accentMuted to colors.accent
-        ItemPriority.Low, ItemPriority.Lowest -> colors.surfaceMuted to colors.onSurface.copy(alpha = 0.5f)
+        ItemPriority.Low, ItemPriority.Lowest -> colors.surfaceMuted to colors.onSurface.copy(
+            alpha = 0.5f
+        )
     }
     VentriChip(containerColor = bg, modifier = Modifier.padding(end = 4.dp)) {
-        VentriText(priority.name, style = VentriTheme.typography.labelSmall, color = fg)
+        VentriText(
+            priority.name,
+            style = VentriTheme.typography.labelSmall,
+            color = fg
+        )
     }
 }
 
 @Composable
-private fun FreePlanBanner(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+private fun FreePlanBanner(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
+            .background(
+                VentriTheme.colors.accentMuted,
+                shape = VentriShapes.small
+            )
             .padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -508,7 +648,7 @@ private fun FreePlanBanner(onDismiss: () -> Unit, modifier: Modifier = Modifier)
         )
         VentriText(
             text = "You are currently on the free plan. I can remember a maximum of seven items only. " +
-                "Please upgrade to Premium plan to enable my unlimited memory.",
+                    "Please upgrade to Premium plan to enable my unlimited memory.",
             style = VentriTheme.typography.bodySmall,
             color = VentriTheme.colors.onSurface.copy(alpha = 0.65f),
             modifier = Modifier.weight(1f),
@@ -532,7 +672,12 @@ private fun ItemsEmptyState(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+            .padding(
+                top = topPadding,
+                bottom = bottomPadding,
+                start = 24.dp,
+                end = 24.dp
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(40.dp))
@@ -541,7 +686,10 @@ private fun ItemsEmptyState(
             contentDescription = null,
             tint = VentriTheme.colors.accent,
             modifier = Modifier
-                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
+                .background(
+                    VentriTheme.colors.accentMuted,
+                    shape = VentriShapes.pill
+                )
                 .padding(20.dp),
         )
         Spacer(Modifier.height(20.dp))
@@ -593,7 +741,10 @@ private fun ItemsTipCard(
                 contentDescription = null,
                 tint = VentriTheme.colors.accent,
                 modifier = Modifier
-                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
+                    .background(
+                        VentriTheme.colors.accentMuted,
+                        shape = VentriShapes.small
+                    )
                     .padding(8.dp),
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -620,26 +771,47 @@ private fun ItemFormDialog(
 ) {
     var name by rememberSaveable { mutableStateOf(initialItem?.name ?: "") }
     var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedUnit by rememberSaveable { mutableStateOf(initialItem?.unit ?: ItemUnit.PIECE) }
+    var selectedUnit by rememberSaveable {
+        mutableStateOf(
+            initialItem?.unit ?: ItemUnit.PIECE
+        )
+    }
     var unitExpanded by remember { mutableStateOf(false) }
-    var selectedPriority by rememberSaveable { mutableStateOf(initialItem?.priority ?: ItemPriority.Normal) }
+    var selectedPriority by rememberSaveable {
+        mutableStateOf(
+            initialItem?.priority ?: ItemPriority.Normal
+        )
+    }
     var priorityExpanded by remember { mutableStateOf(false) }
-    var rateText by rememberSaveable { mutableStateOf(initialItem?.consumptionRate?.toString() ?: "") }
+    var rateText by rememberSaveable {
+        mutableStateOf(
+            initialItem?.consumptionRate?.toString() ?: ""
+        )
+    }
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
     var dontKnowRate by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        resultFlow.collect { error -> if (error == null) onSuccess() else nameError = error }
+        resultFlow.collect { error ->
+            if (error == null) onSuccess() else nameError = error
+        }
     }
 
     fun validate(): Boolean {
         var valid = true
-        if (name.isBlank()) { nameError = "Name is required"; valid = false }
+        if (name.isBlank()) {
+            nameError = "Name is required"; valid = false
+        }
         if (!dontKnowRate && rateText.isNotBlank()) {
             val rate = rateText.toDoubleOrNull()
             when {
-                rate == null -> { rateError = "Enter a valid number"; valid = false }
-                rate <= 0.0 -> { rateError = "Must be greater than 0"; valid = false }
+                rate == null -> {
+                    rateError = "Enter a valid number"; valid = false
+                }
+
+                rate <= 0.0 -> {
+                    rateError = "Must be greater than 0"; valid = false
+                }
             }
         }
         return valid
@@ -647,7 +819,12 @@ private fun ItemFormDialog(
 
     VentriDialog(
         onDismissRequest = onDismiss,
-        title = { VentriText(title, style = VentriTheme.typography.titleSmall) },
+        title = {
+            VentriText(
+                title,
+                style = VentriTheme.typography.titleSmall
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 VentriTextField(
@@ -669,7 +846,9 @@ private fun ItemFormDialog(
                     ItemUnit.entries.forEach { unit ->
                         VentriDropdownMenuItem(
                             text = { VentriText(unit.name) },
-                            onClick = { selectedUnit = unit; unitExpanded = false },
+                            onClick = {
+                                selectedUnit = unit; unitExpanded = false
+                            },
                             selected = unit == selectedUnit,
                         )
                     }
@@ -684,7 +863,10 @@ private fun ItemFormDialog(
                     ItemPriority.entries.forEach { priority ->
                         VentriDropdownMenuItem(
                             text = { VentriText(priority.name) },
-                            onClick = { selectedPriority = priority; priorityExpanded = false },
+                            onClick = {
+                                selectedPriority = priority; priorityExpanded =
+                                false
+                            },
                             selected = priority == selectedPriority,
                         )
                     }
@@ -700,21 +882,13 @@ private fun ItemFormDialog(
                     supportingText = rateError,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 2.dp),
-                ) {
-                    VentriCheckbox(
-                        checked = dontKnowRate,
-                        onCheckedChange = { dontKnowRate = it; rateError = null },
-                    )
-                    VentriText(
-                        text = "Don't know",
-                        style = VentriTheme.typography.bodySmall,
-                        color = VentriTheme.colors.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(start = 4.dp),
-                    )
-                }
+
+                VentriCheckbox(
+                    checked = dontKnowRate,
+                    onCheckedChange = { dontKnowRate = it; rateError = null },
+                    label = "Don't know",
+                )
+                
                 if (dontKnowRate) {
                     VentriText(
                         text = "After you add this item to the stock I will ask you regularly if it is already depleted to calculate the consumption rate.",
@@ -728,12 +902,20 @@ private fun ItemFormDialog(
         confirmButton = {
             VentriTextButton(onClick = {
                 val rate = if (dontKnowRate) null else rateText.toDoubleOrNull()
-                if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rate)
+                if (validate()) onConfirm(
+                    name.trim(),
+                    selectedUnit,
+                    selectedPriority,
+                    rate
+                )
             }) { VentriText(confirmLabel, color = VentriTheme.colors.accent) }
         },
         dismissButton = {
             VentriTextButton(onClick = onDismiss) {
-                VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
+                VentriText(
+                    "Cancel",
+                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
+                )
             }
         },
     )
