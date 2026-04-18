@@ -626,6 +626,7 @@ private fun ItemFormDialog(
     var priorityExpanded by remember { mutableStateOf(false) }
     var rateText by rememberSaveable { mutableStateOf(initialItem?.consumptionRate?.toString() ?: "") }
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
+    var dontKnowRate by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         resultFlow.collect { error -> if (error == null) onSuccess() else nameError = error }
@@ -634,7 +635,7 @@ private fun ItemFormDialog(
     fun validate(): Boolean {
         var valid = true
         if (name.isBlank()) { nameError = "Name is required"; valid = false }
-        if (rateText.isNotBlank()) {
+        if (!dontKnowRate && rateText.isNotBlank()) {
             val rate = rateText.toDoubleOrNull()
             when {
                 rate == null -> { rateError = "Enter a valid number"; valid = false }
@@ -689,20 +690,45 @@ private fun ItemFormDialog(
                     }
                 }
                 VentriTextField(
-                    value = rateText,
+                    value = if (dontKnowRate) "" else rateText,
                     onValueChange = { rateText = it; rateError = null },
                     placeholder = "Consumption rate / day (optional)",
                     singleLine = true,
+                    enabled = !dontKnowRate,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = rateError != null,
                     supportingText = rateError,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp),
+                ) {
+                    VentriCheckbox(
+                        checked = dontKnowRate,
+                        onCheckedChange = { dontKnowRate = it; rateError = null },
+                    )
+                    VentriText(
+                        text = "Don't know",
+                        style = VentriTheme.typography.bodySmall,
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
+                if (dontKnowRate) {
+                    VentriText(
+                        text = "After you add this item to the stock I will ask you regularly if it is already depleted to calculate the consumption rate.",
+                        style = VentriTheme.typography.bodySmall,
+                        color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
             }
         },
         confirmButton = {
             VentriTextButton(onClick = {
-                if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rateText.toDoubleOrNull())
+                val rate = if (dontKnowRate) null else rateText.toDoubleOrNull()
+                if (validate()) onConfirm(name.trim(), selectedUnit, selectedPriority, rate)
             }) { VentriText(confirmLabel, color = VentriTheme.colors.accent) }
         },
         dismissButton = {

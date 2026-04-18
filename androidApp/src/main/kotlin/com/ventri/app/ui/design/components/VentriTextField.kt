@@ -45,6 +45,7 @@ fun VentriTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     variant: VentriTextFieldVariant = VentriTextFieldVariant.Outlined,
+    enabled: Boolean = true
 ) {
     val colors = VentriTheme.colors
     val typography = VentriTheme.typography
@@ -120,6 +121,7 @@ fun VentriTextField(
                                 top = if (label != null) 24.dp else 14.dp,
                                 bottom = 14.dp,
                             ),
+                        enabled = enabled,
                         textStyle = typography.bodyMedium.copy(color = colors.onSurface),
                         cursorBrush = SolidColor(colors.accent),
                         singleLine = singleLine,
