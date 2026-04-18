@@ -60,7 +60,9 @@ fun ItemQueries.insertItem(
     unit: ItemUnit,
     priority: ItemPriority = ItemPriority.Normal,
     consumptionRate: Double = 0.0,
+    maxItems: Int? = null,
 ): InsertItemResult {
+    if (maxItems != null && count().executeAsOne() >= maxItems) return InsertItemResult.LimitReached
     if (selectByName(name).executeAsOneOrNull() != null) return InsertItemResult.DuplicateName
     val id = Uuid.random().toString()
     insert(

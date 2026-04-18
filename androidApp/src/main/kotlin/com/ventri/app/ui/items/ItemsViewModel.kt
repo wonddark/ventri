@@ -55,6 +55,7 @@ data class ItemsUiState(
     val isSearchActive: Boolean = false,
     val selectionMode: Boolean = false,
     val selectedItemIds: Set<String> = emptySet(),
+    val isRegistered: Boolean = true, // default true to avoid banner flash while prefs load
 )
 
 sealed interface ItemsIntent {
@@ -90,6 +91,11 @@ class ItemsViewModel(
 ) : AndroidViewModel(application) {
 
     private val db = (application as VentriApplication).database
+    private val prefs = (application as VentriApplication).prefs
+
+    companion object {
+        const val FREE_ITEM_LIMIT = 7
+    }
 
     val selectionMode: Boolean = savedStateHandle.get<Boolean>("selectionMode") ?: false
     val showAddOnStart: Boolean = savedStateHandle.get<Boolean>("add") ?: false
@@ -158,10 +164,12 @@ class ItemsViewModel(
         baseFlow,
         shoppingListItemIdsFlow,
         _selectedItemIds,
-    ) { base, shoppingIds, selectedIds ->
+        prefs.userId,
+    ) { base, shoppingIds, selectedIds, userId ->
         base.copy(
             items = if (selectionMode) base.items.filter { it.id !in shoppingIds } else base.items,
             selectedItemIds = selectedIds,
+            isRegistered = userId != null,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -187,12 +195,14 @@ class ItemsViewModel(
             }
             is ItemsIntent.AddItem -> Unit
             is ItemsIntent.AddItemConfirmed -> viewModelScope.launch {
+                val isRegistered = prefs.userId.value != null
                 val result = withContext(Dispatchers.IO) {
                     db.itemQueries.insertItem(
                         name = intent.name,
                         unit = intent.unit,
                         priority = intent.priority,
                         consumptionRate = intent.consumptionRate ?: 0.0,
+                        maxItems = if (isRegistered) null else FREE_ITEM_LIMIT,
                     )
                 }
                 when (result) {
@@ -204,6 +214,8 @@ class ItemsViewModel(
                     }
                     InsertItemResult.DuplicateName ->
                         _addItemResult.emit("An item with this name already exists")
+                    InsertItemResult.LimitReached ->
+                        _addItemResult.emit("Free plan is limited to $FREE_ITEM_LIMIT items. Register to add more.")
                 }
             }
             is ItemsIntent.EditItem -> Unit

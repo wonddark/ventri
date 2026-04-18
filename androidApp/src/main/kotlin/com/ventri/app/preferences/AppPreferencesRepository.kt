@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
 import com.ventri.shared.model.ThresholdConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,7 @@ class AppPreferencesRepository(
         val CRITICAL_DAYS = intPreferencesKey("critical_days")
         val HIGH_DAYS = intPreferencesKey("high_days")
         val NORMAL_DAYS = intPreferencesKey("normal_days")
+        val USER_ID = stringPreferencesKey("user_id")
     }
 
     val themeMode: StateFlow<ThemeMode> = dataStore.data
@@ -64,5 +66,20 @@ class AppPreferencesRepository(
             prefs[Keys.HIGH_DAYS] = config.highDays
             prefs[Keys.NORMAL_DAYS] = config.normalDays
         }
+    }
+
+    val userId: StateFlow<String?> = dataStore.data
+        .map { prefs -> prefs[Keys.USER_ID] }
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    suspend fun getRegisteredUserId(): String? =
+        dataStore.data.first()[Keys.USER_ID]
+
+    suspend fun setUserId(id: String) {
+        dataStore.edit { it[Keys.USER_ID] = id }
+    }
+
+    suspend fun clearUserId() {
+        dataStore.edit { it.remove(Keys.USER_ID) }
     }
 }

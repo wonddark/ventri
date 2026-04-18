@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Speed
@@ -97,6 +99,7 @@ fun ItemsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddDialog by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
+    var freePlanBannerDismissed by rememberSaveable { mutableStateOf(false) }
     val snackbarState = rememberVentriSnackbarHostState()
     val navBarHeight = LocalNavBarHeight.current
     val barsVisible = LocalBarsVisible.current
@@ -186,6 +189,14 @@ fun ItemsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (!uiState.selectionMode) {
+                    if (!uiState.isRegistered && !freePlanBannerDismissed) {
+                        item(key = "free_plan_banner") {
+                            FreePlanBanner(
+                                onDismiss = { freePlanBannerDismissed = true },
+                                modifier = Modifier.padding(top = 8.dp),
+                            )
+                        }
+                    }
                     item(key = "header") {
                         VentriText(
                             text = "${uiState.items.size} item${if (uiState.items.size != 1) "s" else ""}",
@@ -477,6 +488,38 @@ private fun PriorityBadge(priority: ItemPriority) {
     }
     VentriChip(containerColor = bg, modifier = Modifier.padding(end = 4.dp)) {
         VentriText(priority.name, style = VentriTheme.typography.labelSmall, color = fg)
+    }
+}
+
+@Composable
+private fun FreePlanBanner(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
+            .padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        VentriIcon(
+            imageVector = Icons.Default.Info,
+            contentDescription = null,
+            tint = VentriTheme.colors.accent.copy(alpha = 0.7f),
+            modifier = Modifier.padding(end = 10.dp, top = 1.dp),
+        )
+        VentriText(
+            text = "You are currently on the free plan. I can remember a maximum of seven items only. " +
+                "Please upgrade to Premium plan to enable my unlimited memory.",
+            style = VentriTheme.typography.bodySmall,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.65f),
+            modifier = Modifier.weight(1f),
+        )
+        VentriIconButton(onClick = onDismiss) {
+            VentriIcon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Dismiss",
+                tint = VentriTheme.colors.onSurface.copy(alpha = 0.4f),
+            )
+        }
     }
 }
 

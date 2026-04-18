@@ -12,6 +12,9 @@ CREATE TABLE Item (
 selectAll:
 SELECT * FROM Item;
 
+count:
+SELECT COUNT(*) FROM Item;
+
 selectById:
 SELECT * FROM Item WHERE id = :id;
 
