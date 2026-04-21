@@ -23,10 +23,11 @@
         android:strokeWidth="44"
         android:strokeLineCap="round"/>
 
-    <!-- Ring fill: 12-o'clock → 9-o'clock clockwise (75%, 270°) -->
+    <!-- Ring fill: 12→3→6→9 clockwise (75%, 270°) split into three 90° arcs.
+         Android's PathParser mishandles large-arc-flag=1; three arcs avoid it. -->
     <path
         android:fillColor="@android:color/transparent"
-        android:pathData="M 256,56 A 200,200 0 1 1 56,256"
+        android:pathData="M 256,56 A 200,200 0 0 1 456,256 A 200,200 0 0 1 256,456 A 200,200 0 0 1 56,256"
         android:strokeColor="#b5613a"
         android:strokeWidth="44"
         android:strokeLineCap="round"/>
