@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#faf7f3"/>
+
+  <!-- Crown -->
+  <rect x="232" y="22" width="48" height="20" rx="8" fill="#e0d8ce"/>
+  <rect x="244" y="14" width="24" height="18" rx="6" fill="#e8e0d6"/>
+
+  <!-- Ring track: 9-o'clock → 12-o'clock (25%, 90°) -->
+  <path d="M 56 256 A 200 200 0 0 1 256 56"
+        fill="none" stroke="#ede5d8" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- Ring fill: 12-o'clock → 9-o'clock clockwise (75%, 270°) -->
+  <path d="M 256 56 A 200 200 0 1 1 56 256"
+        fill="none" stroke="#b5613a" stroke-width="44" stroke-linecap="round"/>
+
+  <!-- "1" — active segments: b, c -->
+  <polygon points="203,198 225,198 232,205 225,212 203,212 196,205" fill="#e0d5c8"/>
+  <polygon points="187,214 194,221 194,240 187,247 180,240 180,221" fill="#e0d5c8"/>
+  <polygon points="241,214 248,221 248,240 241,247 234,240 234,221" fill="#b5613a"/>
+  <polygon points="203,249 225,249 232,256 225,263 203,263 196,256" fill="#e0d5c8"/>
+  <polygon points="187,265 194,272 194,291 187,298 180,291 180,272" fill="#e0d5c8"/>
+  <polygon points="241,265 248,272 248,291 241,298 234,291 234,272" fill="#b5613a"/>
+  <polygon points="203,300 225,300 232,307 225,314 203,314 196,307" fill="#e0d5c8"/>
+
+  <!-- "d" — active segments: b, c, d, e, g -->
+  <polygon points="287,198 309,198 316,205 309,212 287,212 280,205" fill="#e0d5c8"/>
+  <polygon points="271,214 278,221 278,240 271,247 264,240 264,221" fill="#e0d5c8"/>
+  <polygon points="325,214 332,221 332,240 325,247 318,240 318,221" fill="#b5613a"/>
+  <polygon points="287,249 309,249 316,256 309,263 287,263 280,256" fill="#b5613a"/>
+  <polygon points="271,265 278,272 278,291 271,298 264,291 264,272" fill="#b5613a"/>
+  <polygon points="325,265 332,272 332,291 325,298 318,291 318,272" fill="#b5613a"/>
+  <polygon points="287,300 309,300 316,307 309,314 287,314 280,307" fill="#b5613a"/>
+</svg>
