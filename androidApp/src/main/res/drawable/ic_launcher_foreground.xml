@@ -5,68 +5,74 @@
     android:viewportWidth="512"
     android:viewportHeight="512">
 
-    <!-- Depleted arc: 270° clockwise from 12 o'clock → 9 o'clock -->
+    <!-- Crown base (rx=8 rounded rect: x=232 y=22 w=48 h=20) -->
+    <path
+        android:fillColor="#e0d8ce"
+        android:pathData="M 240,22 L 272,22 Q 280,22 280,30 L 280,34 Q 280,42 272,42 L 240,42 Q 232,42 232,34 L 232,30 Q 232,22 240,22 Z"/>
+
+    <!-- Crown cap (rx=6 rounded rect: x=244 y=14 w=24 h=18) -->
+    <path
+        android:fillColor="#e8e0d6"
+        android:pathData="M 250,14 L 262,14 Q 268,14 268,20 L 268,26 Q 268,32 262,32 L 250,32 Q 244,32 244,26 L 244,20 Q 244,14 250,14 Z"/>
+
+    <!-- Ring track: 9-o'clock → 12-o'clock (25%, 90°) -->
     <path
         android:fillColor="@android:color/transparent"
-        android:pathData="M 256 76 A 180 180 0 1 1 76 256"
-        android:strokeColor="#2D2520"
-        android:strokeLineCap="round"
-        android:strokeWidth="42" />
+        android:pathData="M 56,256 A 200,200 0 0 1 256,56"
+        android:strokeColor="#ede5d8"
+        android:strokeWidth="44"
+        android:strokeLineCap="round"/>
 
-    <!-- Remaining arc: 90° clockwise from 9 o'clock → 12 o'clock -->
+    <!-- Ring fill: 12-o'clock → 9-o'clock clockwise (75%, 270°) -->
     <path
         android:fillColor="@android:color/transparent"
-        android:pathData="M 76 256 A 180 180 0 0 1 256 76"
-        android:strokeColor="#E8A07A"
-        android:strokeLineCap="round"
-        android:strokeWidth="42" />
+        android:pathData="M 256,56 A 200,200 0 1 1 56,256"
+        android:strokeColor="#b5613a"
+        android:strokeWidth="44"
+        android:strokeLineCap="round"/>
 
-    <!-- Glow halo at transition point (9 o'clock) -->
-    <path
-        android:fillAlpha="0.18"
-        android:fillColor="#E8A07A"
-        android:pathData="M 110 256 A 34 34 0 1 0 42 256 A 34 34 0 1 0 110 256 Z" />
+    <!-- "1" ghost: a -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 203,198 L 225,198 L 232,205 L 225,212 L 203,212 L 196,205 Z"/>
+    <!-- "1" ghost: f -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 187,214 L 194,221 L 194,240 L 187,247 L 180,240 L 180,221 Z"/>
+    <!-- "1" active: b -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 241,214 L 248,221 L 248,240 L 241,247 L 234,240 L 234,221 Z"/>
+    <!-- "1" ghost: g -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 203,249 L 225,249 L 232,256 L 225,263 L 203,263 L 196,256 Z"/>
+    <!-- "1" ghost: e -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 187,265 L 194,272 L 194,291 L 187,298 L 180,291 L 180,272 Z"/>
+    <!-- "1" active: c -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 241,265 L 248,272 L 248,291 L 241,298 L 234,291 L 234,272 Z"/>
+    <!-- "1" ghost: d -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 203,300 L 225,300 L 232,307 L 225,314 L 203,314 L 196,307 Z"/>
 
-    <!-- Dot at transition point -->
-    <path
-        android:fillColor="#E8A07A"
-        android:pathData="M 96 256 A 20 20 0 1 0 56 256 A 20 20 0 1 0 96 256 Z" />
-
-    <!-- Jar body -->
-    <path
-        android:fillColor="#2D2520"
-        android:pathData="M 216 210 L 296 210 Q 310 210 310 224 L 310 326 Q 310 340 296 340 L 216 340 Q 202 340 202 326 L 202 224 Q 202 210 216 210 Z"
-        android:strokeColor="#3D2F28"
-        android:strokeWidth="2" />
-
-    <!-- Jar fill: 25% from bottom, rounded bottom corners -->
-    <path
-        android:fillAlpha="0.80"
-        android:fillColor="#E8A07A"
-        android:pathData="M 202 307 L 202 326 Q 202 340 216 340 L 296 340 Q 310 340 310 326 L 310 307 Z" />
-
-    <!-- Fill surface highlight line -->
-    <path
-        android:fillAlpha="0.60"
-        android:fillColor="#F0C090"
-        android:pathData="M 202 305 L 310 305 L 310 309 L 202 309 Z" />
-
-    <!-- Jar lid band -->
-    <path
-        android:fillAlpha="0.55"
-        android:fillColor="#E8A07A"
-        android:pathData="M 201 193 L 311 193 Q 318 193 318 200 L 318 215 Q 318 215 311 215 L 201 215 Q 194 215 194 208 L 194 200 Q 194 193 201 193 Z" />
-
-    <!-- Jar lid cap -->
-    <path
-        android:fillAlpha="0.80"
-        android:fillColor="#E8A07A"
-        android:pathData="M 216 174 L 296 174 Q 306 174 306 184 L 306 196 Q 306 196 296 196 L 216 196 Q 206 196 206 186 L 206 184 Q 206 174 216 174 Z" />
-
-    <!-- Jar shine -->
-    <path
-        android:fillAlpha="0.10"
-        android:fillColor="#FFFFFF"
-        android:pathData="M 217.5 225.5 Q 217.5 220 212 220 Q 212 220 212 225.5 L 212 270.5 Q 212 276 217.5 276 Q 223 276 223 270.5 L 223 225.5 Q 223 220 217.5 220 Z" />
+    <!-- "d" ghost: a -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 287,198 L 309,198 L 316,205 L 309,212 L 287,212 L 280,205 Z"/>
+    <!-- "d" ghost: f -->
+    <path android:fillColor="#e0d5c8"
+        android:pathData="M 271,214 L 278,221 L 278,240 L 271,247 L 264,240 L 264,221 Z"/>
+    <!-- "d" active: b -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 325,214 L 332,221 L 332,240 L 325,247 L 318,240 L 318,221 Z"/>
+    <!-- "d" active: g -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 287,249 L 309,249 L 316,256 L 309,263 L 287,263 L 280,256 Z"/>
+    <!-- "d" active: e -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 271,265 L 278,272 L 278,291 L 271,298 L 264,291 L 264,272 Z"/>
+    <!-- "d" active: c -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 325,265 L 332,272 L 332,291 L 325,298 L 318,291 L 318,272 Z"/>
+    <!-- "d" active: d -->
+    <path android:fillColor="#b5613a"
+        android:pathData="M 287,300 L 309,300 L 316,307 L 309,314 L 287,314 L 280,307 Z"/>
 
 </vector>
