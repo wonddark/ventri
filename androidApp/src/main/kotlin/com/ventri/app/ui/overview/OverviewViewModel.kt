@@ -84,6 +84,8 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             if (item.priority == ItemPriority.Lowest) return@mapNotNull null
             val depletionDate = item.estimatedDepletionDate()
             if (depletionDate == null) {
+                // In stock with no consumption rate: can't estimate depletion, but item is fine.
+                if (item.isInStock) return@mapNotNull null
                 if (item.priority != ItemPriority.High && item.priority != ItemPriority.Highest) return@mapNotNull null
                 return@mapNotNull OverviewItemUiModel(item.id, item.name, Severity.Critical, null, item.id in inShoppingList)
             }
