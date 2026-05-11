@@ -1,4 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ventri</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
+    <string name="common_yes">Yes</string>
+    <string name="common_no">No</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_remove">Remove</string>
+    <string name="common_confirm">Confirm</string>
+    <string name="common_save">Save</string>
+    <string name="common_add">Add</string>
+    <string name="common_empty">Empty</string>
+    <string name="common_expand_cd">Expand</string>
+    <string name="common_collapse_cd">Collapse</string>
+
+    <!-- Overview -->
+    <string name="overview_title">Overview</string>
+    <string name="overview_subtitle">Here are the items that need your attention right now.</string>
+    <string name="overview_filter_critical">Critical</string>
+    <string name="overview_filter_high">High</string>
+    <string name="overview_add_all_to_refill">Add all to my refill list</string>
+    <string name="overview_no_items_match">No items match this filter</string>
+    <string name="overview_settings_cd">Settings</string>
+    <string name="overview_refresh_cd">Refresh</string>
+    <string name="overview_not_in_stock">Not in stock</string>
+    <string name="overview_in_list">In list</string>
+    <string name="overview_depleting_today">Depleting today</string>
+    <string name="overview_less_than_a_day">Less than a day remaining</string>
+    <string name="overview_onboarding_title">Let\'s get started</string>
+    <string name="overview_onboarding_subtitle">This is your command centre. I watch everything you have at home and alert you the moment something is about to run out.</string>
+    <string name="overview_onboarding_track_title">I track what you have</string>
+    <string name="overview_onboarding_track_body">Once you add items and log your stock, I\'ll calculate how quickly you\'re using them and predict when you\'ll run out.</string>
+    <string name="overview_onboarding_alert_title">I tell you what needs attention</string>
+    <string name="overview_onboarding_alert_body">I only surface items that are running low or out of stock — nothing else. One tap and they\'re added to your refill list.</string>
+    <string name="overview_onboarding_cta">Add my first item</string>
+    <string name="overview_all_good_title">You\'re all stocked up</string>
+    <string name="overview_all_good_body">Nothing needs your attention right now. I\'ll let you know as soon as something starts running low.</string>
+    <string name="overview_error_add_to_list">Could not add items to the shopping list</string>
+
+    <!-- Items -->
+    <string name="items_screen_title">Items</string>
+    <string name="items_add_title">Add Item</string>
+    <string name="items_edit_title">Edit Item</string>
+    <string name="items_add_confirm">Add</string>
+    <string name="items_no_match">No items match your filters</string>
+    <string name="items_search_placeholder">Search items…</string>
+    <string name="items_close_search_cd">Close search</string>
+    <string name="items_search_cd">Search</string>
+    <string name="items_sort_cd">Sort</string>
+    <string name="items_filter_priority_cd">Filter by priority</string>
+    <string name="items_more_options_cd">More options</string>
+    <string name="items_cancel_selection_cd">Cancel selection</string>
+    <string name="items_add_to_shopping_title">Add to shopping list</string>
+    <string name="items_add_to_shopping_menu">Add to Shopping List</string>
+    <string name="items_remove_title">Remove item</string>
+    <string name="items_remove_confirm">Remove \"%s\" from your items list?</string>
+    <string name="items_sort_priority">Priority</string>
+    <string name="items_sort_name_asc">Name A→Z</string>
+    <string name="items_sort_name_desc">Name Z→A</string>
+    <string name="items_form_name_placeholder">Name</string>
+    <string name="items_form_unit_label">Unit</string>
+    <string name="items_form_priority_label">Priority</string>
+    <string name="items_form_rate_placeholder">Consumption rate / day (optional)</string>
+    <string name="items_form_dont_know_rate">Don\'t know</string>
+    <string name="items_form_rate_hint">After you add this item to the stock I will ask you regularly if it is already depleted to calculate the consumption rate.</string>
+    <string name="items_form_error_name_required">Name is required</string>
+    <string name="items_form_error_invalid_number">Enter a valid number</string>
+    <string name="items_form_error_greater_than_zero">Must be greater than 0</string>
+    <string name="items_unit_rate">%1$s · %2$s/day</string>
+    <string name="items_empty_title">No items yet</string>
+    <string name="items_empty_body">These are the products you regularly buy. Add them here so I can track your consumption and help you build smarter shopping lists.</string>
+    <string name="items_onboarding_rate_title">Set a consumption rate</string>
+    <string name="items_onboarding_rate_body">Tell me how fast you use each item per day. I\'ll use that to predict when you\'ll run out and remind you to restock.</string>
+    <string name="items_onboarding_priority_title">Assign a priority</string>
+    <string name="items_onboarding_priority_body">Mark items as High or Highest priority so I always know what\'s most critical when building your shopping list.</string>
+    <string name="items_onboarding_shopping_title">Add to your shopping list</string>
+    <string name="items_onboarding_shopping_body">Tap ⋮ next to any item to add it to your list, or use the \"+\" button from the Shopping screen to pick multiple at once.</string>
+    <string name="items_free_plan_text">You are currently on the free plan. I can remember a maximum of seven items only. Please upgrade to Premium plan to enable my unlimited memory.</string>
+    <string name="items_free_plan_dismiss_cd">Dismiss</string>
+    <string name="items_error_duplicate_name">An item with this name already exists</string>
+    <string name="items_error_limit_reached">Free plan is limited to %d items. Register to add more.</string>
+    <string name="items_snackbar_added_to_shopping">Added to shopping list</string>
+    <string name="items_snackbar_already_in_shopping">Already in shopping list</string>
+
+    <!-- Stock -->
+    <string name="stock_title">Stock</string>
+    <string name="stock_tracking_usage">Tracking usage…</string>
+    <string name="stock_less_than_a_day">Less than a day remaining</string>
+    <string name="stock_mark_depleted_title">Mark as depleted?</string>
+    <string name="stock_mark_depleted_body">I\'ll calculate your consumption rate based on how long this lasted. This helps me predict when you\'ll run out next time.</string>
+    <string name="stock_mark_depleted_confirm">Mark depleted</string>
+    <string name="stock_update_rate_title">Update consumption rate?</string>
+    <string name="stock_update_rate_body">Would you like me to recalculate the consumption rate based on actual usage since the last purchase?</string>
+    <string name="stock_empty_title">Nothing in stock</string>
+    <string name="stock_empty_body">This is where I keep track of what you currently have at home and how long it will last.</string>
+    <string name="stock_onboarding_land_title">Items land here after shopping</string>
+    <string name="stock_onboarding_land_body">When you mark something as purchased in your shopping list, I\'ll start tracking it here automatically.</string>
+    <string name="stock_onboarding_track_title">I track how long things last</string>
+    <string name="stock_onboarding_track_body">Based on the quantity you bought and your consumption rate, I\'ll tell you exactly how many days each item will last.</string>
+    <string name="stock_onboarding_deplete_title">Mark items as depleted</string>
+    <string name="stock_onboarding_deplete_body">Run out of something? Tap the cart icon to remove it from stock. I\'ll ask if you want me to recalibrate the consumption rate based on actual usage.</string>
+
+    <!-- Shopping -->
+    <string name="shopping_title">Refills</string>
+    <string name="shopping_empty_list_cd">Empty list</string>
+    <string name="shopping_empty_list_title">Empty Refills</string>
+    <string name="shopping_empty_list_confirm">Remove all items from your refill list?</string>
+    <string name="shopping_empty_confirm_btn">Empty</string>
+    <string name="shopping_clear_purchased">Clear Purchased</string>
+    <string name="shopping_mark_purchased_title">Mark as Purchased</string>
+    <string name="shopping_mark_purchased_body">How much %s did you buy?</string>
+    <string name="shopping_quantity_label">Quantity (%s)</string>
+    <string name="shopping_quantity_required">Quantity is required</string>
+    <string name="shopping_quantity_invalid">Enter a valid number</string>
+    <string name="shopping_quantity_must_be_positive">Must be greater than 0</string>
+    <string name="shopping_already_depleted">Already depleted</string>
+    <string name="shopping_empty_title">Nothing to refill</string>
+    <string name="shopping_empty_body">This is your running list of things to buy. I\'ll help you keep it up to date so you never run out of what matters.</string>
+    <string name="shopping_onboarding_add_title">Add what you need</string>
+    <string name="shopping_onboarding_add_body">Tap + to pick items from your list and add them here. You can select multiple at once so the list is ready before you head out.</string>
+    <string name="shopping_onboarding_log_title">Log when you buy something</string>
+    <string name="shopping_onboarding_log_body">Tap ✓ next to an item and tell me how much you got. I\'ll move it to Stock right away and start tracking how long it\'ll last.</string>
+    <string name="shopping_onboarding_alert_title">I\'ll tell you what\'s running low</string>
+    <string name="shopping_onboarding_alert_body">Keep an eye on the Overview screen — I\'ll flag items that are about to run out so you can add them here before it\'s too late.</string>
+    <string name="shopping_error_title">Could Not Update Refill List</string>
+    <string name="shopping_error_body">Could not add items to the shopping list.</string>
+
+    <!-- Preferences -->
+    <string name="prefs_title">Preferences</string>
+    <string name="prefs_back_cd">Back</string>
+    <string name="prefs_section_appearance">Appearance</string>
+    <string name="prefs_theme_label">Theme</string>
+    <string name="prefs_theme_light">Light</string>
+    <string name="prefs_theme_dark">Dark</string>
+    <string name="prefs_theme_system">System</string>
+    <string name="prefs_section_notifications">Notifications</string>
+    <string name="prefs_notification_frequency_label">Depletion check frequency</string>
+    <string name="prefs_frequency_once_per_day">Once per day (24 h)</string>
+    <string name="prefs_frequency_twice_per_day">Twice per day (12 h)</string>
+    <string name="prefs_section_thresholds">Depletion Thresholds</string>
+    <string name="prefs_thresholds_desc">Items are flagged when their estimated days remaining fall at or below each threshold.</string>
+    <string name="prefs_threshold_critical">Critical</string>
+    <string name="prefs_threshold_high">High</string>
+    <string name="prefs_threshold_normal">Normal</string>
+    <string name="prefs_threshold_low">Low</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Critical Stock Alerts</string>
+    <string name="notification_channel_description">Daily alerts when items are critically low on stock</string>
+    <string name="notification_stock_alert_title">Stock Alert</string>
+    <string name="notification_stock_critical_single">%s is critically low on stock</string>
+    <string name="notification_stock_critical_multiple">%1$d items are critically low: %2$s</string>
+    <string name="notification_stock_action_single">Add to Shopping List</string>
+    <string name="notification_stock_action_multiple">Add All to Shopping List</string>
+    <string name="notification_shopping_updated_title">Shopping List Updated</string>
+
+    <!-- Enum display names — ItemUnit -->
+    <string name="unit_piece">piece</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_g">g</string>
+    <string name="unit_l">l</string>
+    <string name="unit_ml">ml</string>
+    <string name="unit_bottle">bottle</string>
+    <string name="unit_box">box</string>
+    <string name="unit_pack">pack</string>
+
+    <!-- Enum display names — ItemPriority -->
+    <string name="priority_highest">Highest</string>
+    <string name="priority_high">High</string>
+    <string name="priority_normal">Normal</string>
+    <string name="priority_low">Low</string>
+    <string name="priority_lowest">Lowest</string>
+
+    <!-- Plurals -->
+    <plurals name="item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <plurals name="stock_item_count">
+        <item quantity="one">%d item in stock</item>
+        <item quantity="other">%d items in stock</item>
+    </plurals>
+    <plurals name="stock_days_remaining">
+        <item quantity="one">%d day remaining</item>
+        <item quantity="other">%d days remaining</item>
+    </plurals>
+    <plurals name="overview_days_remaining">
+        <item quantity="one">%d day remaining</item>
+        <item quantity="other">%d days remaining</item>
+    </plurals>
+    <plurals name="overview_days_overdue">
+        <item quantity="one">%d day overdue</item>
+        <item quantity="other">%d days overdue</item>
+    </plurals>
+    <plurals name="shopping_will_last">
+        <item quantity="one">Will last %d day</item>
+        <item quantity="other">Will last %d days</item>
+    </plurals>
+    <plurals name="items_add_count">
+        <item quantity="one">Add %d item</item>
+        <item quantity="other">Add %d items</item>
+    </plurals>
+    <plurals name="items_snackbar_selection_failed">
+        <item quantity="one">%d item could not be added</item>
+        <item quantity="other">%d items could not be added</item>
+    </plurals>
+    <plurals name="notification_items_added">
+        <item quantity="one">%d item added to your shopping list</item>
+        <item quantity="other">%d items added to your shopping list</item>
+    </plurals>
 </resources>
