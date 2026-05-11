@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,7 +17,7 @@ import com.ventri.app.navigation.AppNavigation
 import com.ventri.app.preferences.ThemeMode
 import com.ventri.app.ui.design.VentriTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_NAVIGATE_TO = "extra_navigate_to"

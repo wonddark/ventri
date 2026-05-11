@@ -131,6 +131,8 @@
     <!-- Preferences -->
     <string name="prefs_title">Preferencias</string>
     <string name="prefs_back_cd">Atrás</string>
+    <string name="prefs_section_language">Idioma</string>
+    <string name="prefs_language_system">Sistema</string>
     <string name="prefs_section_appearance">Apariencia</string>
     <string name="prefs_theme_label">Tema</string>
     <string name="prefs_theme_light">Claro</string>

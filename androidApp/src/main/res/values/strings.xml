@@ -131,6 +131,8 @@
     <!-- Preferences -->
     <string name="prefs_title">Preferences</string>
     <string name="prefs_back_cd">Back</string>
+    <string name="prefs_section_language">Language</string>
+    <string name="prefs_language_system">System</string>
     <string name="prefs_section_appearance">Appearance</string>
     <string name="prefs_theme_label">Theme</string>
     <string name="prefs_theme_light">Light</string>

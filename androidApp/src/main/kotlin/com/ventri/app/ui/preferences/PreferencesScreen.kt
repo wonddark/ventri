@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,6 +70,41 @@ fun PreferencesScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
+            // ── Language ────────────────────────────────────────────────────
+            SectionHeader(stringResource(R.string.prefs_section_language))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, colors.outline, VentriShapes.pill)
+                    .clip(VentriShapes.pill),
+            ) {
+                LanguageOption(
+                    label = stringResource(R.string.prefs_language_system),
+                    selected = uiState.languageTag == null,
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage(null) },
+                )
+                LanguageOption(
+                    label = "English",
+                    selected = uiState.languageTag == "en",
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage("en") },
+                )
+                LanguageOption(
+                    label = "Español",
+                    selected = uiState.languageTag == "es",
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage("es") },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
             // ── Appearance ──────────────────────────────────────────────────
             SectionHeader(stringResource(R.string.prefs_section_appearance))
             VentriText(
@@ -230,6 +266,35 @@ fun PreferencesScreen(
                 }
             },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
+    }
+}
+
+@Composable
+private fun RowScope.LanguageOption(
+    label: String,
+    selected: Boolean,
+    colors: com.ventri.app.ui.design.VentriColors,
+    typography: com.ventri.app.ui.design.VentriTypography,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .background(color = if (selected) colors.accentMuted else Color.Transparent)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = onClick,
+            )
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        VentriText(
+            text = label,
+            style = typography.labelMedium,
+            color = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.6f),
         )
     }
 }
