@@ -32,14 +32,12 @@ data class ShoppingItemUiModel(
     val unit: ItemUnit,
     val status: ShoppingListStatus,
     val purchasedQuantity: Double?,
-    val depletionLabel: String?,
+    val depletionLabel: ShoppingDepletionLabel?,
 )
 
 sealed interface ShoppingUiState {
     data object Loading : ShoppingUiState
-    data class Success(
-        val items: List<ShoppingItemUiModel>,
-    ) : ShoppingUiState
+    data class Success(val items: List<ShoppingItemUiModel>) : ShoppingUiState
 }
 
 sealed interface ShoppingIntent {
@@ -53,7 +51,7 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
 
     private val db = (application as VentriApplication).database
 
-    val pendingError: StateFlow<String?> =
+    val pendingError: StateFlow<ShoppingError?> =
         getApplication<VentriApplication>().pendingShoppingError.asStateFlow()
 
     fun clearPendingError() {
@@ -114,15 +112,14 @@ class ShoppingViewModel(application: Application) : AndroidViewModel(application
         lastPurchasedAt: Long?,
         purchasedQuantity: Double?,
         now: Long,
-    ): String? {
+    ): ShoppingDepletionLabel? {
         if (consumptionRate == 0.0 || lastPurchasedAt == null || purchasedQuantity == null) return null
         val depletionDate = lastPurchasedAt + (purchasedQuantity / consumptionRate * MILLIS_PER_DAY).toLong()
         val delta = depletionDate - now
         val days = delta / MILLIS_PER_DAY
         return when {
-            delta <= 0 -> "Already depleted"
-            days == 1L -> "Will last 1 day"
-            else -> "Will last $days days"
+            delta <= 0 -> ShoppingDepletionLabel.AlreadyDepleted
+            else -> ShoppingDepletionLabel.WillLast(days)
         }
     }
 }

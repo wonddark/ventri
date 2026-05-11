@@ -15,6 +15,7 @@ import com.ventri.shared.db.createDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import com.ventri.app.ui.shopping.ShoppingError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ class VentriApplication : Application() {
         private set
 
     val pendingNavTarget = MutableStateFlow<String?>(null)
-    val pendingShoppingError = MutableStateFlow<String?>(null)
+    val pendingShoppingError = MutableStateFlow<ShoppingError?>(null)
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 

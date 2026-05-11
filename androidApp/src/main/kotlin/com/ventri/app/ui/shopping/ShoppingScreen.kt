@@ -51,10 +51,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.ventri.app.R
+import com.ventri.app.ui.util.displayName
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -93,19 +97,19 @@ fun ShoppingScreen(
     var topBarHeightPx by remember { mutableIntStateOf(0) }
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
-    pendingError?.let { error ->
+    pendingError?.let { _ ->
         VentriDialog(
             onDismissRequest = { viewModel.clearPendingError() },
             title = {
                 VentriText(
-                    "Could Not Update Refill List",
+                    stringResource(R.string.shopping_error_title),
                     style = VentriTheme.typography.titleSmall
                 )
             },
-            text = { VentriText(error) },
+            text = { VentriText(stringResource(R.string.shopping_error_body)) },
             confirmButton = {
                 VentriTextButton(onClick = { viewModel.clearPendingError() }) {
-                    VentriText("OK", color = VentriTheme.colors.accent)
+                    VentriText(stringResource(R.string.common_ok), color = VentriTheme.colors.accent)
                 }
             },
         )
@@ -119,21 +123,21 @@ fun ShoppingScreen(
             onDismissRequest = { showEmptyConfirm = false },
             title = {
                 VentriText(
-                    "Empty Refills",
+                    stringResource(R.string.shopping_empty_list_title),
                     style = VentriTheme.typography.titleSmall
                 )
             },
-            text = { VentriText("Remove all items from your refill list?") },
+            text = { VentriText(stringResource(R.string.shopping_empty_list_confirm)) },
             confirmButton = {
                 VentriTextButton(onClick = {
                     viewModel.handleIntent(ShoppingIntent.EmptyList)
                     showEmptyConfirm = false
-                }) { VentriText("Empty", color = VentriTheme.colors.accent) }
+                }) { VentriText(stringResource(R.string.shopping_empty_confirm_btn), color = VentriTheme.colors.accent) }
             },
             dismissButton = {
                 VentriTextButton(onClick = { showEmptyConfirm = false }) {
                     VentriText(
-                        "Cancel",
+                        stringResource(R.string.common_cancel),
                         color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                 }
@@ -144,22 +148,25 @@ fun ShoppingScreen(
     purchasingItem?.let { item ->
         var quantity by remember { mutableStateOf("") }
         var quantityError by remember { mutableStateOf<String?>(null) }
+        val errRequired = stringResource(R.string.shopping_quantity_required)
+        val errInvalid = stringResource(R.string.shopping_quantity_invalid)
+        val errPositive = stringResource(R.string.shopping_quantity_must_be_positive)
         VentriDialog(
             onDismissRequest = { purchasingItem = null },
             title = {
                 VentriText(
-                    "Mark as Purchased",
+                    stringResource(R.string.shopping_mark_purchased_title),
                     style = VentriTheme.typography.titleSmall
                 )
             },
             text = {
                 Column {
-                    VentriText("How much ${item.name} did you buy?")
+                    VentriText(stringResource(R.string.shopping_mark_purchased_body, item.name))
                     Spacer(Modifier.height(8.dp))
                     VentriTextField(
                         value = quantity,
                         onValueChange = { quantity = it; quantityError = null },
-                        label = "Quantity (${item.unit.name})",
+                        label = stringResource(R.string.shopping_quantity_label, item.unit.displayName()),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         isError = quantityError != null,
@@ -171,13 +178,9 @@ fun ShoppingScreen(
                 VentriTextButton(onClick = {
                     val amount = quantity.toDoubleOrNull()
                     when {
-                        quantity.isBlank() -> quantityError =
-                            "Quantity is required"
-
-                        amount == null -> quantityError = "Enter a valid number"
-                        amount <= 0.0 -> quantityError =
-                            "Must be greater than 0"
-
+                        quantity.isBlank() -> quantityError = errRequired
+                        amount == null -> quantityError = errInvalid
+                        amount <= 0.0 -> quantityError = errPositive
                         else -> {
                             viewModel.handleIntent(
                                 ShoppingIntent.MarkAsPurchased(
@@ -189,12 +192,12 @@ fun ShoppingScreen(
                             purchasingItem = null
                         }
                     }
-                }) { VentriText("Confirm", color = VentriTheme.colors.accent) }
+                }) { VentriText(stringResource(R.string.common_confirm), color = VentriTheme.colors.accent) }
             },
             dismissButton = {
                 VentriTextButton(onClick = { purchasingItem = null }) {
                     VentriText(
-                        "Cancel",
+                        stringResource(R.string.common_cancel),
                         color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                 }
@@ -233,7 +236,7 @@ fun ShoppingScreen(
                 ) {
                     item(key = "header") {
                         VentriText(
-                            text = "${state.items.size} item${if (state.items.size != 1) "s" else ""}",
+                            text = pluralStringResource(R.plurals.item_count, state.items.size, state.items.size),
                             style = VentriTheme.typography.bodySmall,
                             color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(
@@ -268,7 +271,7 @@ fun ShoppingScreen(
                                 )
                             }) {
                                 VentriText(
-                                    "Clear Purchased",
+                                    stringResource(R.string.shopping_clear_purchased),
                                     color = VentriTheme.colors.onSurface
                                 )
                             }
@@ -282,7 +285,7 @@ fun ShoppingScreen(
         VentriTopBar(
             title = {
                 VentriText(
-                    "Refills",
+                    stringResource(R.string.shopping_title),
                     style = VentriTheme.typography.titleLarge
                 )
             },
@@ -290,7 +293,7 @@ fun ShoppingScreen(
                 VentriIconButton(onClick = { showEmptyConfirm = true }) {
                     VentriIcon(
                         Icons.Default.Delete,
-                        contentDescription = "Empty list"
+                        contentDescription = stringResource(R.string.shopping_empty_list_cd)
                     )
                 }
             },
@@ -345,33 +348,33 @@ private fun RefillsEmptyState(topPadding: Dp, bottomPadding: Dp) {
         )
         Spacer(Modifier.height(20.dp))
         VentriText(
-            text = "Nothing to refill",
+            text = stringResource(R.string.shopping_empty_title),
             style = VentriTheme.typography.titleLarge,
             color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
         VentriText(
-            text = "This is your running list of things to buy. I'll help you keep it up to date so you never run out of what matters.",
+            text = stringResource(R.string.shopping_empty_body),
             style = VentriTheme.typography.bodyMedium,
             color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         RefillsTipCard(
             icon = Icons.AutoMirrored.Filled.PlaylistAdd,
-            title = "Add what you need",
-            body = "Tap + to pick items from your list and add them here. You can select multiple at once so the list is ready before you head out.",
+            title = stringResource(R.string.shopping_onboarding_add_title),
+            body = stringResource(R.string.shopping_onboarding_add_body),
         )
         Spacer(Modifier.height(12.dp))
         RefillsTipCard(
             icon = Icons.Default.Check,
-            title = "Log when you buy something",
-            body = "Tap ✓ next to an item and tell me how much you got. I'll move it to Stock right away and start tracking how long it'll last.",
+            title = stringResource(R.string.shopping_onboarding_log_title),
+            body = stringResource(R.string.shopping_onboarding_log_body),
         )
         Spacer(Modifier.height(12.dp))
         RefillsTipCard(
             icon = Icons.Default.AvTimer,
-            title = "I'll tell you what's running low",
-            body = "Keep an eye on the Overview screen — I'll flag items that are about to run out so you can add them here before it's too late.",
+            title = stringResource(R.string.shopping_onboarding_alert_title),
+            body = stringResource(R.string.shopping_onboarding_alert_body),
         )
     }
 }
@@ -404,6 +407,12 @@ private fun RefillsTipCard(icon: ImageVector, title: String, body: String) {
             }
         }
     }
+}
+
+@Composable
+private fun ShoppingDepletionLabel.toText(): String = when (this) {
+    ShoppingDepletionLabel.AlreadyDepleted -> stringResource(R.string.shopping_already_depleted)
+    is ShoppingDepletionLabel.WillLast -> pluralStringResource(R.plurals.shopping_will_last, days.toInt(), days)
 }
 
 @Composable
@@ -570,20 +579,20 @@ private fun RefillItemCard(
                         if (item.status == ShoppingListStatus.Purchased) {
                             item.purchasedQuantity?.let { qty ->
                                 VentriText(
-                                    "${qty.formatQuantity()} ${item.unit.name}",
+                                    "${qty.formatQuantity()} ${item.unit.displayName()}",
                                     style = VentriTheme.typography.bodySmall,
                                     color = colors.onSurface.copy(alpha = 0.5f),
                                 )
                             }
                             item.depletionLabel?.let { label ->
                                 VentriText(
-                                    label,
+                                    label.toText(),
                                     style = VentriTheme.typography.bodySmall,
                                     color = colors.accent.copy(alpha = 0.7f))
                             }
                         } else {
                             VentriText(
-                                item.unit.name,
+                                item.unit.displayName(),
                                 style = VentriTheme.typography.bodySmall,
                                 color = colors.onSurface.copy(alpha = 0.5f),
                             )
