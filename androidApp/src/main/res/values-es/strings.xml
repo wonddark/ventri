@@ -31,7 +31,7 @@
     <string name="overview_less_than_a_day">Menos de un día restante</string>
     <string name="overview_onboarding_title">¡Empecemos!</string>
     <string name="overview_onboarding_subtitle">Este es tu centro de control. Observo todo lo que tienes en casa y te alerto en cuanto algo está a punto de agotarse.</string>
-    <string name="overview_onboarding_track_title">Rastro lo que tienes</string>
+    <string name="overview_onboarding_track_title">Rastreo lo que tienes</string>
     <string name="overview_onboarding_track_body">Una vez que agregues artículos y registres tu inventario, calcularé qué tan rápido los usas y predigo cuándo se agotarán.</string>
     <string name="overview_onboarding_alert_title">Te digo qué necesita atención</string>
     <string name="overview_onboarding_alert_body">Solo muestro artículos que están escaseando o sin existencias — nada más. Un toque y los agregas a tu lista de reabastecimiento.</string>
@@ -98,7 +98,7 @@
     <string name="stock_empty_body">Aquí es donde llevo un registro de lo que tienes actualmente en casa y cuánto durará.</string>
     <string name="stock_onboarding_land_title">Los artículos llegan aquí después de comprar</string>
     <string name="stock_onboarding_land_body">Cuando marques algo como comprado en tu lista de compras, comenzaré a rastrearlo aquí automáticamente.</string>
-    <string name="stock_onboarding_track_title">Rastro cuánto duran las cosas</string>
+    <string name="stock_onboarding_track_title">Rastreo cuánto duran las cosas</string>
     <string name="stock_onboarding_track_body">Según la cantidad que compraste y tu tasa de consumo, te diré exactamente cuántos días durará cada artículo.</string>
     <string name="stock_onboarding_deplete_title">Marca artículos como agotados</string>
     <string name="stock_onboarding_deplete_body">¿Se te agotó algo? Toca el ícono del carrito para retirarlo del inventario. Te preguntaré si quieres que recalibre la tasa de consumo según el uso real.</string>
