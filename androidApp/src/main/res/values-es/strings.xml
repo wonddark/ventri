@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ventri</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_ok">OK</string>
+    <string name="common_yes">Sí</string>
+    <string name="common_no">No</string>
+    <string name="common_edit">Editar</string>
+    <string name="common_remove">Eliminar</string>
+    <string name="common_confirm">Confirmar</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_add">Agregar</string>
+    <string name="common_empty">Vaciar</string>
+    <string name="common_expand_cd">Expandir</string>
+    <string name="common_collapse_cd">Contraer</string>
+
+    <!-- Overview -->
+    <string name="overview_title">Resumen</string>
+    <string name="overview_subtitle">Estos son los artículos que necesitan tu atención ahora mismo.</string>
+    <string name="overview_filter_critical">Crítico</string>
+    <string name="overview_filter_high">Alto</string>
+    <string name="overview_add_all_to_refill">Agregar todo a mi lista de reabastecimiento</string>
+    <string name="overview_no_items_match">Ningún artículo coincide con este filtro</string>
+    <string name="overview_settings_cd">Configuración</string>
+    <string name="overview_refresh_cd">Actualizar</string>
+    <string name="overview_not_in_stock">Sin existencias</string>
+    <string name="overview_in_list">En lista</string>
+    <string name="overview_depleting_today">Agotándose hoy</string>
+    <string name="overview_less_than_a_day">Menos de un día restante</string>
+    <string name="overview_onboarding_title">¡Empecemos!</string>
+    <string name="overview_onboarding_subtitle">Este es tu centro de control. Observo todo lo que tienes en casa y te alerto en cuanto algo está a punto de agotarse.</string>
+    <string name="overview_onboarding_track_title">Rastro lo que tienes</string>
+    <string name="overview_onboarding_track_body">Una vez que agregues artículos y registres tu inventario, calcularé qué tan rápido los usas y predigo cuándo se agotarán.</string>
+    <string name="overview_onboarding_alert_title">Te digo qué necesita atención</string>
+    <string name="overview_onboarding_alert_body">Solo muestro artículos que están escaseando o sin existencias — nada más. Un toque y los agregas a tu lista de reabastecimiento.</string>
+    <string name="overview_onboarding_cta">Agregar mi primer artículo</string>
+    <string name="overview_all_good_title">Todo está abastecido</string>
+    <string name="overview_all_good_body">Nada necesita tu atención ahora mismo. Te avisaré en cuanto algo empiece a escasear.</string>
+    <string name="overview_error_add_to_list">No se pudieron agregar artículos a la lista de compras</string>
+
+    <!-- Items -->
+    <string name="items_screen_title">Artículos</string>
+    <string name="items_add_title">Agregar artículo</string>
+    <string name="items_edit_title">Editar artículo</string>
+    <string name="items_add_confirm">Agregar</string>
+    <string name="items_no_match">Ningún artículo coincide con tus filtros</string>
+    <string name="items_search_placeholder">Buscar artículos…</string>
+    <string name="items_close_search_cd">Cerrar búsqueda</string>
+    <string name="items_search_cd">Buscar</string>
+    <string name="items_sort_cd">Ordenar</string>
+    <string name="items_filter_priority_cd">Filtrar por prioridad</string>
+    <string name="items_more_options_cd">Más opciones</string>
+    <string name="items_cancel_selection_cd">Cancelar selección</string>
+    <string name="items_add_to_shopping_title">Agregar a lista de compras</string>
+    <string name="items_add_to_shopping_menu">Agregar a lista de compras</string>
+    <string name="items_remove_title">Eliminar artículo</string>
+    <string name="items_remove_confirm">¿Eliminar \"%s\" de tu lista de artículos?</string>
+    <string name="items_sort_priority">Prioridad</string>
+    <string name="items_sort_name_asc">Nombre A→Z</string>
+    <string name="items_sort_name_desc">Nombre Z→A</string>
+    <string name="items_form_name_placeholder">Nombre</string>
+    <string name="items_form_unit_label">Unidad</string>
+    <string name="items_form_priority_label">Prioridad</string>
+    <string name="items_form_rate_placeholder">Tasa de consumo / día (opcional)</string>
+    <string name="items_form_dont_know_rate">No sé</string>
+    <string name="items_form_rate_hint">Después de agregar este artículo al inventario, te preguntaré regularmente si ya se agotó para calcular la tasa de consumo.</string>
+    <string name="items_form_error_name_required">El nombre es obligatorio</string>
+    <string name="items_form_error_invalid_number">Ingresa un número válido</string>
+    <string name="items_form_error_greater_than_zero">Debe ser mayor que 0</string>
+    <string name="items_unit_rate">%1$s · %2$s/día</string>
+    <string name="items_empty_title">Aún no hay artículos</string>
+    <string name="items_empty_body">Estos son los productos que compras regularmente. Agrégalos aquí para que pueda rastrear tu consumo y ayudarte a crear listas de compras más inteligentes.</string>
+    <string name="items_onboarding_rate_title">Establece una tasa de consumo</string>
+    <string name="items_onboarding_rate_body">Dime qué tan rápido usas cada artículo por día. Usaré eso para predecir cuándo se agotará y recordarte que te reabastezcas.</string>
+    <string name="items_onboarding_priority_title">Asigna una prioridad</string>
+    <string name="items_onboarding_priority_body">Marca artículos como prioridad Alta o Máxima para que siempre sepa qué es más crítico al crear tu lista de compras.</string>
+    <string name="items_onboarding_shopping_title">Agrega a tu lista de compras</string>
+    <string name="items_onboarding_shopping_body">Toca ⋮ junto a cualquier artículo para agregarlo a tu lista, o usa el botón \"+\" desde la pantalla de Compras para seleccionar varios a la vez.</string>
+    <string name="items_free_plan_text">Actualmente estás en el plan gratuito. Solo puedo recordar un máximo de siete artículos. Actualiza al plan Premium para habilitar mi memoria ilimitada.</string>
+    <string name="items_free_plan_dismiss_cd">Descartar</string>
+    <string name="items_error_duplicate_name">Ya existe un artículo con este nombre</string>
+    <string name="items_error_limit_reached">El plan gratuito está limitado a %d artículos. Regístrate para agregar más.</string>
+    <string name="items_snackbar_added_to_shopping">Agregado a la lista de compras</string>
+    <string name="items_snackbar_already_in_shopping">Ya está en la lista de compras</string>
+
+    <!-- Stock -->
+    <string name="stock_title">Inventario</string>
+    <string name="stock_tracking_usage">Rastreando uso…</string>
+    <string name="stock_less_than_a_day">Menos de un día restante</string>
+    <string name="stock_mark_depleted_title">¿Marcar como agotado?</string>
+    <string name="stock_mark_depleted_body">Calcularé tu tasa de consumo basándome en cuánto tiempo duró. Esto me ayuda a predecir cuándo se agotará la próxima vez.</string>
+    <string name="stock_mark_depleted_confirm">Marcar agotado</string>
+    <string name="stock_update_rate_title">¿Actualizar tasa de consumo?</string>
+    <string name="stock_update_rate_body">¿Te gustaría que recalcule la tasa de consumo según el uso real desde la última compra?</string>
+    <string name="stock_empty_title">Nada en inventario</string>
+    <string name="stock_empty_body">Aquí es donde llevo un registro de lo que tienes actualmente en casa y cuánto durará.</string>
+    <string name="stock_onboarding_land_title">Los artículos llegan aquí después de comprar</string>
+    <string name="stock_onboarding_land_body">Cuando marques algo como comprado en tu lista de compras, comenzaré a rastrearlo aquí automáticamente.</string>
+    <string name="stock_onboarding_track_title">Rastro cuánto duran las cosas</string>
+    <string name="stock_onboarding_track_body">Según la cantidad que compraste y tu tasa de consumo, te diré exactamente cuántos días durará cada artículo.</string>
+    <string name="stock_onboarding_deplete_title">Marca artículos como agotados</string>
+    <string name="stock_onboarding_deplete_body">¿Se te agotó algo? Toca el ícono del carrito para retirarlo del inventario. Te preguntaré si quieres que recalibre la tasa de consumo según el uso real.</string>
+
+    <!-- Shopping -->
+    <string name="shopping_title">Reabastecimientos</string>
+    <string name="shopping_empty_list_cd">Vaciar lista</string>
+    <string name="shopping_empty_list_title">Vaciar reabastecimientos</string>
+    <string name="shopping_empty_list_confirm">¿Eliminar todos los artículos de tu lista de reabastecimientos?</string>
+    <string name="shopping_empty_confirm_btn">Vaciar</string>
+    <string name="shopping_clear_purchased">Limpiar comprados</string>
+    <string name="shopping_mark_purchased_title">Marcar como comprado</string>
+    <string name="shopping_mark_purchased_body">¿Cuánto %s compraste?</string>
+    <string name="shopping_quantity_label">Cantidad (%s)</string>
+    <string name="shopping_quantity_required">La cantidad es obligatoria</string>
+    <string name="shopping_quantity_invalid">Ingresa un número válido</string>
+    <string name="shopping_quantity_must_be_positive">Debe ser mayor que 0</string>
+    <string name="shopping_already_depleted">Ya agotado</string>
+    <string name="shopping_empty_title">Nada para reabastecer</string>
+    <string name="shopping_empty_body">Esta es tu lista actualizada de cosas por comprar. Te ayudaré a mantenerla al día para que nunca te quedes sin lo que importa.</string>
+    <string name="shopping_onboarding_add_title">Agrega lo que necesitas</string>
+    <string name="shopping_onboarding_add_body">Toca + para elegir artículos de tu lista y agregarlos aquí. Puedes seleccionar varios a la vez para que la lista esté lista antes de salir.</string>
+    <string name="shopping_onboarding_log_title">Registra cuando compras algo</string>
+    <string name="shopping_onboarding_log_body">Toca ✓ junto a un artículo y dime cuánto conseguiste. Lo moveré a Inventario de inmediato y comenzaré a rastrear cuánto durará.</string>
+    <string name="shopping_onboarding_alert_title">Te diré qué está escaseando</string>
+    <string name="shopping_onboarding_alert_body">Mantén un ojo en la pantalla de Resumen — marcaré los artículos que están a punto de agotarse para que puedas agregarlos aquí antes de que sea tarde.</string>
+    <string name="shopping_error_title">No se pudo actualizar la lista de reabastecimientos</string>
+    <string name="shopping_error_body">No se pudieron agregar artículos a la lista de compras.</string>
+
+    <!-- Preferences -->
+    <string name="prefs_title">Preferencias</string>
+    <string name="prefs_back_cd">Atrás</string>
+    <string name="prefs_section_appearance">Apariencia</string>
+    <string name="prefs_theme_label">Tema</string>
+    <string name="prefs_theme_light">Claro</string>
+    <string name="prefs_theme_dark">Oscuro</string>
+    <string name="prefs_theme_system">Sistema</string>
+    <string name="prefs_section_notifications">Notificaciones</string>
+    <string name="prefs_notification_frequency_label">Frecuencia de verificación de agotamiento</string>
+    <string name="prefs_frequency_once_per_day">Una vez al día (24 h)</string>
+    <string name="prefs_frequency_twice_per_day">Dos veces al día (12 h)</string>
+    <string name="prefs_section_thresholds">Umbrales de agotamiento</string>
+    <string name="prefs_thresholds_desc">Los artículos se marcan cuando sus días estimados restantes caen al nivel o por debajo de cada umbral.</string>
+    <string name="prefs_threshold_critical">Crítico</string>
+    <string name="prefs_threshold_high">Alto</string>
+    <string name="prefs_threshold_normal">Normal</string>
+    <string name="prefs_threshold_low">Bajo</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Alertas críticas de inventario</string>
+    <string name="notification_channel_description">Alertas diarias cuando los artículos tienen inventario críticamente bajo</string>
+    <string name="notification_stock_alert_title">Alerta de inventario</string>
+    <string name="notification_stock_critical_single">%s tiene inventario críticamente bajo</string>
+    <string name="notification_stock_critical_multiple">%1$d artículos con inventario críticamente bajo: %2$s</string>
+    <string name="notification_stock_action_single">Agregar a lista de compras</string>
+    <string name="notification_stock_action_multiple">Agregar todo a lista de compras</string>
+    <string name="notification_shopping_updated_title">Lista de compras actualizada</string>
+
+    <!-- Enum display names — ItemUnit -->
+    <string name="unit_piece">pieza</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_g">g</string>
+    <string name="unit_l">l</string>
+    <string name="unit_ml">ml</string>
+    <string name="unit_bottle">botella</string>
+    <string name="unit_box">caja</string>
+    <string name="unit_pack">paquete</string>
+
+    <!-- Enum display names — ItemPriority -->
+    <string name="priority_highest">Máxima</string>
+    <string name="priority_high">Alta</string>
+    <string name="priority_normal">Normal</string>
+    <string name="priority_low">Baja</string>
+    <string name="priority_lowest">Mínima</string>
+
+    <!-- Plurals -->
+    <plurals name="item_count">
+        <item quantity="one">%d artículo</item>
+        <item quantity="other">%d artículos</item>
+    </plurals>
+    <plurals name="stock_item_count">
+        <item quantity="one">%d artículo en inventario</item>
+        <item quantity="other">%d artículos en inventario</item>
+    </plurals>
+    <plurals name="stock_days_remaining">
+        <item quantity="one">%d día restante</item>
+        <item quantity="other">%d días restantes</item>
+    </plurals>
+    <plurals name="overview_days_remaining">
+        <item quantity="one">%d día restante</item>
+        <item quantity="other">%d días restantes</item>
+    </plurals>
+    <plurals name="overview_days_overdue">
+        <item quantity="one">%d día de retraso</item>
+        <item quantity="other">%d días de retraso</item>
+    </plurals>
+    <plurals name="shopping_will_last">
+        <item quantity="one">Durará %d día</item>
+        <item quantity="other">Durará %d días</item>
+    </plurals>
+    <plurals name="items_add_count">
+        <item quantity="one">Agregar %d artículo</item>
+        <item quantity="other">Agregar %d artículos</item>
+    </plurals>
+    <plurals name="items_snackbar_selection_failed">
+        <item quantity="one">No se pudo agregar %d artículo</item>
+        <item quantity="other">No se pudieron agregar %d artículos</item>
+    </plurals>
+    <plurals name="notification_items_added">
+        <item quantity="one">%d artículo agregado a tu lista de compras</item>
+        <item quantity="other">%d artículos agregados a tu lista de compras</item>
+    </plurals>
+</resources>
