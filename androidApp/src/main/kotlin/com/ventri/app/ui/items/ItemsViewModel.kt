@@ -101,10 +101,10 @@ class ItemsViewModel(
     val showAddOnStart: Boolean = savedStateHandle.get<Boolean>("add") ?: false
     // Immutable: set once from nav arg, does not update reactively
 
-    private val _addItemResult = MutableSharedFlow<InsertItemError?>()
+    private val _addItemResult = MutableSharedFlow<InsertItemError?>(extraBufferCapacity = 1)
     val addItemResult: SharedFlow<InsertItemError?> = _addItemResult.asSharedFlow()
 
-    private val _editItemResult = MutableSharedFlow<UpdateItemError?>()
+    private val _editItemResult = MutableSharedFlow<UpdateItemError?>(extraBufferCapacity = 1)
     val editItemResult: SharedFlow<UpdateItemError?> = _editItemResult.asSharedFlow()
 
     private val _snackbarMessage = MutableSharedFlow<ItemsSnackbarEvent>()
