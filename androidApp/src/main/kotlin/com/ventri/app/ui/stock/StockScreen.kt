@@ -125,7 +125,7 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
             ) { VentriProgressIndicator() }
 
             is StockUiState.Success -> if (s.items.isEmpty()) {
-                StockEmptyState(topPadding = topBarHeightDp, bottomPadding = navBarHeight)
+                StockEmptyState(topPadding = topBarHeightDp, bottomPadding = navBarHeight + 16.dp)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
