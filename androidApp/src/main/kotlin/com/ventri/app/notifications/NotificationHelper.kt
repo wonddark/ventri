@@ -40,10 +40,10 @@ object NotificationHelper {
         }
         val actionLabel = if (items.size == 1) "Add to Shopping List" else "Add All to Shopping List"
 
-        // Tap on the notification body → open Shopping screen
+        // Tap on the notification body → open Overview screen
         val tapIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(MainActivity.EXTRA_NAVIGATE_TO, Routes.SHOPPING)
+            putExtra(MainActivity.EXTRA_NAVIGATE_TO, Routes.OVERVIEW)
         }
         val tapPendingIntent = PendingIntent.getActivity(
             context, 0, tapIntent,
