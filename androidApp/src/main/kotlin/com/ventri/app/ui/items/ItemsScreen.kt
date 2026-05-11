@@ -121,8 +121,8 @@ fun ItemsScreen(
     val snackAddedToShopping = stringResource(R.string.items_snackbar_added_to_shopping)
     val snackAlreadyInShopping = stringResource(R.string.items_snackbar_already_in_shopping)
 
-    val addResultStrings = remember { MutableSharedFlow<String?>() }
-    val editResultStrings = remember { MutableSharedFlow<String?>() }
+    val addResultStrings = remember { MutableSharedFlow<String?>(extraBufferCapacity = 1) }
+    val editResultStrings = remember { MutableSharedFlow<String?>(extraBufferCapacity = 1) }
 
     LaunchedEffect(viewModel.addItemResult) {
         viewModel.addItemResult.collect { error ->
@@ -846,7 +846,7 @@ private fun ItemFormDialog(
     val errInvalidNumber = stringResource(R.string.items_form_error_invalid_number)
     val errGreaterThanZero = stringResource(R.string.items_form_error_greater_than_zero)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(resultFlow) {
         resultFlow.collect { error ->
             if (error == null) onSuccess() else nameError = error
         }
