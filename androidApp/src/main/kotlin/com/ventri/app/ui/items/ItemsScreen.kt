@@ -55,10 +55,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.ventri.app.R
+import com.ventri.app.ui.util.displayName
+import kotlinx.coroutines.flow.MutableSharedFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -109,8 +115,45 @@ fun ItemsScreen(
     var topBarHeightPx by remember { mutableIntStateOf(0) }
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
+    val context = LocalContext.current
+    val errDuplicateName = stringResource(R.string.items_error_duplicate_name)
+    val errLimitReached = stringResource(R.string.items_error_limit_reached, ItemsViewModel.FREE_ITEM_LIMIT)
+    val snackAddedToShopping = stringResource(R.string.items_snackbar_added_to_shopping)
+    val snackAlreadyInShopping = stringResource(R.string.items_snackbar_already_in_shopping)
+
+    val addResultStrings = remember { MutableSharedFlow<String?>() }
+    val editResultStrings = remember { MutableSharedFlow<String?>() }
+
+    LaunchedEffect(viewModel.addItemResult) {
+        viewModel.addItemResult.collect { error ->
+            addResultStrings.emit(when (error) {
+                null -> null
+                InsertItemError.DuplicateName -> errDuplicateName
+                is InsertItemError.LimitReached -> errLimitReached
+            })
+        }
+    }
+
+    LaunchedEffect(viewModel.editItemResult) {
+        viewModel.editItemResult.collect { error ->
+            editResultStrings.emit(when (error) {
+                null -> null
+                UpdateItemError.DuplicateName -> errDuplicateName
+            })
+        }
+    }
+
     LaunchedEffect(viewModel.snackbarMessage) {
-        viewModel.snackbarMessage.collect { snackbarState.showSnackbar(it) }
+        viewModel.snackbarMessage.collect { event ->
+            val msg = when (event) {
+                ItemsSnackbarEvent.AddedToShopping -> snackAddedToShopping
+                ItemsSnackbarEvent.AlreadyInShopping -> snackAlreadyInShopping
+                is ItemsSnackbarEvent.SelectionFailed -> context.resources.getQuantityString(
+                    R.plurals.items_snackbar_selection_failed, event.count, event.count
+                )
+            }
+            snackbarState.showSnackbar(msg)
+        }
     }
 
     LaunchedEffect(viewModel.navigationEvent) {
@@ -119,8 +162,8 @@ fun ItemsScreen(
 
     if (showAddDialog) {
         ItemFormDialog(
-            title = "Add Item",
-            confirmLabel = "Add",
+            title = stringResource(R.string.items_add_title),
+            confirmLabel = stringResource(R.string.items_add_confirm),
             initialItem = null,
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
@@ -133,15 +176,15 @@ fun ItemsScreen(
                     )
                 )
             },
-            resultFlow = viewModel.addItemResult,
+            resultFlow = addResultStrings,
             onSuccess = { showAddDialog = false },
         )
     }
 
     editingItem?.let { item ->
         ItemFormDialog(
-            title = "Edit Item",
-            confirmLabel = "Save",
+            title = stringResource(R.string.items_edit_title),
+            confirmLabel = stringResource(R.string.common_save),
             initialItem = item,
             onDismiss = { editingItem = null },
             onConfirm = { name, unit, priority, rate ->
@@ -155,7 +198,7 @@ fun ItemsScreen(
                     )
                 )
             },
-            resultFlow = viewModel.editItemResult,
+            resultFlow = editResultStrings,
             onSuccess = { editingItem = null },
         )
     }
@@ -190,7 +233,7 @@ fun ItemsScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         VentriText(
-                            "No items match your filters",
+                            stringResource(R.string.items_no_match),
                             style = VentriTheme.typography.bodyMedium,
                             color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                         )
@@ -225,7 +268,7 @@ fun ItemsScreen(
                     }
                     item(key = "header") {
                         VentriText(
-                            text = "${uiState.items.size} item${if (uiState.items.size != 1) "s" else ""}",
+                            text = pluralStringResource(R.plurals.item_count, uiState.items.size, uiState.items.size),
                             style = VentriTheme.typography.bodySmall,
                             color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(
@@ -325,7 +368,7 @@ private fun ItemsTopBar(
                 VentriTextField(
                     value = uiState.searchQuery,
                     onValueChange = { onIntent(ItemsIntent.SearchQueryChanged(it)) },
-                    placeholder = "Search items…",
+                    placeholder = stringResource(R.string.items_search_placeholder),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = {}),
@@ -337,7 +380,7 @@ private fun ItemsTopBar(
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
                     VentriIcon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Close search"
+                        contentDescription = stringResource(R.string.items_close_search_cd)
                     )
                 }
             },
@@ -347,7 +390,7 @@ private fun ItemsTopBar(
         VentriTopBar(
             title = {
                 VentriText(
-                    "Add to shopping list",
+                    stringResource(R.string.items_add_to_shopping_title),
                     style = VentriTheme.typography.titleLarge
                 )
             },
@@ -355,7 +398,7 @@ private fun ItemsTopBar(
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SelectionCancelled) }) {
                     VentriIcon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Cancel selection"
+                        contentDescription = stringResource(R.string.items_cancel_selection_cd)
                     )
                 }
             },
@@ -363,7 +406,7 @@ private fun ItemsTopBar(
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
                     VentriIcon(
                         Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.items_search_cd)
                     )
                 }
             },
@@ -375,7 +418,7 @@ private fun ItemsTopBar(
         VentriTopBar(
             title = {
                 VentriText(
-                    "Items",
+                    stringResource(R.string.items_screen_title),
                     style = VentriTheme.typography.titleLarge
                 )
             },
@@ -383,24 +426,29 @@ private fun ItemsTopBar(
                 VentriIconButton(onClick = { onIntent(ItemsIntent.SearchToggled) }) {
                     VentriIcon(
                         Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.items_search_cd)
                     )
                 }
                 Box {
                     VentriIconButton(onClick = { showSortMenu = true }) {
                         VentriIcon(
                             Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = "Sort"
+                            contentDescription = stringResource(R.string.items_sort_cd)
                         )
                     }
                     VentriDropdownMenu(
                         expanded = showSortMenu,
                         onDismissRequest = { showSortMenu = false }) {
                         SortOrder.entries.forEach { order ->
+                            val label = when (order) {
+                                SortOrder.Priority -> stringResource(R.string.items_sort_priority)
+                                SortOrder.NameAsc -> stringResource(R.string.items_sort_name_asc)
+                                SortOrder.NameDesc -> stringResource(R.string.items_sort_name_desc)
+                            }
                             VentriDropdownMenuItem(
                                 text = {
                                     VentriText(
-                                        text = order.label + if (uiState.sortOrder == order) " ✓" else "",
+                                        text = label + if (uiState.sortOrder == order) " ✓" else "",
                                         color = if (uiState.sortOrder == order) VentriTheme.colors.accent
                                         else VentriTheme.colors.onSurface,
                                     )
@@ -420,7 +468,7 @@ private fun ItemsTopBar(
                     VentriIconButton(onClick = { showFilterMenu = true }) {
                         VentriIcon(
                             Icons.Default.FilterList,
-                            contentDescription = "Filter by priority"
+                            contentDescription = stringResource(R.string.items_filter_priority_cd)
                         )
                     }
                     VentriDropdownMenu(
@@ -428,7 +476,7 @@ private fun ItemsTopBar(
                         onDismissRequest = { showFilterMenu = false }) {
                         ItemPriority.entries.forEach { priority ->
                             VentriDropdownMenuItem(
-                                text = { VentriText(priority.name) },
+                                text = { VentriText(priority.displayName()) },
                                 onClick = {
                                     onIntent(
                                         ItemsIntent.PriorityFilterToggled(
@@ -474,21 +522,21 @@ private fun ItemCard(
             onDismissRequest = { showDeleteConfirm = false },
             title = {
                 VentriText(
-                    "Remove item",
+                    stringResource(R.string.items_remove_title),
                     style = VentriTheme.typography.titleSmall
                 )
             },
-            text = { VentriText("Remove \"${item.name}\" from your items list?") },
+            text = { VentriText(stringResource(R.string.items_remove_confirm, item.name)) },
             confirmButton = {
                 VentriTextButton(onClick = {
                     onIntent(ItemsIntent.RemoveItem(item.id))
                     showDeleteConfirm = false
-                }) { VentriText("Remove", color = VentriTheme.colors.critical) }
+                }) { VentriText(stringResource(R.string.common_remove), color = VentriTheme.colors.critical) }
             },
             dismissButton = {
                 VentriTextButton(onClick = { showDeleteConfirm = false }) {
                     VentriText(
-                        "Cancel",
+                        stringResource(R.string.common_cancel),
                         color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                 }
@@ -515,8 +563,10 @@ private fun ItemCard(
                 if (!selectionMode) {
                     Spacer(Modifier.height(2.dp))
                     VentriText(
-                        if (item.consumptionRate != null) "${item.unit.name} · ${item.consumptionRate}/day"
-                        else item.unit.name,
+                        if (item.consumptionRate != null)
+                            stringResource(R.string.items_unit_rate, item.unit.displayName(), item.consumptionRate.toString())
+                        else
+                            item.unit.displayName(),
                         style = VentriTheme.typography.bodySmall,
                         color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                     )
@@ -528,24 +578,24 @@ private fun ItemCard(
                     VentriIconButton(onClick = { showMenu = true }) {
                         VentriIcon(
                             Icons.Default.MoreVert,
-                            contentDescription = "More options"
+                            contentDescription = stringResource(R.string.items_more_options_cd)
                         )
                     }
                     VentriDropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }) {
                         VentriDropdownMenuItem(
-                            text = { VentriText("Edit") },
+                            text = { VentriText(stringResource(R.string.common_edit)) },
                             onClick = { onEdit(); showMenu = false },
                         )
                         VentriDropdownMenuItem(
-                            text = { VentriText("Remove") },
+                            text = { VentriText(stringResource(R.string.common_remove)) },
                             onClick = {
                                 showDeleteConfirm = true; showMenu = false
                             },
                         )
                         VentriDropdownMenuItem(
-                            text = { VentriText("Add to Shopping List") },
+                            text = { VentriText(stringResource(R.string.items_add_to_shopping_menu)) },
                             onClick = {
                                 onIntent(
                                     ItemsIntent.AddToShoppingList(
@@ -591,7 +641,7 @@ private fun SelectionActionStrip(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f)
             ) {
-                VentriText("Cancel", color = VentriTheme.colors.onSurface)
+                VentriText(stringResource(R.string.common_cancel), color = VentriTheme.colors.onSurface)
             }
             VentriButton(
                 onClick = onConfirm,
@@ -599,7 +649,7 @@ private fun SelectionActionStrip(
                 modifier = Modifier.weight(1f)
             ) {
                 VentriText(
-                    text = if (selectedCount == 1) "Add 1 item" else "Add $selectedCount items",
+                    text = pluralStringResource(R.plurals.items_add_count, selectedCount, selectedCount),
                     color = VentriTheme.colors.onAccent,
                 )
             }
@@ -620,7 +670,7 @@ private fun PriorityBadge(priority: ItemPriority) {
     }
     VentriChip(containerColor = bg, modifier = Modifier.padding(end = 4.dp)) {
         VentriText(
-            priority.name,
+            priority.displayName(),
             style = VentriTheme.typography.labelSmall,
             color = fg
         )
@@ -649,8 +699,7 @@ private fun FreePlanBanner(
             modifier = Modifier.padding(end = 10.dp, top = 1.dp),
         )
         VentriText(
-            text = "You are currently on the free plan. I can remember a maximum of seven items only. " +
-                    "Please upgrade to Premium plan to enable my unlimited memory.",
+            text = stringResource(R.string.items_free_plan_text),
             style = VentriTheme.typography.bodySmall,
             color = VentriTheme.colors.onSurface.copy(alpha = 0.65f),
             modifier = Modifier.weight(1f),
@@ -658,7 +707,7 @@ private fun FreePlanBanner(
         VentriIconButton(onClick = onDismiss) {
             VentriIcon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Dismiss",
+                contentDescription = stringResource(R.string.items_free_plan_dismiss_cd),
                 tint = VentriTheme.colors.onSurface.copy(alpha = 0.4f),
             )
         }
@@ -696,33 +745,33 @@ private fun ItemsEmptyState(
         )
         Spacer(Modifier.height(20.dp))
         VentriText(
-            text = "No items yet",
+            text = stringResource(R.string.items_empty_title),
             style = VentriTheme.typography.titleLarge,
             color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
         VentriText(
-            text = "These are the products you regularly buy. Add them here so I can track your consumption and help you build smarter shopping lists.",
+            text = stringResource(R.string.items_empty_body),
             style = VentriTheme.typography.bodyMedium,
             color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         ItemsTipCard(
             icon = Icons.Default.Speed,
-            title = "Set a consumption rate",
-            body = "Tell me how fast you use each item per day. I'll use that to predict when you'll run out and remind you to restock.",
+            title = stringResource(R.string.items_onboarding_rate_title),
+            body = stringResource(R.string.items_onboarding_rate_body),
         )
         Spacer(Modifier.height(12.dp))
         ItemsTipCard(
             icon = Icons.Default.Flag,
-            title = "Assign a priority",
-            body = "Mark items as High or Highest priority so I always know what's most critical when building your shopping list.",
+            title = stringResource(R.string.items_onboarding_priority_title),
+            body = stringResource(R.string.items_onboarding_priority_body),
         )
         Spacer(Modifier.height(12.dp))
         ItemsTipCard(
             icon = Icons.Default.AddShoppingCart,
-            title = "Add to your shopping list",
-            body = "Tap ⋮ next to any item to add it to your list, or use the \"+\" button from the Shopping screen to pick multiple at once.",
+            title = stringResource(R.string.items_onboarding_shopping_title),
+            body = stringResource(R.string.items_onboarding_shopping_body),
         )
     }
 }
@@ -793,6 +842,10 @@ private fun ItemFormDialog(
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
     var dontKnowRate by rememberSaveable { mutableStateOf(false) }
 
+    val errNameRequired = stringResource(R.string.items_form_error_name_required)
+    val errInvalidNumber = stringResource(R.string.items_form_error_invalid_number)
+    val errGreaterThanZero = stringResource(R.string.items_form_error_greater_than_zero)
+
     LaunchedEffect(Unit) {
         resultFlow.collect { error ->
             if (error == null) onSuccess() else nameError = error
@@ -802,18 +855,13 @@ private fun ItemFormDialog(
     fun validate(): Boolean {
         var valid = true
         if (name.isBlank()) {
-            nameError = "Name is required"; valid = false
+            nameError = errNameRequired; valid = false
         }
         if (!dontKnowRate && rateText.isNotBlank()) {
             val rate = rateText.toDoubleOrNull()
             when {
-                rate == null -> {
-                    rateError = "Enter a valid number"; valid = false
-                }
-
-                rate <= 0.0 -> {
-                    rateError = "Must be greater than 0"; valid = false
-                }
+                rate == null -> { rateError = errInvalidNumber; valid = false }
+                rate <= 0.0 -> { rateError = errGreaterThanZero; valid = false }
             }
         }
         return valid
@@ -832,7 +880,7 @@ private fun ItemFormDialog(
                 VentriTextField(
                     value = name,
                     onValueChange = { name = it; nameError = null },
-                    placeholder = "Name",
+                    placeholder = stringResource(R.string.items_form_name_placeholder),
                     singleLine = true,
                     isError = nameError != null,
                     supportingText = nameError,
@@ -841,13 +889,13 @@ private fun ItemFormDialog(
                 VentriExposedDropdown(
                     expanded = unitExpanded,
                     onExpandedChange = { unitExpanded = it },
-                    selectedText = selectedUnit.name,
-                    label = "Unit",
+                    selectedText = selectedUnit.displayName(),
+                    label = stringResource(R.string.items_form_unit_label),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     ItemUnit.entries.forEach { unit ->
                         VentriDropdownMenuItem(
-                            text = { VentriText(unit.name) },
+                            text = { VentriText(unit.displayName()) },
                             onClick = {
                                 selectedUnit = unit; unitExpanded = false
                             },
@@ -858,13 +906,13 @@ private fun ItemFormDialog(
                 VentriExposedDropdown(
                     expanded = priorityExpanded,
                     onExpandedChange = { priorityExpanded = it },
-                    selectedText = selectedPriority.name,
-                    label = "Priority",
+                    selectedText = selectedPriority.displayName(),
+                    label = stringResource(R.string.items_form_priority_label),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     ItemPriority.entries.forEach { priority ->
                         VentriDropdownMenuItem(
-                            text = { VentriText(priority.name) },
+                            text = { VentriText(priority.displayName()) },
                             onClick = {
                                 selectedPriority = priority; priorityExpanded =
                                 false
@@ -876,7 +924,7 @@ private fun ItemFormDialog(
                 VentriTextField(
                     value = if (dontKnowRate) "" else rateText,
                     onValueChange = { rateText = it; rateError = null },
-                    placeholder = "Consumption rate / day (optional)",
+                    placeholder = stringResource(R.string.items_form_rate_placeholder),
                     singleLine = true,
                     enabled = !dontKnowRate,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -888,12 +936,12 @@ private fun ItemFormDialog(
                 VentriCheckbox(
                     checked = dontKnowRate,
                     onCheckedChange = { dontKnowRate = it; rateError = null },
-                    label = "Don't know",
+                    label = stringResource(R.string.items_form_dont_know_rate),
                 )
 
                 if (dontKnowRate) {
                     VentriText(
-                        text = "After you add this item to the stock I will ask you regularly if it is already depleted to calculate the consumption rate.",
+                        text = stringResource(R.string.items_form_rate_hint),
                         style = VentriTheme.typography.bodySmall,
                         color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                         modifier = Modifier.padding(top = 2.dp),
@@ -915,7 +963,7 @@ private fun ItemFormDialog(
         dismissButton = {
             VentriTextButton(onClick = onDismiss) {
                 VentriText(
-                    "Cancel",
+                    stringResource(R.string.common_cancel),
                     color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)
                 )
             }

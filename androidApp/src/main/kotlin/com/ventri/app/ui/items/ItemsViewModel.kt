@@ -32,10 +32,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-enum class SortOrder(val label: String) {
-    Priority("Priority"),
-    NameAsc("Name A→Z"),
-    NameDesc("Name Z→A"),
+enum class SortOrder {
+    Priority,
+    NameAsc,
+    NameDesc,
 }
 
 data class ItemUiModel(
@@ -101,14 +101,14 @@ class ItemsViewModel(
     val showAddOnStart: Boolean = savedStateHandle.get<Boolean>("add") ?: false
     // Immutable: set once from nav arg, does not update reactively
 
-    private val _addItemResult = MutableSharedFlow<String?>()
-    val addItemResult: SharedFlow<String?> = _addItemResult.asSharedFlow()
+    private val _addItemResult = MutableSharedFlow<InsertItemError?>()
+    val addItemResult: SharedFlow<InsertItemError?> = _addItemResult.asSharedFlow()
 
-    private val _editItemResult = MutableSharedFlow<String?>()
-    val editItemResult: SharedFlow<String?> = _editItemResult.asSharedFlow()
+    private val _editItemResult = MutableSharedFlow<UpdateItemError?>()
+    val editItemResult: SharedFlow<UpdateItemError?> = _editItemResult.asSharedFlow()
 
-    private val _snackbarMessage = MutableSharedFlow<String>()
-    val snackbarMessage: SharedFlow<String> = _snackbarMessage.asSharedFlow()
+    private val _snackbarMessage = MutableSharedFlow<ItemsSnackbarEvent>()
+    val snackbarMessage: SharedFlow<ItemsSnackbarEvent> = _snackbarMessage.asSharedFlow()
 
     private val _navigationEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val navigationEvent: SharedFlow<Unit> = _navigationEvent.asSharedFlow()
@@ -212,10 +212,8 @@ class ItemsViewModel(
                             _selectedItemIds.value = _selectedItemIds.value + result.id
                         }
                     }
-                    InsertItemResult.DuplicateName ->
-                        _addItemResult.emit("An item with this name already exists")
-                    InsertItemResult.LimitReached ->
-                        _addItemResult.emit("Free plan is limited to $FREE_ITEM_LIMIT items. Register to add more.")
+                    InsertItemResult.DuplicateName -> _addItemResult.emit(InsertItemError.DuplicateName)
+                    InsertItemResult.LimitReached -> _addItemResult.emit(InsertItemError.LimitReached(FREE_ITEM_LIMIT))
                 }
             }
             is ItemsIntent.EditItem -> Unit
@@ -231,8 +229,7 @@ class ItemsViewModel(
                 }
                 when (result) {
                     UpdateItemResult.Success -> _editItemResult.emit(null)
-                    UpdateItemResult.DuplicateName ->
-                        _editItemResult.emit("An item with this name already exists")
+                    UpdateItemResult.DuplicateName -> _editItemResult.emit(UpdateItemError.DuplicateName)
                 }
             }
             is ItemsIntent.RemoveItem -> viewModelScope.launch {
@@ -240,12 +237,11 @@ class ItemsViewModel(
             }
             is ItemsIntent.AddToShoppingList -> viewModelScope.launch {
                 val result = withContext(Dispatchers.IO) { db.addToShoppingList(intent.itemId) }
-                val message = when (result) {
-                    is AddToShoppingListResult.Success -> "Added to shopping list"
-                    AddToShoppingListResult.AlreadyInList -> "Already in shopping list"
+                when (result) {
+                    is AddToShoppingListResult.Success -> _snackbarMessage.emit(ItemsSnackbarEvent.AddedToShopping)
+                    AddToShoppingListResult.AlreadyInList -> _snackbarMessage.emit(ItemsSnackbarEvent.AlreadyInShopping)
                     AddToShoppingListResult.ItemNotFound -> return@launch
                 }
-                _snackbarMessage.emit(message)
             }
             is ItemsIntent.ToggleItemSelection -> {
                 val current = _selectedItemIds.value
@@ -262,7 +258,7 @@ class ItemsViewModel(
                         db.addToShoppingList(id) == AddToShoppingListResult.ItemNotFound
                     }
                 }
-                if (notFound > 0) _snackbarMessage.emit("$notFound item(s) could not be added")
+                if (notFound > 0) _snackbarMessage.emit(ItemsSnackbarEvent.SelectionFailed(notFound))
                 _navigationEvent.tryEmit(Unit)
             }
             is ItemsIntent.SelectionCancelled -> _navigationEvent.tryEmit(Unit)
