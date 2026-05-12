@@ -78,7 +78,7 @@
     <string name="items_onboarding_priority_body">Marca artículos como prioridad Alta o Máxima para que siempre sepa qué es más crítico al crear tu lista de compras.</string>
     <string name="items_onboarding_shopping_title">Agrega a tu lista de compras</string>
     <string name="items_onboarding_shopping_body">Toca ⋮ junto a cualquier artículo para agregarlo a tu lista, o usa el botón \"+\" desde la pantalla de Compras para seleccionar varios a la vez.</string>
-    <string name="items_free_plan_text">Actualmente estás en el plan gratuito. Solo puedo recordar un máximo de siete artículos. Actualiza al plan Premium para habilitar mi memoria ilimitada.</string>
+    <string name="items_free_plan_text">Actualmente estás en el plan gratuito. Solo puedo recordar un máximo de 17 artículos. Actualiza al plan Premium para habilitar mi memoria ilimitada.</string>
     <string name="items_free_plan_dismiss_cd">Descartar</string>
     <string name="items_error_duplicate_name">Ya existe un artículo con este nombre</string>
     <string name="items_error_limit_reached">El plan gratuito está limitado a %d artículos. Regístrate para agregar más.</string>

@@ -94,7 +94,7 @@ class ItemsViewModel(
     private val prefs = (application as VentriApplication).prefs
 
     companion object {
-        const val FREE_ITEM_LIMIT = 7
+        const val FREE_ITEM_LIMIT = 17
     }
 
     val selectionMode: Boolean = savedStateHandle.get<Boolean>("selectionMode") ?: false

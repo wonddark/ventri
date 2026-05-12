@@ -78,7 +78,7 @@
     <string name="items_onboarding_priority_body">Mark items as High or Highest priority so I always know what\'s most critical when building your shopping list.</string>
     <string name="items_onboarding_shopping_title">Add to your shopping list</string>
     <string name="items_onboarding_shopping_body">Tap ⋮ next to any item to add it to your list, or use the \"+\" button from the Shopping screen to pick multiple at once.</string>
-    <string name="items_free_plan_text">You are currently on the free plan. I can remember a maximum of seven items only. Please upgrade to Premium plan to enable my unlimited memory.</string>
+    <string name="items_free_plan_text">You are currently on the free plan. I can remember a maximum of 17 items only. Please upgrade to Premium plan to enable my unlimited memory.</string>
     <string name="items_free_plan_dismiss_cd">Dismiss</string>
     <string name="items_error_duplicate_name">An item with this name already exists</string>
     <string name="items_error_limit_reached">Free plan is limited to %d items. Register to add more.</string>
