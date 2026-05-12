@@ -20,10 +20,10 @@ object NotificationHelper {
     fun createNotificationChannel(context: Context) {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Critical Stock Alerts",
+            context.getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
-            description = "Daily alerts when items are critically low on stock"
+            description = context.getString(R.string.notification_channel_description)
         }
         context.getSystemService(NotificationManager::class.java)
             .createNotificationChannel(channel)
@@ -34,11 +34,15 @@ object NotificationHelper {
         val names = items.joinToString(", ") { it.name }
 
         val contentText = if (items.size == 1) {
-            "${items[0].name} is critically low on stock"
+            context.getString(R.string.notification_stock_critical_single, items[0].name)
         } else {
-            "${items.size} items are critically low: $names"
+            context.getString(R.string.notification_stock_critical_multiple, items.size, names)
         }
-        val actionLabel = if (items.size == 1) "Add to Shopping List" else "Add All to Shopping List"
+        val actionLabel = if (items.size == 1) {
+            context.getString(R.string.notification_stock_action_single)
+        } else {
+            context.getString(R.string.notification_stock_action_multiple)
+        }
 
         // Tap on the notification body → open Overview screen
         val tapIntent = Intent(context, MainActivity::class.java).apply {
@@ -61,7 +65,7 @@ object NotificationHelper {
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Stock Alert")
+            .setContentTitle(context.getString(R.string.notification_stock_alert_title))
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             .setContentIntent(tapPendingIntent)
@@ -73,8 +77,7 @@ object NotificationHelper {
     }
 
     fun showSuccessNotification(context: Context, count: Int) {
-        val text = if (count == 1) "1 item added to your shopping list"
-                   else "$count items added to your shopping list"
+        val text = context.resources.getQuantityString(R.plurals.notification_items_added, count, count)
 
         val tapIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -87,7 +90,7 @@ object NotificationHelper {
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Shopping List Updated")
+            .setContentTitle(context.getString(R.string.notification_shopping_updated_title))
             .setContentText(text)
             .setContentIntent(tapPendingIntent)
             .setAutoCancel(true)

@@ -23,7 +23,7 @@ data class StockItemUiModel(
     val name: String,
     val unit: ItemUnit,
     val remainingQuantity: Double,
-    val daysRemainingLabel: String,
+    val daysLabel: StockDaysLabel,
     val rateKnown: Boolean,
 )
 
@@ -80,14 +80,13 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
         val purchasedAt = lastPurchasedAt ?: return null
         val qty = purchasedQuantity ?: return null
 
-        // Item is in stock but consumption rate is not yet known — show it so the user can mark it depleted
         if (consumptionRate == 0.0) {
             return StockItemUiModel(
                 id = id,
                 name = name,
                 unit = unit,
                 remainingQuantity = qty,
-                daysRemainingLabel = "Tracking usage...",
+                daysLabel = StockDaysLabel.TrackingUsage,
                 rateKnown = false,
             )
         }
@@ -101,9 +100,8 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
         val daysLeft = delta / MILLIS_PER_DAY
 
         val label = when {
-            delta < MILLIS_PER_DAY -> "Less than a day remaining"
-            daysLeft == 1L -> "1 day remaining"
-            else -> "$daysLeft days remaining"
+            delta < MILLIS_PER_DAY -> StockDaysLabel.LessThanADay
+            else -> StockDaysLabel.Days(daysLeft)
         }
 
         return StockItemUiModel(
@@ -111,7 +109,7 @@ class StockViewModel(application: Application) : AndroidViewModel(application) {
             name = name,
             unit = unit,
             remainingQuantity = remaining,
-            daysRemainingLabel = label,
+            daysLabel = label,
             rateKnown = true,
         )
     }

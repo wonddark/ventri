@@ -10,12 +10,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Ventri">
+        android:theme="@style/Theme.Ventri"
+        android:localeConfig="@xml/locales_config">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:configChanges="uiMode|keyboard|keyboardHidden|navigation"
             android:theme="@style/Theme.Ventri">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

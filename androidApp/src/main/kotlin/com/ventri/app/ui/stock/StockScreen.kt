@@ -38,19 +38,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ventri.app.R
 import com.ventri.app.ui.components.AnimatedListItem
+import com.ventri.app.ui.design.LocalNavBarHeight
 import com.ventri.app.ui.design.VentriShapes
 import com.ventri.app.ui.design.VentriTheme
-import com.ventri.app.ui.design.LocalNavBarHeight
 import com.ventri.app.ui.design.components.VentriCard
 import com.ventri.app.ui.design.components.VentriDialog
 import com.ventri.app.ui.design.components.VentriIcon
@@ -58,15 +60,15 @@ import com.ventri.app.ui.design.components.VentriProgressIndicator
 import com.ventri.app.ui.design.components.VentriText
 import com.ventri.app.ui.design.components.VentriTextButton
 import com.ventri.app.ui.design.components.VentriTopBar
+import com.ventri.app.ui.util.displayName
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 @Composable
 fun StockScreen(viewModel: StockViewModel = viewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val navBarHeight = LocalNavBarHeight.current
     val density = LocalDensity.current
-
     var topBarHeightPx by remember { mutableIntStateOf(0) }
     val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
 
@@ -76,53 +78,54 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
         if (!item.rateKnown) {
             VentriDialog(
                 onDismissRequest = { depletingItem = null },
-                title = { VentriText("Mark as depleted?", style = VentriTheme.typography.titleSmall) },
-                text = { VentriText("I'll calculate your consumption rate based on how long this lasted. This helps me predict when you'll run out next time.") },
+                title = { VentriText(stringResource(R.string.stock_mark_depleted_title), style = VentriTheme.typography.titleSmall) },
+                text = { VentriText(stringResource(R.string.stock_mark_depleted_body)) },
                 confirmButton = {
                     VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = true)
                         depletingItem = null
-                    }) { VentriText("Mark depleted", color = VentriTheme.colors.accent) }
+                    }) { VentriText(stringResource(R.string.stock_mark_depleted_confirm), color = VentriTheme.colors.accent) }
                 },
                 dismissButton = {
                     VentriTextButton(onClick = { depletingItem = null }) {
-                        VentriText("Cancel", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
+                        VentriText(stringResource(R.string.common_cancel), color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
                     }
                 },
             )
         } else {
             VentriDialog(
                 onDismissRequest = { depletingItem = null },
-                title = { VentriText("Update consumption rate?", style = VentriTheme.typography.titleSmall) },
-                text = { VentriText("Would you like me to recalculate the consumption rate based on actual usage since the last purchase?") },
+                title = { VentriText(stringResource(R.string.stock_update_rate_title), style = VentriTheme.typography.titleSmall) },
+                text = { VentriText(stringResource(R.string.stock_update_rate_body)) },
                 confirmButton = {
                     VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = true)
                         depletingItem = null
-                    }) { VentriText("Yes", color = VentriTheme.colors.accent) }
+                    }) {
+                        VentriText(stringResource(R.string.common_yes), color = VentriTheme.colors.accent)
+                    }
                 },
                 dismissButton = {
                     VentriTextButton(onClick = {
                         viewModel.markDepleted(item.id, updateRate = false)
                         depletingItem = null
-                    }) { VentriText("No", color = VentriTheme.colors.onSurface.copy(alpha = 0.6f)) }
+                    }) {
+                        VentriText(stringResource(R.string.common_no), color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
+                    }
                 },
             )
         }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(VentriTheme.colors.background)) {
-        when (val state = uiState) {
+        when (val s = state) {
             StockUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize().padding(top = topBarHeightDp),
                 contentAlignment = Alignment.Center,
             ) { VentriProgressIndicator() }
 
-            is StockUiState.Success -> if (state.items.isEmpty()) {
-                StockEmptyState(
-                    topPadding = topBarHeightDp,
-                    bottomPadding = navBarHeight + 16.dp,
-                )
+            is StockUiState.Success -> if (s.items.isEmpty()) {
+                StockEmptyState(topPadding = topBarHeightDp, bottomPadding = navBarHeight + 16.dp)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -136,104 +139,28 @@ fun StockScreen(viewModel: StockViewModel = viewModel()) {
                 ) {
                     item(key = "header") {
                         VentriText(
-                            text = "${state.items.size} item${if (state.items.size != 1) "s" else ""} in stock",
+                            text = pluralStringResource(R.plurals.stock_item_count, s.items.size, s.items.size),
                             style = VentriTheme.typography.bodySmall,
                             color = VentriTheme.colors.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                         )
                     }
-                    items(state.items, key = { it.id }) { item ->
-                        AnimatedListItem(index = state.items.indexOf(item)) {
-                            StockItemCard(item = item, onMarkDepleted = { depletingItem = item })
+                    items(s.items, key = { it.id }) { item ->
+                        AnimatedListItem(index = s.items.indexOf(item), animationKey = Unit) {
+                            StockItemCard(
+                                item = item,
+                                onMarkDepleted = { depletingItem = item },
+                            )
                         }
                     }
                 }
             }
         }
 
-        // Pinned top bar overlay
         VentriTopBar(
-            title = { VentriText("Stock", style = VentriTheme.typography.titleLarge) },
+            title = { VentriText(stringResource(R.string.stock_title), style = VentriTheme.typography.titleLarge) },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
         )
-    }
-}
-
-@Composable
-private fun StockEmptyState(topPadding: Dp, bottomPadding: Dp) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(Modifier.height(40.dp))
-        VentriIcon(
-            imageVector = Icons.Default.Inventory,
-            contentDescription = null,
-            tint = VentriTheme.colors.accent,
-            modifier = Modifier
-                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
-                .padding(20.dp),
-        )
-        Spacer(Modifier.height(20.dp))
-        VentriText(
-            text = "Nothing in stock",
-            style = VentriTheme.typography.titleLarge,
-            color = VentriTheme.colors.onBackground,
-        )
-        Spacer(Modifier.height(8.dp))
-        VentriText(
-            text = "This is where I keep track of what you currently have at home and how long it will last.",
-            style = VentriTheme.typography.bodyMedium,
-            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
-        )
-        Spacer(Modifier.height(32.dp))
-        StockTipCard(
-            icon = Icons.Default.ShoppingCartCheckout,
-            title = "Items land here after shopping",
-            body = "When you mark something as purchased in your shopping list, I'll start tracking it here automatically.",
-        )
-        Spacer(Modifier.height(12.dp))
-        StockTipCard(
-            icon = Icons.Default.Schedule,
-            title = "I track how long things last",
-            body = "Based on the quantity you bought and your consumption rate, I'll tell you exactly how many days each item will last.",
-        )
-        Spacer(Modifier.height(12.dp))
-        StockTipCard(
-            icon = Icons.Outlined.RemoveShoppingCart,
-            title = "Mark items as depleted",
-            body = "Run out of something? Tap the cart icon to remove it from stock. I'll ask if you want me to recalibrate the consumption rate based on actual usage.",
-        )
-    }
-}
-
-@Composable
-private fun StockTipCard(icon: ImageVector, title: String, body: String) {
-    VentriCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            VentriIcon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = VentriTheme.colors.accent,
-                modifier = Modifier
-                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
-                    .padding(8.dp),
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                VentriText(title, style = VentriTheme.typography.titleSmall)
-                VentriText(
-                    body,
-                    style = VentriTheme.typography.bodySmall,
-                    color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
-                )
-            }
-        }
     }
 }
 
@@ -311,16 +238,94 @@ private fun StockItemCard(item: StockItemUiModel, onMarkDepleted: () -> Unit) {
                     VentriText(item.name, style = VentriTheme.typography.titleMedium)
                     Spacer(Modifier.height(2.dp))
                     VentriText(
-                        text = item.daysRemainingLabel,
+                        text = item.daysLabel.toText(),
                         style = VentriTheme.typography.bodySmall,
                         color = colors.onSurface.copy(alpha = 0.5f),
                     )
                 }
                 VentriText(
-                    text = "${item.remainingQuantity.formatQuantity()} ${item.unit.name}",
+                    text = "${item.remainingQuantity.formatQuantity()} ${item.unit.displayName()}",
                     style = VentriTheme.typography.bodyMedium,
                     color = colors.onSurface.copy(alpha = 0.5f),
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StockDaysLabel.toText(): String = when (this) {
+    StockDaysLabel.TrackingUsage -> stringResource(R.string.stock_tracking_usage)
+    StockDaysLabel.LessThanADay -> stringResource(R.string.stock_less_than_a_day)
+    is StockDaysLabel.Days -> pluralStringResource(R.plurals.stock_days_remaining, count.toInt(), count)
+}
+
+@Composable
+private fun StockEmptyState(topPadding: Dp, bottomPadding: Dp) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = topPadding, bottom = bottomPadding, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        VentriIcon(
+            imageVector = Icons.Default.Inventory,
+            contentDescription = null,
+            tint = VentriTheme.colors.accent,
+            modifier = Modifier
+                .background(VentriTheme.colors.accentMuted, shape = VentriShapes.pill)
+                .padding(20.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        VentriText(
+            text = stringResource(R.string.stock_empty_title),
+            style = VentriTheme.typography.titleLarge,
+            color = VentriTheme.colors.onBackground,
+        )
+        Spacer(Modifier.height(8.dp))
+        VentriText(
+            text = stringResource(R.string.stock_empty_body),
+            style = VentriTheme.typography.bodyMedium,
+            color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
+        )
+        Spacer(Modifier.height(32.dp))
+        StockTipCard(
+            icon = Icons.Default.ShoppingCartCheckout,
+            title = stringResource(R.string.stock_onboarding_land_title),
+            body = stringResource(R.string.stock_onboarding_land_body),
+        )
+        Spacer(Modifier.height(12.dp))
+        StockTipCard(
+            icon = Icons.Default.Schedule,
+            title = stringResource(R.string.stock_onboarding_track_title),
+            body = stringResource(R.string.stock_onboarding_track_body),
+        )
+        Spacer(Modifier.height(12.dp))
+        StockTipCard(
+            icon = Icons.Outlined.RemoveShoppingCart,
+            title = stringResource(R.string.stock_onboarding_deplete_title),
+            body = stringResource(R.string.stock_onboarding_deplete_body),
+        )
+    }
+}
+
+@Composable
+private fun StockTipCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {
+    VentriCard(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            VentriIcon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = VentriTheme.colors.accent,
+                modifier = Modifier
+                    .background(VentriTheme.colors.accentMuted, shape = VentriShapes.small)
+                    .padding(8.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                VentriText(title, style = VentriTheme.typography.titleSmall)
+                VentriText(body, style = VentriTheme.typography.bodySmall, color = VentriTheme.colors.onSurface.copy(alpha = 0.6f))
             }
         }
     }

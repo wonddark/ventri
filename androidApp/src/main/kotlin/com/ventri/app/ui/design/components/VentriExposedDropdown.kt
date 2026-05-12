@@ -18,7 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ventri.app.R
 import com.ventri.app.ui.design.VentriShapes
 import com.ventri.app.ui.design.VentriTheme
 
@@ -63,7 +65,7 @@ fun VentriExposedDropdown(
             }
             VentriIcon(
                 imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                contentDescription = if (expanded) "Collapse" else "Expand",
+                contentDescription = if (expanded) stringResource(R.string.common_collapse_cd) else stringResource(R.string.common_expand_cd),
                 tint = colors.onSurface.copy(alpha = 0.6f),
             )
         }

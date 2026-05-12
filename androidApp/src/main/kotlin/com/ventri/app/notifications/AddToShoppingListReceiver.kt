@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.ventri.app.VentriApplication
 import com.ventri.app.MainActivity
 import com.ventri.app.Routes
+import com.ventri.app.ui.shopping.ShoppingError
 import com.ventri.shared.model.AddToShoppingListResult
 import com.ventri.shared.util.addToShoppingList
 import kotlinx.coroutines.CoroutineScope
@@ -38,16 +39,16 @@ class AddToShoppingListReceiver : BroadcastReceiver() {
 
                 NotificationHelper.showSuccessNotification(context, addedCount)
             } catch (e: Exception) {
-                handleError(context, "Could not add items to the shopping list: ${e.message}")
+                handleError(context, e.message)
             } finally {
                 pendingResult.finish()
             }
         }
     }
 
-    private fun handleError(context: Context, message: String) {
+    private fun handleError(context: Context, cause: String?) {
         val app = context.applicationContext as VentriApplication
-        app.pendingShoppingError.value = message
+        app.pendingShoppingError.value = ShoppingError.AddFailed(cause)
         app.pendingNavTarget.value = Routes.SHOPPING
         NotificationManagerCompat.from(context).cancel(NotificationHelper.NOTIFICATION_ID)
         context.startActivity(

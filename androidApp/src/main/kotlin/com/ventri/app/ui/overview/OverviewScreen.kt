@@ -68,9 +68,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ventri.app.R
 import com.ventri.app.ui.components.AnimatedListItem
 import com.ventri.app.ui.design.VentriShapes
 import com.ventri.app.ui.design.VentriTheme
@@ -105,9 +108,13 @@ fun OverviewScreen(
     val barsVisible = LocalBarsVisible.current
     val density = LocalDensity.current
 
+    val errAddToList = stringResource(R.string.overview_error_add_to_list)
     LaunchedEffect(Unit) {
-        viewModel.errors.collect { message ->
-            snackbarHostState.showSnackbar(message)
+        viewModel.errors.collect { error ->
+            val msg = when (error) {
+                OverviewError.AddToShoppingListFailed -> errAddToList
+            }
+            snackbarHostState.showSnackbar(msg)
         }
     }
 
@@ -179,7 +186,7 @@ fun OverviewScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             VentriText(
-                                text = "Overview",
+                                text = stringResource(R.string.overview_title),
                                 style = VentriTheme.typography.titleLarge.copy(
                                     fontSize = 28.sp,
                                     textAlign = TextAlign.Center,
@@ -188,7 +195,7 @@ fun OverviewScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             VentriText(
-                                text = "Here are the items that need your attention right now.",
+                                text = stringResource(R.string.overview_subtitle),
                                 style = VentriTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
                                 color = colors.onSurface.copy(alpha = 0.6f),
                                 modifier = Modifier.fillMaxWidth(fraction = 0.7f)
@@ -199,14 +206,14 @@ fun OverviewScreen(
                             ) {
                                 SummaryChip(
                                     count = state.criticalCount,
-                                    label = "Critical",
+                                    label = stringResource(R.string.overview_filter_critical),
                                     containerColor = if (criticalSelected) colors.critical else colors.criticalContainer,
                                     contentColor = if (criticalSelected) colors.onCritical else colors.onCriticalContainer,
                                     onClick = { viewModel.handleIntent(OverviewIntent.ToggleSeverityFilter(Severity.Critical)) },
                                 )
                                 SummaryChip(
                                     count = state.highCount,
-                                    label = "High",
+                                    label = stringResource(R.string.overview_filter_high),
                                     containerColor = if (highSelected) colors.warning else colors.warningContainer,
                                     contentColor = if (highSelected) colors.onWarning else colors.onWarningContainer,
                                     onClick = { viewModel.handleIntent(OverviewIntent.ToggleSeverityFilter(Severity.High)) },
@@ -217,7 +224,7 @@ fun OverviewScreen(
                                 onClick = { viewModel.addAllToShoppingList(state.items.map { it.id }) },
                                 modifier = Modifier.widthIn(min = 200.dp),
                             ) {
-                                VentriText("Add all to my refill list", color = colors.onAccent)
+                                VentriText(stringResource(R.string.overview_add_all_to_refill), color = colors.onAccent)
                             }
                         }
                     }
@@ -231,7 +238,7 @@ fun OverviewScreen(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 VentriText(
-                                    text = "No items match this filter",
+                                    text = stringResource(R.string.overview_no_items_match),
                                     style = VentriTheme.typography.bodyMedium,
                                     color = colors.onSurface.copy(alpha = 0.6f),
                                 )
@@ -263,7 +270,7 @@ fun OverviewScreen(
         VentriTopBar(
             title = {
                 VentriText(
-                    text = "Overview",
+                    text = stringResource(R.string.overview_title),
                     style = VentriTheme.typography.titleMedium,
                     modifier = Modifier.alpha(1f - headerAlpha),
                 )
@@ -272,13 +279,13 @@ fun OverviewScreen(
                 VentriIconButton(onClick = onOpenSettings) {
                     VentriIcon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
+                        contentDescription = stringResource(R.string.overview_settings_cd),
                     )
                 }
                 VentriIconButton(onClick = { viewModel.refresh() }) {
                     VentriIcon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Refresh",
+                        contentDescription = stringResource(R.string.overview_refresh_cd),
                     )
                 }
             },
@@ -342,34 +349,34 @@ private fun OverviewGetStartedState(
         )
         Spacer(Modifier.height(20.dp))
         VentriText(
-            text = "Let's get started",
+            text = stringResource(R.string.overview_onboarding_title),
             style = VentriTheme.typography.titleLarge,
             color = VentriTheme.colors.onBackground,
         )
         Spacer(Modifier.height(8.dp))
         VentriText(
-            text = "This is your command centre. I watch everything you have at home and alert you the moment something is about to run out.",
+            text = stringResource(R.string.overview_onboarding_subtitle),
             style = VentriTheme.typography.bodyMedium,
             color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
         )
         Spacer(Modifier.height(32.dp))
         OverviewTipCard(
             icon = Icons.Default.Inventory,
-            title = "I track what you have",
-            body = "Once you add items and log your stock, I'll calculate how quickly you're using them and predict when you'll run out.",
+            title = stringResource(R.string.overview_onboarding_track_title),
+            body = stringResource(R.string.overview_onboarding_track_body),
         )
         Spacer(Modifier.height(12.dp))
         OverviewTipCard(
             icon = Icons.Default.AddShoppingCart,
-            title = "I tell you what needs attention",
-            body = "I only surface items that are running low or out of stock — nothing else. One tap and they're added to your refill list.",
+            title = stringResource(R.string.overview_onboarding_alert_title),
+            body = stringResource(R.string.overview_onboarding_alert_body),
         )
         Spacer(Modifier.height(32.dp))
         VentriButton(
             onClick = onAddItem,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            VentriText("Add my first item", color = VentriTheme.colors.onAccent)
+            VentriText(stringResource(R.string.overview_onboarding_cta), color = VentriTheme.colors.onAccent)
         }
     }
 }
@@ -393,13 +400,13 @@ private fun OverviewAllGoodState(topPadding: Dp, bottomPadding: Dp) {
             )
             Spacer(Modifier.height(20.dp))
             VentriText(
-                text = "You're all stocked up",
+                text = stringResource(R.string.overview_all_good_title),
                 style = VentriTheme.typography.titleLarge,
                 color = VentriTheme.colors.onBackground,
             )
             Spacer(Modifier.height(8.dp))
             VentriText(
-                text = "Nothing needs your attention right now. I'll let you know as soon as something starts running low.",
+                text = stringResource(R.string.overview_all_good_body),
                 style = VentriTheme.typography.bodyMedium,
                 color = VentriTheme.colors.onSurface.copy(alpha = 0.6f),
             )
@@ -610,7 +617,7 @@ private fun OverviewItemCard(
                             style = VentriTheme.typography.titleMedium,
                         )
                         VentriText(
-                            text = item.deltaMillis?.toDaysText() ?: "Not in stock",
+                            text = item.deltaMillis?.toDaysText() ?: stringResource(R.string.overview_not_in_stock),
                             style = VentriTheme.typography.bodySmall,
                             color = colors.onSurface.copy(alpha = 0.6f),
                         )
@@ -643,7 +650,7 @@ private fun InListBadge() {
                 tint = colors.accent,
             )
             VentriText(
-                text = "In list",
+                text = stringResource(R.string.overview_in_list),
                 style = VentriTheme.typography.labelSmall,
                 color = colors.accent,
             )
@@ -672,13 +679,13 @@ private fun DaysBadge(deltaMillis: Long?, color: Color) {
     }
 }
 
+@Composable
 private fun Long.toDaysText(): String {
     val days = abs(this / MILLIS_PER_DAY)
     return when {
-        this <= 0 && days == 0L -> "Depleting today"
-        this <= 0 -> "$days day(s) overdue"
-        this < MILLIS_PER_DAY -> "Less than a day remaining"
-        days == 1L -> "1 day remaining"
-        else -> "$days days remaining"
+        this <= 0 && days == 0L -> stringResource(R.string.overview_depleting_today)
+        this <= 0 -> pluralStringResource(R.plurals.overview_days_overdue, days.toInt(), days)
+        this < MILLIS_PER_DAY -> stringResource(R.string.overview_less_than_a_day)
+        else -> pluralStringResource(R.plurals.overview_days_remaining, days.toInt(), days)
     }
 }

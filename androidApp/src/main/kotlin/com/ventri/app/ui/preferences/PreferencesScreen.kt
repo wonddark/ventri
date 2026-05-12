@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,9 +33,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ventri.app.R
 import com.ventri.app.preferences.NotificationFrequency
 import com.ventri.app.preferences.ThemeMode
 import com.ventri.app.ui.design.VentriShapes
@@ -67,10 +70,45 @@ fun PreferencesScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
+            // ── Language ────────────────────────────────────────────────────
+            SectionHeader(stringResource(R.string.prefs_section_language))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, colors.outline, VentriShapes.pill)
+                    .clip(VentriShapes.pill),
+            ) {
+                LanguageOption(
+                    label = stringResource(R.string.prefs_language_system),
+                    selected = uiState.languageTag == null,
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage(null) },
+                )
+                LanguageOption(
+                    label = "English",
+                    selected = uiState.languageTag == "en",
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage("en") },
+                )
+                LanguageOption(
+                    label = "Español",
+                    selected = uiState.languageTag == "es",
+                    colors = colors,
+                    typography = typography,
+                    onClick = { viewModel.setLanguage("es") },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
             // ── Appearance ──────────────────────────────────────────────────
-            SectionHeader("Appearance")
+            SectionHeader(stringResource(R.string.prefs_section_appearance))
             VentriText(
-                text = "Theme",
+                text = stringResource(R.string.prefs_theme_label),
                 style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
@@ -100,9 +138,9 @@ fun PreferencesScreen(
                     ) {
                         VentriText(
                             text = when (mode) {
-                                ThemeMode.Light -> "Light"
-                                ThemeMode.Dark -> "Dark"
-                                ThemeMode.System -> "System"
+                                ThemeMode.Light -> stringResource(R.string.prefs_theme_light)
+                                ThemeMode.Dark -> stringResource(R.string.prefs_theme_dark)
+                                ThemeMode.System -> stringResource(R.string.prefs_theme_system)
                             },
                             style = typography.labelMedium,
                             color = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.6f),
@@ -116,9 +154,9 @@ fun PreferencesScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ── Notifications ───────────────────────────────────────────────
-            SectionHeader("Notifications")
+            SectionHeader(stringResource(R.string.prefs_section_notifications))
             VentriText(
-                text = "Depletion check frequency",
+                text = stringResource(R.string.prefs_notification_frequency_label),
                 style = typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp),
             )
@@ -154,8 +192,8 @@ fun PreferencesScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     VentriText(
                         text = when (freq) {
-                            NotificationFrequency.OncePerDay -> "Once per day (24 h)"
-                            NotificationFrequency.TwicePerDay -> "Twice per day (12 h)"
+                            NotificationFrequency.OncePerDay -> stringResource(R.string.prefs_frequency_once_per_day)
+                            NotificationFrequency.TwicePerDay -> stringResource(R.string.prefs_frequency_twice_per_day)
                         },
                         style = typography.bodyMedium,
                     )
@@ -167,9 +205,9 @@ fun PreferencesScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ── Depletion Thresholds ────────────────────────────────────────
-            SectionHeader("Depletion Thresholds")
+            SectionHeader(stringResource(R.string.prefs_section_thresholds))
             VentriText(
-                text = "Items are flagged when their estimated days remaining fall at or below each threshold.",
+                text = stringResource(R.string.prefs_thresholds_desc),
                 style = typography.bodySmall,
                 color = colors.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier.padding(bottom = 12.dp),
@@ -177,7 +215,7 @@ fun PreferencesScreen(
 
             val t = uiState.thresholds
             ThresholdRow(
-                label = "Critical",
+                label = stringResource(R.string.prefs_threshold_critical),
                 dotColor = colors.critical,
                 days = t.criticalDays,
                 onDecrement = { viewModel.decrementCritical() },
@@ -186,7 +224,7 @@ fun PreferencesScreen(
                 incrementEnabled = t.criticalDays + 1 < t.highDays,
             )
             ThresholdRow(
-                label = "High",
+                label = stringResource(R.string.prefs_threshold_high),
                 dotColor = colors.warning,
                 days = t.highDays,
                 onDecrement = { viewModel.decrementHigh() },
@@ -195,7 +233,7 @@ fun PreferencesScreen(
                 incrementEnabled = t.highDays + 1 < t.normalDays,
             )
             ThresholdRow(
-                label = "Normal",
+                label = stringResource(R.string.prefs_threshold_normal),
                 dotColor = colors.ok,
                 days = t.normalDays,
                 onDecrement = { viewModel.decrementNormal() },
@@ -204,7 +242,7 @@ fun PreferencesScreen(
                 incrementEnabled = true,
             )
             ThresholdRow(
-                label = "Low",
+                label = stringResource(R.string.prefs_threshold_low),
                 dotColor = colors.onSurface.copy(alpha = 0.4f),
                 days = t.normalDays + 1,
                 onDecrement = {},
@@ -218,16 +256,45 @@ fun PreferencesScreen(
 
         // Pinned top bar overlay
         VentriTopBar(
-            title = { VentriText("Preferences", style = typography.titleMedium) },
+            title = { VentriText(stringResource(R.string.prefs_title), style = typography.titleMedium) },
             navigationIcon = {
                 VentriIconButton(onClick = onNavigateUp) {
                     VentriIcon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.prefs_back_cd),
                     )
                 }
             },
             modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
+        )
+    }
+}
+
+@Composable
+private fun RowScope.LanguageOption(
+    label: String,
+    selected: Boolean,
+    colors: com.ventri.app.ui.design.VentriColors,
+    typography: com.ventri.app.ui.design.VentriTypography,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .background(color = if (selected) colors.accentMuted else Color.Transparent)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = onClick,
+            )
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        VentriText(
+            text = label,
+            style = typography.labelMedium,
+            color = if (selected) colors.accent else colors.onSurface.copy(alpha = 0.6f),
         )
     }
 }

@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.workmanager)
     implementation(libs.datastore.preferences)
+    implementation(libs.appcompat)
 
     debugImplementation(libs.compose.ui.tooling)
 }

@@ -59,8 +59,8 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val db = (application as VentriApplication).database
     private val prefs = (application as VentriApplication).prefs
 
-    private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val errors: SharedFlow<String> = _errors.asSharedFlow()
+    private val _errors = MutableSharedFlow<OverviewError>(extraBufferCapacity = 1)
+    val errors: SharedFlow<OverviewError> = _errors.asSharedFlow()
 
     private val clockSignal = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
     private val refreshVersion = MutableStateFlow(0)
@@ -124,7 +124,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val anySuccess = results.any { it is AddToShoppingListResult.Success }
             val anyError = results.any { it is AddToShoppingListResult.ItemNotFound }
             if (!anySuccess && anyError) {
-                _errors.emit("Could not add items to the shopping list")
+                _errors.emit(OverviewError.AddToShoppingListFailed)
             }
         }
     }
