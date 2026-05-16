@@ -104,7 +104,7 @@ fun ItemsScreen(
     viewModel: ItemsViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showTemplatePicker by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
+    var showTemplatePicker by rememberSaveable { mutableStateOf(viewModel.showAddOnStart && !viewModel.selectionMode) }
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var addFormPrefill by remember { mutableStateOf(ItemFormPrefill()) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }

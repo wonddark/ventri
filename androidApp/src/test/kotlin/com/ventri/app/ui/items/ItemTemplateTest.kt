@@ -17,7 +17,8 @@ class ItemTemplateTest {
                 assertEquals(
                     "Template '${template.name}' has PIECE unit but consumptionRate != 1.0",
                     1.0,
-                    template.consumptionRate,
+                    template.consumptionRate!!,
+                    0.0,
                 )
             }
     }
