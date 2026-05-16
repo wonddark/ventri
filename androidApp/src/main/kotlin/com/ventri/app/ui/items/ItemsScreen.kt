@@ -104,7 +104,9 @@ fun ItemsScreen(
     viewModel: ItemsViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showAddDialog by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
+    var showTemplatePicker by rememberSaveable { mutableStateOf(viewModel.showAddOnStart) }
+    var showAddDialog by rememberSaveable { mutableStateOf(false) }
+    var addFormPrefill by remember { mutableStateOf(ItemFormPrefill()) }
     var editingItem by remember { mutableStateOf<ItemUiModel?>(null) }
     var freePlanBannerDismissed by rememberSaveable { mutableStateOf(false) }
     val snackbarState = rememberVentriSnackbarHostState()
@@ -164,7 +166,7 @@ fun ItemsScreen(
         ItemFormDialog(
             title = stringResource(R.string.items_add_title),
             confirmLabel = stringResource(R.string.items_add_confirm),
-            prefill = ItemFormPrefill(),
+            prefill = addFormPrefill,
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
                 viewModel.handleIntent(
@@ -320,7 +322,7 @@ fun ItemsScreen(
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = navBarHeight + 16.dp),
             ) {
-                VentriFab(onClick = { showAddDialog = true }) {
+                VentriFab(onClick = { showTemplatePicker = true }) {
                     VentriIcon(
                         Icons.Default.Add,
                         contentDescription = null,
@@ -356,6 +358,22 @@ fun ItemsScreen(
         ) {
             VentriSnackbarHost(snackbarState)
         }
+    }
+
+    if (showTemplatePicker) {
+        ItemTemplatePickerScreen(
+            onTemplateSelected = { template ->
+                addFormPrefill = template.toPrefill()
+                showTemplatePicker = false
+                showAddDialog = true
+            },
+            onStartFromScratch = {
+                addFormPrefill = ItemFormPrefill()
+                showTemplatePicker = false
+                showAddDialog = true
+            },
+            onDismiss = { showTemplatePicker = false },
+        )
     }
 }
 
