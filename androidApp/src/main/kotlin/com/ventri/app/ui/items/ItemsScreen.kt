@@ -164,7 +164,7 @@ fun ItemsScreen(
         ItemFormDialog(
             title = stringResource(R.string.items_add_title),
             confirmLabel = stringResource(R.string.items_add_confirm),
-            initialItem = null,
+            prefill = ItemFormPrefill(),
             onDismiss = { showAddDialog = false },
             onConfirm = { name, unit, priority, rate ->
                 viewModel.handleIntent(
@@ -185,7 +185,12 @@ fun ItemsScreen(
         ItemFormDialog(
             title = stringResource(R.string.items_edit_title),
             confirmLabel = stringResource(R.string.common_save),
-            initialItem = item,
+            prefill = ItemFormPrefill(
+                name = item.name,
+                unit = item.unit,
+                priority = item.priority,
+                consumptionRate = item.consumptionRate,
+            ),
             onDismiss = { editingItem = null },
             onConfirm = { name, unit, priority, rate ->
                 viewModel.handleIntent(
@@ -814,31 +819,19 @@ private fun ItemsTipCard(
 private fun ItemFormDialog(
     title: String,
     confirmLabel: String,
-    initialItem: ItemUiModel?,
+    prefill: ItemFormPrefill,
     onDismiss: () -> Unit,
     onConfirm: (name: String, unit: ItemUnit, priority: ItemPriority, rate: Double?) -> Unit,
     resultFlow: kotlinx.coroutines.flow.SharedFlow<String?>,
     onSuccess: () -> Unit,
 ) {
-    var name by rememberSaveable { mutableStateOf(initialItem?.name ?: "") }
+    var name by rememberSaveable { mutableStateOf(prefill.name) }
     var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedUnit by rememberSaveable {
-        mutableStateOf(
-            initialItem?.unit ?: ItemUnit.PIECE
-        )
-    }
+    var selectedUnit by rememberSaveable { mutableStateOf(prefill.unit) }
     var unitExpanded by remember { mutableStateOf(false) }
-    var selectedPriority by rememberSaveable {
-        mutableStateOf(
-            initialItem?.priority ?: ItemPriority.Normal
-        )
-    }
+    var selectedPriority by rememberSaveable { mutableStateOf(prefill.priority) }
     var priorityExpanded by remember { mutableStateOf(false) }
-    var rateText by rememberSaveable {
-        mutableStateOf(
-            initialItem?.consumptionRate?.toString() ?: ""
-        )
-    }
+    var rateText by rememberSaveable { mutableStateOf(prefill.consumptionRate?.toString() ?: "") }
     var rateError by rememberSaveable { mutableStateOf<String?>(null) }
     var dontKnowRate by rememberSaveable { mutableStateOf(false) }
 
