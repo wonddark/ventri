@@ -46,6 +46,13 @@ data class ItemUiModel(
     val priority: ItemPriority,
 )
 
+data class ItemFormPrefill(
+    val name: String = "",
+    val unit: ItemUnit = ItemUnit.PIECE,
+    val priority: ItemPriority = ItemPriority.Normal,
+    val consumptionRate: Double? = null,
+)
+
 data class ItemsUiState(
     val isLoading: Boolean = true,
     val items: List<ItemUiModel> = emptyList(),
