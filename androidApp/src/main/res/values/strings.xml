@@ -213,4 +213,18 @@
         <item quantity="one">%d item added to your shopping list</item>
         <item quantity="other">%d items added to your shopping list</item>
     </plurals>
+
+    <!-- Template picker -->
+    <string name="items_template_picker_search_placeholder">Search templates…</string>
+    <string name="items_template_start_from_scratch">Start from scratch</string>
+    <string name="items_template_start_from_scratch_subtitle">Fill in all details manually</string>
+    <string name="items_template_no_results">No templates found</string>
+    <string name="items_template_back_cd">Back</string>
+    <string name="items_template_category_food_pantry">Food &amp; Pantry</string>
+    <string name="items_template_category_dairy">Dairy</string>
+    <string name="items_template_category_beverages">Beverages</string>
+    <string name="items_template_category_fruits_vegetables">Fruits &amp; Vegetables</string>
+    <string name="items_template_category_meat_fish">Meat &amp; Fish</string>
+    <string name="items_template_category_cleaning">Cleaning</string>
+    <string name="items_template_category_personal_care">Personal Care</string>
 </resources>
