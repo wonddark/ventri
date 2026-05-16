@@ -17,7 +17,7 @@ data class ItemTemplateCategory(
     val templates: List<ItemTemplate>,
 )
 
-fun ItemTemplate.toPrefill() = ItemFormPrefill(
+fun ItemTemplate.toPrefill(): ItemFormPrefill = ItemFormPrefill(
     name = name,
     unit = unit,
     priority = priority,

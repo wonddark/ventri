@@ -65,6 +65,6 @@ class ItemTemplateTest {
             consumptionRate = 1.0,
         )
         val prefill = template.toPrefill()
-        assertEquals(1.0, prefill.consumptionRate)
+        assertEquals(1.0, prefill.consumptionRate!!, 0.0)
     }
 }
